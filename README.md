@@ -39,7 +39,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [hello](examples/hello/) | A minimal Pascal `library` exporting `add` and `wasm_init` to the JavaScript host while also writing to standard output. |
 | [hello_write](examples/hello_write/) | Demonstrates `write`/`writeln` output for strings, integers, floats, and newline control through the WebAssembly host. |
 | [looped_fibonacci](examples/looped_fibonacci/) | Computes and formats Fibonacci numbers iteratively on an extended 80x50 text-mode screen. |
-| [math](math/) | Exercises the built-in math functions (`Sin`, `Cos`, `ArcTan`, `Ln`, `Exp`, `Sqrt`, `Round`, `Trunc`, `Abs`) on WebAssembly. |
+| [math](examples/math/) | Exercises the built-in math functions (`Sin`, `Cos`, `ArcTan`, `Ln`, `Exp`, `Sqrt`, `Round`, `Trunc`, `Abs`) on WebAssembly. |
 | [multidim](multidim/) | Demonstrates multi-dimensional arrays, including enum-indexed matrices, 3D cubes, nested traversal, and memory layout. |
 | [objects_demo](objects_demo/) | Demonstrates Turbo Pascal 7 `object` types with constructors, virtual methods, inheritance via `inherited`, and stack plus heap semantics. |
 | [ordinals](ordinals/) | Exercises the ordinal built-ins `Ord`, `Chr`, `Pred`, `Succ`, `Odd`, and `Halt` for characters and enums. |
