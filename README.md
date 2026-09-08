@@ -63,4 +63,4 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [variants](examples/variants/) | Demonstrates variant records (`case tag of`) as memory-efficient tagged unions, such as shape definitions. |
 | [wasmtools](examples/wasmtools/) | A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
 | [with_demo](examples/with_demo/) | Demonstrates the `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
-| [xonix](xonix/) | A faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
+| [xonix](examples/xonix/) | A faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
