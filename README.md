@@ -24,6 +24,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Program structure](docs/reference/02-program-structure.md) | Program, library, and unit headers, uses clauses, exports, and external imports. |
 | [Types](docs/reference/03-types.md) | Integer, float, boolean, char, pointer, record, array, string, set, object, and class types. |
 | [Objects & classes](docs/reference/04-objects-classes.md) | TP7 objects and Delphi-style classes: inheritance, virtual dispatch, constructors. |
+| [Declarations](docs/reference/05-declarations.md) | Constants, variables, types, procedures, and functions. |
 
 ## Examples
 
