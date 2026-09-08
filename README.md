@@ -52,6 +52,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [with and set of](docs/tutorial/11-with-and-set-of.md) | Simplifying record access and working with sets. |
 | [Units and multi-file projects](docs/tutorial/12-units-and-multi-file-projects.md) | Splitting programs across files with units. |
 | [Host ABIs and the console](docs/tutorial/13-host-abis-and-the-console.md) | How programs reach the browser: console, canvas, and events. |
+| [Objects & classes](docs/tutorial/14-objects-classes.md) | Object-oriented Pascal: objects, classes, and inheritance. |
 
 ## Examples
 
