@@ -51,6 +51,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Records, arrays, and pointers](docs/tutorial/10-records-arrays-and-pointers.md) | Grouping data with records, arrays, and pointers. |
 | [with and set of](docs/tutorial/11-with-and-set-of.md) | Simplifying record access and working with sets. |
 | [Units and multi-file projects](docs/tutorial/12-units-and-multi-file-projects.md) | Splitting programs across files with units. |
+| [Host ABIs and the console](docs/tutorial/13-host-abis-and-the-console.md) | How programs reach the browser: console, canvas, and events. |
 
 ## Examples
 
