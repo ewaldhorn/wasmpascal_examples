@@ -45,6 +45,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Variables and constants](docs/tutorial/04-variables-and-constants.md) | Declaring and using variables and constants. |
 | [Numbers: integer math](docs/tutorial/05-numbers-integer-math.md) | Integer arithmetic, div, mod, and precedence. |
 | [Floats](docs/tutorial/06-floats.md) | Real numbers, float math, and conversions. |
+| [Console I/O: write, readln](docs/tutorial/07-console-i-o-write-readln.md) | Printing output and reading input with readln. |
 
 ## Examples
 
