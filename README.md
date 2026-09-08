@@ -25,6 +25,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Types](docs/reference/03-types.md) | Integer, float, boolean, char, pointer, record, array, string, set, object, and class types. |
 | [Objects & classes](docs/reference/04-objects-classes.md) | TP7 objects and Delphi-style classes: inheritance, virtual dispatch, constructors. |
 | [Declarations](docs/reference/05-declarations.md) | Constants, variables, types, procedures, and functions. |
+| [Control flow](docs/reference/06-control-flow.md) | if, case, for, while, repeat, break, continue, exit, and with. |
 
 ## Examples
 
