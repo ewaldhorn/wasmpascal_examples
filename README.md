@@ -31,6 +31,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Console I/O](docs/reference/09-console-i-o.md) | write/writeln, read/readln, field widths, and console input semantics. |
 | [Colours (TextColor / TextBackground)](docs/reference/10-colours-textcolor-textbackground.md) | TextColor/TextBackground palette and RGB variants for colored console output. |
 | [Directives](docs/reference/11-directives.md) | Compiler directives: mode, defines, conditionals, memory limits, screen size. |
+| [Host ABIs (wasmpascal-specific)](docs/reference/12-host-abis-wasmpascal-specific.md) | How compiled programs talk to the browser: pascaldom, batchiness, canvas, console ABIs. |
 
 ## Examples
 
