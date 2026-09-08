@@ -41,7 +41,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [looped_fibonacci](examples/looped_fibonacci/) | Computes and formats Fibonacci numbers iteratively on an extended 80x50 text-mode screen. |
 | [math](examples/math/) | Exercises the built-in math functions (`Sin`, `Cos`, `ArcTan`, `Ln`, `Exp`, `Sqrt`, `Round`, `Trunc`, `Abs`) on WebAssembly. |
 | [multidim](examples/multidim/) | Demonstrates multi-dimensional arrays, including enum-indexed matrices, 3D cubes, nested traversal, and memory layout. |
-| [objects_demo](objects_demo/) | Demonstrates Turbo Pascal 7 `object` types with constructors, virtual methods, inheritance via `inherited`, and stack plus heap semantics. |
+| [objects_demo](examples/objects_demo/) | Demonstrates Turbo Pascal 7 `object` types with constructors, virtual methods, inheritance via `inherited`, and stack plus heap semantics. |
 | [ordinals](ordinals/) | Exercises the ordinal built-ins `Ord`, `Chr`, `Pred`, `Succ`, `Odd`, and `Halt` for characters and enums. |
 | [pascaldom_probe](pascaldom_probe/) | A minimal diagnostic for the `pascaldom` DOM layer that acquires a canvas, paints it, and exports `pascaldom_main`. |
 | [pascaloids](pascaloids/) | A full Asteroids-style shooter with inertial ship physics, fracturing asteroids, batched Canvas2D rendering, and synthesized audio. |
