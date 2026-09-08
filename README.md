@@ -35,6 +35,12 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Editor shortcuts & toolbar](docs/reference/13-editor-shortcuts-toolbar.md) | Keyboard shortcuts and toolbar actions in the web IDE. |
 | [Acknowledgements & Credits](docs/reference/14-acknowledgements-credits.md) | Third-party components and credits. |
 
+### Learn Pascal tutorial
+
+| Lesson | Description |
+|---|---|
+| [Start here](docs/tutorial/01-start-here.md) | What WasmPascal is and how to run your first program. |
+
 ## Examples
 
 | Example | Description |
