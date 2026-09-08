@@ -37,7 +37,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [guess](examples/guess/) | The classic number-guessing game using `readln`/`writeln` and a repeat-until loop, giving the player 7 tries to find the secret number. |
 | [heap_demo](examples/heap_demo/) | Shows heap growth inside a constrained `{$M 64K}` limit by allocating 10 blocks step by step, then freeing them all. |
 | [hello](examples/hello/) | A minimal Pascal `library` exporting `add` and `wasm_init` to the JavaScript host while also writing to standard output. |
-| [hello_write](hello_write/) | Demonstrates `write`/`writeln` output for strings, integers, floats, and newline control through the WebAssembly host. |
+| [hello_write](examples/hello_write/) | Demonstrates `write`/`writeln` output for strings, integers, floats, and newline control through the WebAssembly host. |
 | [looped_fibonacci](looped_fibonacci/) | Computes and formats Fibonacci numbers iteratively on an extended 80x50 text-mode screen. |
 | [math](math/) | Exercises the built-in math functions (`Sin`, `Cos`, `ArcTan`, `Ln`, `Exp`, `Sqrt`, `Round`, `Trunc`, `Abs`) on WebAssembly. |
 | [multidim](multidim/) | Demonstrates multi-dimensional arrays, including enum-indexed matrices, 3D cubes, nested traversal, and memory layout. |
