@@ -44,6 +44,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Values and types](docs/tutorial/03-values-and-types.md) | Integers, floats, booleans, and characters. |
 | [Variables and constants](docs/tutorial/04-variables-and-constants.md) | Declaring and using variables and constants. |
 | [Numbers: integer math](docs/tutorial/05-numbers-integer-math.md) | Integer arithmetic, div, mod, and precedence. |
+| [Floats](docs/tutorial/06-floats.md) | Real numbers, float math, and conversions. |
 
 ## Examples
 
