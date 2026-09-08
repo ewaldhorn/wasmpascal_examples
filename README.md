@@ -18,7 +18,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 |---|---|
 | [alloc](examples/alloc/) | Demonstrates heap allocation with `New`/`Dispose` and `GetMem`/`FreeMem` by building, traversing, and freeing a singly linked list of records. |
 | [basic_canvas](examples/basic_canvas/) | Draws 2D graphics primitives like circles, lines, and animated scanlines directly on an HTML Canvas without JavaScript glue code. |
-| [breakout](breakout/) | A full Breakout arcade game rendered in 80x25 text mode using the `Crt` unit, with paddle physics, score, lives, and win/loss states. |
+| [breakout](examples/breakout/) | A full Breakout arcade game rendered in 80x25 text mode using the `Crt` unit, with paddle physics, score, lives, and win/loss states. |
 | [breakout_graphics](breakout_graphics/) | The HTML5 Canvas version of Breakout with 60 fps batched rendering, synthesized Web Audio effects, and smooth ball and paddle physics. |
 | [case_ranges_demo](case_ranges_demo/) | Shows range expressions (`lo..hi`) in `case` statements, compiling dense spans to `br_table` jump tables and sparse spans to branches. |
 | [classes_demo](classes_demo/) | Demonstrates Delphi-style classes with fields, methods, `Create` constructors, single inheritance, overrides, and heap lifetime management. |
