@@ -43,6 +43,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Program structure](docs/tutorial/02-program-structure.md) | Headers, blocks, and your first writeln program. |
 | [Values and types](docs/tutorial/03-values-and-types.md) | Integers, floats, booleans, and characters. |
 | [Variables and constants](docs/tutorial/04-variables-and-constants.md) | Declaring and using variables and constants. |
+| [Numbers: integer math](docs/tutorial/05-numbers-integer-math.md) | Integer arithmetic, div, mod, and precedence. |
 
 ## Examples
 
