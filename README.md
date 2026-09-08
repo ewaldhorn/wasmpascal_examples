@@ -28,6 +28,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Control flow](docs/reference/06-control-flow.md) | if, case, for, while, repeat, break, continue, exit, and with. |
 | [Operators & precedence](docs/reference/07-operators-precedence.md) | Arithmetic, logical, bitwise, comparison, and set operators with precedence. |
 | [Builtins](docs/reference/08-builtins.md) | Compiler builtins: Inc/Dec, math, strings, memory, Delay, GotoXY, Random, and more. |
+| [Console I/O](docs/reference/09-console-i-o.md) | write/writeln, read/readln, field widths, and console input semantics. |
 
 ## Examples
 
