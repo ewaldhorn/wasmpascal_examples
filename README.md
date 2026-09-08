@@ -21,6 +21,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | Doc | Description |
 |---|---|
 | [Projects & files](docs/reference/01-projects-files.md) | How projects, files, the root unit, and the Files menu work in the IDE. |
+| [Program structure](docs/reference/02-program-structure.md) | Program, library, and unit headers, uses clauses, exports, and external imports. |
 
 ## Examples
 
