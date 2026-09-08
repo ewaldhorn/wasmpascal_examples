@@ -32,7 +32,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [fibonacci](examples/fibonacci/) | A classic recursion and iteration benchmark that also highlights Delphi-style inline ternary expressions. |
 | [flightleader](examples/flightleader/) | A sophisticated 3D wireframe flight combat game built from modular units for vector math, batched rendering, particles, and flight physics. |
 | [floaty_car](examples/floaty_car/) | A top-down arcade racing game with a scrolling road grid, keyboard and touch steering, boost mechanics, and synthesized engine sounds. |
-| [gotoxy](gotoxy/) | Demonstrates cursor positioning with `GotoXY` and screen clearing with `ClrScr` to draw borders and banners on the 80x25 terminal grid. |
+| [gotoxy](examples/gotoxy/) | Demonstrates cursor positioning with `GotoXY` and screen clearing with `ClrScr` to draw borders and banners on the 80x25 terminal grid. |
 | [growable](growable/) | Demonstrates a swap-remove particle pool where mouse-held spawns drift upward and fade, with constant-time removal and no heap churn. |
 | [guess](guess/) | The classic number-guessing game using `readln`/`writeln` and a repeat-until loop, giving the player 7 tries to find the secret number. |
 | [heap_demo](heap_demo/) | Shows heap growth inside a constrained `{$M 64K}` limit by allocating 10 blocks step by step, then freeing them all. |
