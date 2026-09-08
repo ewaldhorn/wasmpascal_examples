@@ -40,6 +40,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | Lesson | Description |
 |---|---|
 | [Start here](docs/tutorial/01-start-here.md) | What WasmPascal is and how to run your first program. |
+| [Program structure](docs/tutorial/02-program-structure.md) | Headers, blocks, and your first writeln program. |
 
 ## Examples
 
