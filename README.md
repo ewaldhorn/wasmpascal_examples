@@ -55,7 +55,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [sparks](examples/sparks/) | An interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
 | [strings](examples/strings/) | Demonstrates string concatenation, `Length`, `Copy`, `Pos`, `Str`/`Val` conversions, and fixed-length `String[n]` buffers. |
 | [sweep](examples/sweep/) | A complete multi-unit Minesweeper engine and UI with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
-| [ternary](ternary/) | Demonstrates Delphi-style inline ternary expressions (`if cond then a else b`) in assignments and arguments, with type promotion. |
+| [ternary](examples/ternary/) | Demonstrates Delphi-style inline ternary expressions (`if cond then a else b`) in assignments and arguments, with type promotion. |
 | [transforms](transforms/) | Showcases the Canvas 2D transform stack (`save`, `restore`, `translate`, `rotate`, `scale`) with gears, orbits, and pulsating waves. |
 | [typed_const_demo](typed_const_demo/) | Demonstrates initialized typed constants for records and arrays, compiled into the WebAssembly data section. |
 | [unicode](unicode/) | Demonstrates Unicode handling with raw UTF-8 literals, `#nn` and `#$hh` character codes, and adjacent literal concatenation. |
