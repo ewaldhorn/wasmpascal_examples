@@ -53,6 +53,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Units and multi-file projects](docs/tutorial/12-units-and-multi-file-projects.md) | Splitting programs across files with units. |
 | [Host ABIs and the console](docs/tutorial/13-host-abis-and-the-console.md) | How programs reach the browser: console, canvas, and events. |
 | [Objects & classes](docs/tutorial/14-objects-classes.md) | Object-oriented Pascal: objects, classes, and inheritance. |
+| [What next](docs/tutorial/15-what-next.md) | Where to go from here: examples to explore. |
 
 ## Examples
 
