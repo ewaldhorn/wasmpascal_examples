@@ -49,7 +49,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [pong](examples/pong/) | A complete real-time Pong game with a player paddle, tracking AI, angle-based deflection, Web Audio effects, and 60 fps canvas rendering. |
 | [read_demo](examples/read_demo/) | Demonstrates interactive `readln` input for integers and floats, routed through browser dialogs by the Web Worker runtime. |
 | [runner](examples/runner/) | An endless runner platformer with procedural platforms, variable jump physics, parallax backgrounds, day-night transitions, and synth sound effects. |
-| [screen40](screen40/) | Demonstrates a compact 40x10 virtual console via the `{$Screen 40 10}` directive, with cursor placement and text wrapping. |
+| [screen40](examples/screen40/) | Demonstrates a compact 40x10 virtual console via the `{$Screen 40 10}` directive, with cursor placement and text wrapping. |
 | [set_demo](set_demo/) | Explores `set of` types, covering constructors, union, difference, intersection, `in` membership, and subset and equality comparisons. |
 | [shapes](shapes/) | Draws text-mode geometric patterns like triangles, diamonds, and bordered rectangles on an 80x40 console using only `write`/`writeln`. |
 | [sparks](sparks/) | An interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
