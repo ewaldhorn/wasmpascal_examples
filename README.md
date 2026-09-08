@@ -41,6 +41,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 |---|---|
 | [Start here](docs/tutorial/01-start-here.md) | What WasmPascal is and how to run your first program. |
 | [Program structure](docs/tutorial/02-program-structure.md) | Headers, blocks, and your first writeln program. |
+| [Values and types](docs/tutorial/03-values-and-types.md) | Integers, floats, booleans, and characters. |
 
 ## Examples
 
