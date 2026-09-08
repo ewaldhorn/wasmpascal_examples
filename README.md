@@ -26,7 +26,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [colors](examples/colors/) | Renders color gradients on the HTML5 canvas while printing colored text via `TextColor`/`TextBackground`, showing dual console plus canvas output. |
 | [crt_demo](examples/crt_demo/) | Recreates the Turbo Pascal 7 `Crt` environment in the browser, exercising the 16 classic text colors, `ClrScr`, and `GotoXY` placement. |
 | [delay](examples/delay/) | Demonstrates non-blocking `Delay(ms)` pauses, which safely block the Web Worker thread without freezing the browser UI. |
-| [dugster](dugster/) | A complete multi-unit Dig Dug / Boulder Dash style arcade game with procedural caverns, digging, rock gravity, and monster AI. |
+| [dugster](examples/dugster/) | A complete multi-unit Dig Dug / Boulder Dash style arcade game with procedural caverns, digging, rock gravity, and monster AI. |
 | [enhanced_colours](enhanced_colours/) | Explores rich text-mode palettes with zigzagging color ramps and repeating colored banners on the virtual console. |
 | [enums](enums/) | Demonstrates enumerations and subranges as array indices, loop bounds, and `case` targets, with ordinal conversions and set operations. |
 | [fibonacci](fibonacci/) | A classic recursion and iteration benchmark that also highlights Delphi-style inline ternary expressions. |
