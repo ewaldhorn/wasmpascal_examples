@@ -33,6 +33,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Directives](docs/reference/11-directives.md) | Compiler directives: mode, defines, conditionals, memory limits, screen size. |
 | [Host ABIs (wasmpascal-specific)](docs/reference/12-host-abis-wasmpascal-specific.md) | How compiled programs talk to the browser: pascaldom, batchiness, canvas, console ABIs. |
 | [Editor shortcuts & toolbar](docs/reference/13-editor-shortcuts-toolbar.md) | Keyboard shortcuts and toolbar actions in the web IDE. |
+| [Acknowledgements & Credits](docs/reference/14-acknowledgements-credits.md) | Third-party components and credits. |
 
 ## Examples
 
