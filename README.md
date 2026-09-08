@@ -46,6 +46,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Numbers: integer math](docs/tutorial/05-numbers-integer-math.md) | Integer arithmetic, div, mod, and precedence. |
 | [Floats](docs/tutorial/06-floats.md) | Real numbers, float math, and conversions. |
 | [Console I/O: write, readln](docs/tutorial/07-console-i-o-write-readln.md) | Printing output and reading input with readln. |
+| [Control flow](docs/tutorial/08-control-flow.md) | Branching and looping: if, case, for, while, repeat. |
 
 ## Examples
 
