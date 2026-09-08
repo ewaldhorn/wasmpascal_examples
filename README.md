@@ -59,7 +59,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [transforms](examples/transforms/) | Showcases the Canvas 2D transform stack (`save`, `restore`, `translate`, `rotate`, `scale`) with gears, orbits, and pulsating waves. |
 | [typed_const_demo](examples/typed_const_demo/) | Demonstrates initialized typed constants for records and arrays, compiled into the WebAssembly data section. |
 | [unicode](examples/unicode/) | Demonstrates Unicode handling with raw UTF-8 literals, `#nn` and `#$hh` character codes, and adjacent literal concatenation. |
-| [var_params_demo](var_params_demo/) | Demonstrates pass-by-reference with `var` parameters for in-place mutation of variables, record fields, and array elements. |
+| [var_params_demo](examples/var_params_demo/) | Demonstrates pass-by-reference with `var` parameters for in-place mutation of variables, record fields, and array elements. |
 | [variants](variants/) | Demonstrates variant records (`case tag of`) as memory-efficient tagged unions, such as shape definitions. |
 | [wasmtools](wasmtools/) | A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
 | [with_demo](with_demo/) | Demonstrates the `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
