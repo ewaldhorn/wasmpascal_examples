@@ -48,6 +48,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Console I/O: write, readln](docs/tutorial/07-console-i-o-write-readln.md) | Printing output and reading input with readln. |
 | [Control flow](docs/tutorial/08-control-flow.md) | Branching and looping: if, case, for, while, repeat. |
 | [Procedures and functions](docs/tutorial/09-procedures-and-functions.md) | Splitting code into reusable procedures and functions. |
+| [Records, arrays, and pointers](docs/tutorial/10-records-arrays-and-pointers.md) | Grouping data with records, arrays, and pointers. |
 
 ## Examples
 
