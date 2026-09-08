@@ -26,6 +26,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Objects & classes](docs/reference/04-objects-classes.md) | TP7 objects and Delphi-style classes: inheritance, virtual dispatch, constructors. |
 | [Declarations](docs/reference/05-declarations.md) | Constants, variables, types, procedures, and functions. |
 | [Control flow](docs/reference/06-control-flow.md) | if, case, for, while, repeat, break, continue, exit, and with. |
+| [Operators & precedence](docs/reference/07-operators-precedence.md) | Arithmetic, logical, bitwise, comparison, and set operators with precedence. |
 
 ## Examples
 
