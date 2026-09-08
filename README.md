@@ -43,7 +43,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [multidim](examples/multidim/) | Demonstrates multi-dimensional arrays, including enum-indexed matrices, 3D cubes, nested traversal, and memory layout. |
 | [objects_demo](examples/objects_demo/) | Demonstrates Turbo Pascal 7 `object` types with constructors, virtual methods, inheritance via `inherited`, and stack plus heap semantics. |
 | [ordinals](examples/ordinals/) | Exercises the ordinal built-ins `Ord`, `Chr`, `Pred`, `Succ`, `Odd`, and `Halt` for characters and enums. |
-| [pascaldom_probe](pascaldom_probe/) | A minimal diagnostic for the `pascaldom` DOM layer that acquires a canvas, paints it, and exports `pascaldom_main`. |
+| [pascaldom_probe](examples/pascaldom_probe/) | A minimal diagnostic for the `pascaldom` DOM layer that acquires a canvas, paints it, and exports `pascaldom_main`. |
 | [pascaloids](pascaloids/) | A full Asteroids-style shooter with inertial ship physics, fracturing asteroids, batched Canvas2D rendering, and synthesized audio. |
 | [pointers](pointers/) | Demonstrates typed pointers (`^T`), `nil`, `SizeOf`, and pointer arithmetic with `Inc`/`Dec` across array elements. |
 | [pong](pong/) | A complete real-time Pong game with a player paddle, tracking AI, angle-based deflection, Web Audio effects, and 60 fps canvas rendering. |
