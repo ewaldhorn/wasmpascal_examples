@@ -12,6 +12,16 @@ I want to make the examples in WasmPascal more accessible, and I also don't want
 
 Not all of these examples are working. I am still fine-tuning the Pascal compiler and here and there some of the examples might not behave as expected. For example, wasmtools has some issue that I'm working on.
 
+## Documentation
+
+Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) and Learn overlays.
+
+### Pascal quick reference
+
+| Doc | Description |
+|---|---|
+| [Projects & files](docs/reference/01-projects-files.md) | How projects, files, the root unit, and the Files menu work in the IDE. |
+
 ## Examples
 
 | Example | Description |
