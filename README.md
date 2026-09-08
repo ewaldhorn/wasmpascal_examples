@@ -52,7 +52,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [screen40](examples/screen40/) | Demonstrates a compact 40x10 virtual console via the `{$Screen 40 10}` directive, with cursor placement and text wrapping. |
 | [set_demo](examples/set_demo/) | Explores `set of` types, covering constructors, union, difference, intersection, `in` membership, and subset and equality comparisons. |
 | [shapes](examples/shapes/) | Draws text-mode geometric patterns like triangles, diamonds, and bordered rectangles on an 80x40 console using only `write`/`writeln`. |
-| [sparks](sparks/) | An interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
+| [sparks](examples/sparks/) | An interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
 | [strings](strings/) | Demonstrates string concatenation, `Length`, `Copy`, `Pos`, `Str`/`Val` conversions, and fixed-length `String[n]` buffers. |
 | [sweep](sweep/) | A complete multi-unit Minesweeper engine and UI with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
 | [ternary](ternary/) | Demonstrates Delphi-style inline ternary expressions (`if cond then a else b`) in assignments and arguments, with type promotion. |
