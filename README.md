@@ -22,7 +22,7 @@ Not all of these examples are working. I am still fine-tuning the Pascal compile
 | [breakout_graphics](examples/breakout_graphics/) | The HTML5 Canvas version of Breakout with 60 fps batched rendering, synthesized Web Audio effects, and smooth ball and paddle physics. |
 | [case_ranges_demo](examples/case_ranges_demo/) | Shows range expressions (`lo..hi`) in `case` statements, compiling dense spans to `br_table` jump tables and sparse spans to branches. |
 | [classes_demo](examples/classes_demo/) | Demonstrates Delphi-style classes with fields, methods, `Create` constructors, single inheritance, overrides, and heap lifetime management. |
-| [classic_dots](classic_dots/) | A DOS-era style screensaver updated for the web, using WasmPascal's Canvas extensions to animate graphics from Pascal. |
+| [classic_dots](examples/classic_dots/) | A DOS-era style screensaver updated for the web, using WasmPascal's Canvas extensions to animate graphics from Pascal. |
 | [colors](colors/) | Renders color gradients on the HTML5 canvas while printing colored text via `TextColor`/`TextBackground`, showing dual console plus canvas output. |
 | [crt_demo](crt_demo/) | Recreates the Turbo Pascal 7 `Crt` environment in the browser, exercising the 16 classic text colors, `ClrScr`, and `GotoXY` placement. |
 | [delay](delay/) | Demonstrates non-blocking `Delay(ms)` pauses, which safely block the Web Worker thread without freezing the browser UI. |
