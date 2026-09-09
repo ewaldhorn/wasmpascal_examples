@@ -12,7 +12,12 @@ WasmPascal makes it possible to use the browser as the development platform for,
 ---
 
 **Quick Navigation**:
-[How to Run](#how-to-run-the-examples) • [Repository Structure](#repository-structure) • [Pascal Reference](#pascal-quick-reference) • [Learn Pascal Tutorial](#learn-pascal-tutorial) • [Examples](#examples) • [Blog Posts](#blog-posts)
+[How to Run](#how-to-run-the-examples)
+[Repository Structure](#repository-structure)
+[Pascal Reference](#pascal-quick-reference)
+[Learn Pascal Tutorial](#learn-pascal-tutorial)
+[Examples](#examples)
+[Blog Posts](#blog-posts)
 
 ---
 
