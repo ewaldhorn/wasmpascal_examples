@@ -112,10 +112,27 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 
 Looking for something specific? Here are the 48 examples organized by focus area:
 
-- 🕹️ **Arcade Games & Interactive Demos**:
-  [`breakout`](examples/breakout/) • [`breakout_graphics`](examples/breakout_graphics/) • [`dugster`](examples/dugster/) • [`flightleader`](examples/flightleader/) • [`floaty_car`](examples/floaty_car/) • [`pascaloids`](examples/pascaloids/) • [`pong`](examples/pong/) • [`runner`](examples/runner/) • [`sweep`](examples/sweep/) • [`xonix`](examples/xonix/)
-- 🎨 **HTML5 Canvas Graphics & Simulation**:
-  [`basic_canvas`](examples/basic_canvas/) • [`classic_dots`](examples/classic_dots/) • [`colors`](examples/colors/) • [`growable`](examples/growable/) • [`pascaldom_probe`](examples/pascaldom_probe/) • [`sparks`](examples/sparks/) • [`transforms`](examples/transforms/)
+- 🕹️ **Arcade Games & Interactive Demos**:<br>
+  [`breakout`](examples/breakout/)<br>
+  [`breakout_graphics`](examples/breakout_graphics/)<br>
+  [`dugster`](examples/dugster/)<br>
+  [`flightleader`](examples/flightleader/)<br>
+  [`floaty_car`](examples/floaty_car/)<br>
+  [`pascaloids`](examples/pascaloids/)<br>
+  [`pong`](examples/pong/)<br>
+  [`runner`](examples/runner/)<br>
+  [`sweep`](examples/sweep/)<br>
+  [`xonix`](examples/xonix/)<br>
+
+- 🎨 **HTML5 Canvas Graphics & Simulation**:<br>
+  [`basic_canvas`](examples/basic_canvas/)<br>
+  [`classic_dots`](examples/classic_dots/)<br>
+  [`colors`](examples/colors/)<br>
+  [`growable`](examples/growable/)<br>
+  [`pascaldom_probe`](examples/pascaldom_probe/)<br>
+  [`sparks`](examples/sparks/)<br>
+  [`transforms`](examples/transforms/)<br>
+  
 - 🖥️ **Virtual Console & Turbo Pascal `Crt`**:
   [`crt_demo`](examples/crt_demo/) • [`delay`](examples/delay/) • [`enhanced_colours`](examples/enhanced_colours/) • [`gotoxy`](examples/gotoxy/) • [`guess`](examples/guess/) • [`looped_fibonacci`](examples/looped_fibonacci/) • [`read_demo`](examples/read_demo/) • [`screen40`](examples/screen40/) • [`shapes`](examples/shapes/)
 - 🏛️ **Memory & Object-Oriented Programming**:
