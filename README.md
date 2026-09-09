@@ -107,3 +107,13 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [wasmtools](examples/wasmtools/) | A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
 | [with_demo](examples/with_demo/) | Demonstrates the `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
 | [xonix](examples/xonix/) | A faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
+
+## Blog posts
+
+Runnable code from the WasmPascal blog posts (full Pascal sources plus their HTML host pages).
+
+| Post | Code | Description |
+|---|---|---|
+| [Your First WebAssembly Module in Pascal with WasmPascal](https://nofuss.co.za/blog/wasm_pascal_add_numbers/) | [blog_posts/wasm_pascal_add_numbers/](blog_posts/wasm_pascal_add_numbers/) | Minimal `library` exporting `Add` to JavaScript (`adder.pas` + `index.html`). |
+| [Processing CSV Files in WebAssembly with Pascal](https://nofuss.co.za/blog/wasm_pascal_csv_processing/) | [blog_posts/wasm_pascal_csv_processing/](blog_posts/wasm_pascal_csv_processing/) | Sorts `Name,Age` CSV rows by age in Wasm (`csvsort.pas` + `index.html`). |
+| [Processing Large CSV Files in WebAssembly with Pascal](https://nofuss.co.za/blog/wasm_pascal_large_csv/) | [blog_posts/wasm_pascal_large_csv/](blog_posts/wasm_pascal_large_csv/) | Large-file CSV sorter with `{$M 128M}` memory and quicksort (`namesort.pas` + `index.html`). |
