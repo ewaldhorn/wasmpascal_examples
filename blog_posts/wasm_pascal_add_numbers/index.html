@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pascal WASM Adder</title>
+  <style>
+    body { font-family: monospace; max-width: 480px; margin: 4rem auto; padding: 0 1rem; }
+    #result { font-size: 1.5rem; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Pascal WASM Adder</h1>
+  <p>Calls <code>Add(3, 4)</code> inside a WebAssembly module compiled from Pascal.</p>
+  <p id="result">Loading module&hellip;</p>
+
+  <script>
+    'use strict';
+
+    // WebAssembly.instantiateStreaming fetches and compiles the .wasm
+    // binary in a single streaming pass, a pretty efficient approach.
+    // The second argument is the import object: a map of anything the
+    // WASM module needs from the host. adder.pas has no external imports
+    // (it only does arithmetic), so we pass an empty object.
+    WebAssembly.instantiateStreaming(fetch('adder.wasm'), {})
+      .then(function (obj) {
+        // obj.instance.exports mirrors the Pascal `exports` clause.
+        // Add is callable as a plain JavaScript function.
+        var sum = obj.instance.exports.Add(3, 4);
+        document.getElementById('result').textContent =
+          'Add(3, 4) = ' + sum;   // → Add(3, 4) = 7
+      })
+      .catch(function (err) {
+        // fetch() of a local file from file:// will fail.
+        // Run: python3 -m http.server 8080 in this folder,
+        // then open http://localhost:8080/ in your browser.
+        document.getElementById('result').textContent =
+          'Could not load adder.wasm: ' + err;
+      });
+  </script>
+</body>
+</html>

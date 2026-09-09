@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>High-Speed Pascal CSV Sorter (names.csv)</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 760px; margin: 3rem auto; padding: 0 1rem; line-height: 1.5; }
+    .card { border: 1px solid #ccc; border-radius: 8px; padding: 1.5rem; background: #fafafa; }
+    .dropzone { border: 2px dashed #0284c7; border-radius: 6px; padding: 2rem; text-align: center; cursor: pointer; margin-bottom: 1rem; }
+    .btn { background: #0284c7; color: #fff; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; text-decoration: none; }
+    .status { font-family: monospace; padding: 0.5rem; background: #eee; border-radius: 4px; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Pascal WebAssembly CSV Sorter</h1>
+  <div class="card">
+    <div class="dropzone" id="dropzone">Drag & Drop <strong>names.csv</strong> here or click to select</div>
+    <input type="file" id="fileInput" style="display:none;" accept=".csv,text/csv">
+    <a id="downloadBtn" class="btn" style="display:none;" download="names_sorted.csv">Download Sorted CSV</a>
+    <div class="status" id="status">Status: Loading WebAssembly module...</div>
+  </div>
+
+  <script>
+    (async function() {
+      const status = document.getElementById('status');
+      const dropzone = document.getElementById('dropzone');
+      const fileInput = document.getElementById('fileInput');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      let wasmInstance = null;
+      try {
+        const obj = await WebAssembly.instantiateStreaming(fetch('namesort.wasm'), {
+          wasmpascal_env: { heap_report: () => {} }
+        });
+        wasmInstance = obj.instance;
+        status.textContent = 'Status: WebAssembly ready! Drop names.csv to process.';
+      } catch (err) {
+        status.textContent = 'Status: Load via local web server to run WebAssembly (' + err + ')';
+      }
+
+      dropzone.onclick = () => fileInput.click();
+      dropzone.ondragover = (e) => { e.preventDefault(); dropzone.style.background = '#e0f2fe'; };
+      dropzone.ondragleave = () => { dropzone.style.background = ''; };
+      dropzone.ondrop = (e) => {
+        e.preventDefault();
+        dropzone.style.background = '';
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+      };
+      fileInput.onchange = (e) => {
+        if (e.target.files.length) handleFile(e.target.files[0]);
+      };
+
+      async function handleFile(file) {
+        if (!wasmInstance) return;
+        status.textContent = 'Status: Reading ' + file.name + '...';
+        const buf = await file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+
+        const exp = wasmInstance.exports;
+        const inAddr = exp.GetInputBuffer();
+        const memView = new Uint8Array(exp.memory.buffer);
+        memView.set(bytes, inAddr);
+
+        const t0 = performance.now();
+        const count = exp.ProcessCSV(bytes.length);
+        const elapsed = (performance.now() - t0).toFixed(2);
+
+        const outAddr = exp.GetOutputBuffer();
+        const outLen = exp.GetOutputLength();
+        const outBytes = new Uint8Array(exp.memory.buffer, outAddr, outLen);
+
+        const blob = new Blob([outBytes], { type: 'text/csv;charset=utf-8;' });
+        downloadBtn.href = URL.createObjectURL(blob);
+        downloadBtn.style.display = 'inline-block';
+
+        status.textContent = `Status: Sorted ${count} records in ${elapsed} ms! Click download button.`;
+      }
+    })();
+  </script>
+</body>
+</html>

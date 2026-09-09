@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pascal WebAssembly CSV Sorter</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 680px;
+      margin: 3rem auto;
+      padding: 0 1rem;
+      line-height: 1.5;
+    }
+    h1 { color: #1f2937; }
+    .box {
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      background: #f9fafb;
+    }
+    .controls { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; }
+    button, .btn {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      text-decoration: none;
+    }
+    button:hover, .btn:hover { background: #1d4ed8; }
+    pre {
+      background: #1e293b;
+      color: #f8fafc;
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      max-height: 240px;
+    }
+    #status { font-size: 0.9rem; color: #4b5563; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Pascal WebAssembly CSV Sorter</h1>
+  <p>Upload a CSV file containing <code>Name,Age</code> to sort records by age using compiled Pascal in WASM.</p>
+
+  <div class="box">
+    <div class="controls">
+      <input type="file" id="fileInput" accept=".csv,text/csv">
+      <button type="button" id="loadSampleBtn">Load Sample</button>
+      <button type="button" id="sortBtn" disabled>Sort CSV</button>
+      <a id="downloadLink" class="btn" style="display:none;" download="sorted_people.csv">Download Sorted CSV</a>
+    </div>
+
+    <div id="status">Loading WebAssembly module&hellip;</div>
+    <h4>Output Preview:</h4>
+    <pre id="outputView">(No file processed yet)</pre>
+  </div>
+
+  <script>
+    'use strict';
+
+    var wasmInstance = null;
+    var rawCsvData = '';
+
+    var statusEl = document.getElementById('status');
+    var fileInput = document.getElementById('fileInput');
+    var sortBtn = document.getElementById('sortBtn');
+    var loadSampleBtn = document.getElementById('loadSampleBtn');
+    var outputView = document.getElementById('outputView');
+    var downloadLink = document.getElementById('downloadLink');
+
+    // WasmPascal host environment import
+    var importObject = {
+      wasmpascal_env: {
+        heap_report: function () {}
+      }
+    };
+
+    // 1. Fetch and compile the WebAssembly binary
+    WebAssembly.instantiateStreaming(fetch('csvsort.wasm'), importObject)
+      .then(function (obj) {
+        wasmInstance = obj.instance;
+        statusEl.textContent = 'Module ready. Select a CSV file or load sample data.';
+      })
+      .catch(function (err) {
+        statusEl.textContent = 'Failed to load csvsort.wasm: ' + err;
+        console.error(err);
+      });
+
+    // 2. Handle file selection
+    fileInput.addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+      var reader = new FileReader();
+      reader.onload = function (evt) {
+        rawCsvData = evt.target.result;
+        statusEl.textContent = 'Loaded "' + file.name + '" (' + rawCsvData.length + ' chars). Click Sort CSV.';
+        sortBtn.disabled = false;
+      };
+      reader.readAsText(file);
+    });
+
+    // Sample data helper
+    loadSampleBtn.addEventListener('click', function () {
+      rawCsvData = 'Name,Age\nCharlie,35\nAlice,30\nBob,25\nDiana,22\nEthan,28\nZara,19\n';
+      statusEl.textContent = 'Sample data loaded (6 records). Click Sort CSV.';
+      sortBtn.disabled = false;
+      outputView.textContent = rawCsvData;
+    });
+
+    // 3. Process CSV in Pascal WebAssembly
+    sortBtn.addEventListener('click', function () {
+      if (!wasmInstance || !rawCsvData) return;
+
+      var exp = wasmInstance.exports;
+      var encoder = new TextEncoder();
+      var inputBytes = encoder.encode(rawCsvData);
+
+      var maxInput = exp.GetMaxInputSize();
+      if (inputBytes.length > maxInput) {
+        alert('Data size exceeds maximum allowed (' + maxInput + ' bytes)');
+        return;
+      }
+
+      // Write bytes directly into Pascal memory at GetInputBuffer address
+      var inAddr = exp.GetInputBuffer();
+      var memView = new Uint8Array(exp.memory.buffer);
+      memView.set(inputBytes, inAddr);
+
+      // Call the Pascal sorting engine
+      var count = exp.ProcessCSV(inputBytes.length);
+
+      // Read back the sorted output buffer
+      var outAddr = exp.GetOutputBuffer();
+      var outLen = exp.GetOutputLength();
+      var outBytes = new Uint8Array(exp.memory.buffer, outAddr, outLen);
+      var decoder = new TextDecoder('utf-8');
+      var sortedCsv = decoder.decode(outBytes);
+
+      statusEl.textContent = 'Successfully sorted ' + count + ' records by age!';
+      outputView.textContent = sortedCsv;
+
+      // Prepare downloadable Blob
+      var blob = new Blob([sortedCsv], { type: 'text/csv;charset=utf-8;' });
+      var url = URL.createObjectURL(blob);
+      downloadLink.href = url;
+      downloadLink.style.display = 'inline-block';
+    });
+  </script>
+</body>
+</html>
