@@ -169,8 +169,8 @@ Looking for something specific? Here are the 48 examples organized by focus area
   [`variants`](examples/variants/)<br>
   [`with_demo`](examples/with_demo/)<br>
 
-- ⚠️ **Work in Progress**:
-  [`wasmtools`](examples/wasmtools/)
+- ⚠️ **Work in Progress**:<br>
+  [`wasmtools`](examples/wasmtools/)<br>
 
 ### All Examples
 
