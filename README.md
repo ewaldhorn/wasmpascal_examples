@@ -132,9 +132,18 @@ Looking for something specific? Here are the 48 examples organized by focus area
   [`pascaldom_probe`](examples/pascaldom_probe/)<br>
   [`sparks`](examples/sparks/)<br>
   [`transforms`](examples/transforms/)<br>
-  
-- 🖥️ **Virtual Console & Turbo Pascal `Crt`**:
-  [`crt_demo`](examples/crt_demo/) • [`delay`](examples/delay/) • [`enhanced_colours`](examples/enhanced_colours/) • [`gotoxy`](examples/gotoxy/) • [`guess`](examples/guess/) • [`looped_fibonacci`](examples/looped_fibonacci/) • [`read_demo`](examples/read_demo/) • [`screen40`](examples/screen40/) • [`shapes`](examples/shapes/)
+
+- 🖥️ **Virtual Console & Turbo Pascal `Crt`**:<br>
+  [`crt_demo`](examples/crt_demo/)<br>
+  [`delay`](examples/delay/)<br>
+  [`enhanced_colours`](examples/enhanced_colours/)<br>
+  [`gotoxy`](examples/gotoxy/)<br>
+  [`guess`](examples/guess/)<br>
+  [`looped_fibonacci`](examples/looped_fibonacci/)<br>
+  [`read_demo`](examples/read_demo/)<br>
+  [`screen40`](examples/screen40/)<br>
+  [`shapes`](examples/shapes/)<br>
+
 - 🏛️ **Memory & Object-Oriented Programming**:
   [`alloc`](examples/alloc/) • [`classes_demo`](examples/classes_demo/) • [`heap_demo`](examples/heap_demo/) • [`objects_demo`](examples/objects_demo/)
 - 🧱 **Language Syntax & Data Structures**:
