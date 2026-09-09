@@ -28,6 +28,34 @@ I want to make the examples in WasmPascal more accessible, and I also don't want
   - **[`docs/tutorial/`](docs/tutorial/)**: 15-part "Learn Pascal" tutorial from your first `writeln` to multi-file OOP architectures.
 - **[`blog_posts/`](blog_posts/)**: Runnable companion code and HTML test harnesses for articles published on [nofuss.co.za](https://nofuss.co.za/).
 
+## How to Run the Examples
+
+### 1. In the WasmPascal Web IDE
+
+The fastest way to try any example is directly in your browser at **[wasmpascal.com](https://wasmpascal.com/)**:
+
+- **Single-file examples** (e.g. `hello`, `basic_canvas`, `breakout`, `crt_demo`):
+  1. Open [wasmpascal.com](https://wasmpascal.com/).
+  2. Copy and paste the `.pas` code into the editor (or click **Upload files** on the toolbar).
+  3. Click **Run** (or press `Ctrl+Enter` / `Cmd+Enter`).
+
+- **Multi-unit projects** (`dugster`, `flightleader`, `sweep`):
+  1. Open [wasmpascal.com](https://wasmpascal.com/).
+  2. Click **Upload files** on the toolbar and select all `.pas` files in the example's folder at once.
+  3. The editor automatically selects the `program` file as root and loads the accompanying units (`uses`).
+  4. Click **Run**.
+
+### 2. Running Blog Post Demos Locally
+
+The [`blog_posts/`](blog_posts/) folder includes standalone HTML host pages that load WebAssembly modules. Because browsers restrict loading `.wasm` binaries over `file://`, start a local HTTP server:
+
+```bash
+# Run from repository root
+python3 -m http.server 8080
+```
+
+Then visit `http://localhost:8080/blog_posts/wasm_pascal_add_numbers/` (or any other subfolder) in your browser.
+
 ## Caution
 
 Not all of these examples are working. I am still fine-tuning the Pascal compiler and here and there some of the examples might not behave as expected. For example, wasmtools has some issue that I'm working on.
