@@ -1,8 +1,20 @@
 # WasmPascal Examples
 
+[![WasmPascal IDE](https://img.shields.io/badge/IDE-wasmpascal.com-2ea44f?style=flat&logo=webassembly&logoColor=white)](https://wasmpascal.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Pascal](https://img.shields.io/badge/Language-Pascal-blue)](https://wasmpascal.com/)
+[![WebAssembly](https://img.shields.io/badge/Target-WebAssembly-654FF0?logo=webassembly&logoColor=white)](https://webassembly.org/)
+
 [WasmPascal](https://wasmpascal.com/) is an online Pascal to Wasm compiler that runs entirely in your browser. The idea behind the project is that you just sometimes want to write some Wasm code, but getting the toolchain configured can be a real pain.
 
 WasmPascal makes it possible to use the browser as the development platform for, well, the browser! Write Pascal code and compile it to a WebAssembly binary right in your browser. You can then download that binary from your browser to use as you please.
+
+---
+
+**Quick Navigation**:
+[How to Run](#how-to-run-the-examples) • [Repository Structure](#repository-structure) • [Pascal Reference](#pascal-quick-reference) • [Learn Pascal Tutorial](#learn-pascal-tutorial) • [Examples](#examples) • [Blog Posts](#blog-posts)
+
+---
 
 ## This Repo
 
