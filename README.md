@@ -144,8 +144,12 @@ Looking for something specific? Here are the 48 examples organized by focus area
   [`screen40`](examples/screen40/)<br>
   [`shapes`](examples/shapes/)<br>
 
-- 🏛️ **Memory & Object-Oriented Programming**:
-  [`alloc`](examples/alloc/) • [`classes_demo`](examples/classes_demo/) • [`heap_demo`](examples/heap_demo/) • [`objects_demo`](examples/objects_demo/)
+- 🏛️ **Memory & Object-Oriented Programming**:<br>
+  [`alloc`](examples/alloc/)<br>
+  [`classes_demo`](examples/classes_demo/)<br>
+  [`heap_demo`](examples/heap_demo/)<br>
+  [`objects_demo`](examples/objects_demo/)<br>
+
 - 🧱 **Language Syntax & Data Structures**:
   [`case_ranges_demo`](examples/case_ranges_demo/) • [`enums`](examples/enums/) • [`fibonacci`](examples/fibonacci/) • [`hello`](examples/hello/) • [`hello_write`](examples/hello_write/) • [`math`](examples/math/) • [`multidim`](examples/multidim/) • [`ordinals`](examples/ordinals/) • [`pointers`](examples/pointers/) • [`set_demo`](examples/set_demo/) • [`strings`](examples/strings/) • [`ternary`](examples/ternary/) • [`typed_const_demo`](examples/typed_const_demo/) • [`unicode`](examples/unicode/) • [`var_params_demo`](examples/var_params_demo/) • [`variants`](examples/variants/) • [`with_demo`](examples/with_demo/)
 - ⚠️ **Work in Progress**:
