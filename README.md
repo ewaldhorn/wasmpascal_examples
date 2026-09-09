@@ -20,6 +20,14 @@ WasmPascal makes it possible to use the browser as the development platform for,
 
 I want to make the examples in WasmPascal more accessible, and I also don't want to update the compiler every time I add a new example. So my plan is to, over time, put all the example programs in this repo, possibly with more and/or better documentation. WasmPascal has grown a bit beyond the quick experiment I originally intended, so bear with me as I get the supporting documentation in place!
 
+## Repository Structure
+
+- **[`examples/`](examples/)**: 48 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics.
+- **[`docs/`](docs/)**: Complete offline documentation ported directly from the WasmPascal web IDE:
+  - **[`docs/reference/`](docs/reference/)**: 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins.
+  - **[`docs/tutorial/`](docs/tutorial/)**: 15-part "Learn Pascal" tutorial from your first `writeln` to multi-file OOP architectures.
+- **[`blog_posts/`](blog_posts/)**: Runnable companion code and HTML test harnesses for articles published on [nofuss.co.za](https://nofuss.co.za/).
+
 ## Caution
 
 Not all of these examples are working. I am still fine-tuning the Pascal compiler and here and there some of the examples might not behave as expected. For example, wasmtools has some issue that I'm working on.
