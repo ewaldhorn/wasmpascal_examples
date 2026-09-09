@@ -105,6 +105,23 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 
 ## Examples
 
+Looking for something specific? Here are the 48 examples organized by focus area:
+
+- 🕹️ **Arcade Games & Interactive Demos**:
+  [`breakout`](examples/breakout/) • [`breakout_graphics`](examples/breakout_graphics/) • [`dugster`](examples/dugster/) • [`flightleader`](examples/flightleader/) • [`floaty_car`](examples/floaty_car/) • [`pascaloids`](examples/pascaloids/) • [`pong`](examples/pong/) • [`runner`](examples/runner/) • [`sweep`](examples/sweep/) • [`xonix`](examples/xonix/)
+- 🎨 **HTML5 Canvas Graphics & Simulation**:
+  [`basic_canvas`](examples/basic_canvas/) • [`classic_dots`](examples/classic_dots/) • [`colors`](examples/colors/) • [`growable`](examples/growable/) • [`pascaldom_probe`](examples/pascaldom_probe/) • [`sparks`](examples/sparks/) • [`transforms`](examples/transforms/)
+- 🖥️ **Virtual Console & Turbo Pascal `Crt`**:
+  [`crt_demo`](examples/crt_demo/) • [`delay`](examples/delay/) • [`enhanced_colours`](examples/enhanced_colours/) • [`gotoxy`](examples/gotoxy/) • [`guess`](examples/guess/) • [`looped_fibonacci`](examples/looped_fibonacci/) • [`read_demo`](examples/read_demo/) • [`screen40`](examples/screen40/) • [`shapes`](examples/shapes/)
+- 🏛️ **Memory & Object-Oriented Programming**:
+  [`alloc`](examples/alloc/) • [`classes_demo`](examples/classes_demo/) • [`heap_demo`](examples/heap_demo/) • [`objects_demo`](examples/objects_demo/)
+- 🧱 **Language Syntax & Data Structures**:
+  [`case_ranges_demo`](examples/case_ranges_demo/) • [`enums`](examples/enums/) • [`fibonacci`](examples/fibonacci/) • [`hello`](examples/hello/) • [`hello_write`](examples/hello_write/) • [`math`](examples/math/) • [`multidim`](examples/multidim/) • [`ordinals`](examples/ordinals/) • [`pointers`](examples/pointers/) • [`set_demo`](examples/set_demo/) • [`strings`](examples/strings/) • [`ternary`](examples/ternary/) • [`typed_const_demo`](examples/typed_const_demo/) • [`unicode`](examples/unicode/) • [`var_params_demo`](examples/var_params_demo/) • [`variants`](examples/variants/) • [`with_demo`](examples/with_demo/)
+- ⚠️ **Work in Progress**:
+  [`wasmtools`](examples/wasmtools/)
+
+### All Examples
+
 | Example | Description |
 |---|---|
 | [alloc](examples/alloc/) | Demonstrates heap allocation with `New`/`Dispose` and `GetMem`/`FreeMem` by building, traversing, and freeing a singly linked list of records. |
@@ -117,11 +134,11 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [colors](examples/colors/) | Renders color gradients on the HTML5 canvas while printing colored text via `TextColor`/`TextBackground`, showing dual console plus canvas output. |
 | [crt_demo](examples/crt_demo/) | Recreates the Turbo Pascal 7 `Crt` environment in the browser, exercising the 16 classic text colors, `ClrScr`, and `GotoXY` placement. |
 | [delay](examples/delay/) | Demonstrates non-blocking `Delay(ms)` pauses, which safely block the Web Worker thread without freezing the browser UI. |
-| [dugster](examples/dugster/) | A complete multi-unit Dig Dug / Boulder Dash style arcade game with procedural caverns, digging, rock gravity, and monster AI. |
+| [dugster](examples/dugster/) <br>*(multi-unit)* | A complete multi-unit Dig Dug / Boulder Dash style arcade game with procedural caverns, digging, rock gravity, and monster AI. |
 | [enhanced_colours](examples/enhanced_colours/) | Explores rich text-mode palettes with zigzagging color ramps and repeating colored banners on the virtual console. |
 | [enums](examples/enums/) | Demonstrates enumerations and subranges as array indices, loop bounds, and `case` targets, with ordinal conversions and set operations. |
 | [fibonacci](examples/fibonacci/) | A classic recursion and iteration benchmark that also highlights Delphi-style inline ternary expressions. |
-| [flightleader](examples/flightleader/) | A sophisticated 3D wireframe flight combat game built from modular units for vector math, batched rendering, particles, and flight physics. |
+| [flightleader](examples/flightleader/) <br>*(multi-unit)* | A sophisticated 3D wireframe flight combat game built from modular units for vector math, batched rendering, particles, and flight physics. |
 | [floaty_car](examples/floaty_car/) | A top-down arcade racing game with a scrolling road grid, keyboard and touch steering, boost mechanics, and synthesized engine sounds. |
 | [gotoxy](examples/gotoxy/) | Demonstrates cursor positioning with `GotoXY` and screen clearing with `ClrScr` to draw borders and banners on the 80x25 terminal grid. |
 | [growable](examples/growable/) | Demonstrates a swap-remove particle pool where mouse-held spawns drift upward and fade, with constant-time removal and no heap churn. |
@@ -145,14 +162,14 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [shapes](examples/shapes/) | Draws text-mode geometric patterns like triangles, diamonds, and bordered rectangles on an 80x40 console using only `write`/`writeln`. |
 | [sparks](examples/sparks/) | An interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
 | [strings](examples/strings/) | Demonstrates string concatenation, `Length`, `Copy`, `Pos`, `Str`/`Val` conversions, and fixed-length `String[n]` buffers. |
-| [sweep](examples/sweep/) | A complete multi-unit Minesweeper engine and UI with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
+| [sweep](examples/sweep/) <br>*(multi-unit)* | A complete multi-unit Minesweeper engine and UI with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
 | [ternary](examples/ternary/) | Demonstrates Delphi-style inline ternary expressions (`if cond then a else b`) in assignments and arguments, with type promotion. |
 | [transforms](examples/transforms/) | Showcases the Canvas 2D transform stack (`save`, `restore`, `translate`, `rotate`, `scale`) with gears, orbits, and pulsating waves. |
 | [typed_const_demo](examples/typed_const_demo/) | Demonstrates initialized typed constants for records and arrays, compiled into the WebAssembly data section. |
 | [unicode](examples/unicode/) | Demonstrates Unicode handling with raw UTF-8 literals, `#nn` and `#$hh` character codes, and adjacent literal concatenation. |
 | [var_params_demo](examples/var_params_demo/) | Demonstrates pass-by-reference with `var` parameters for in-place mutation of variables, record fields, and array elements. |
 | [variants](examples/variants/) | Demonstrates variant records (`case tag of`) as memory-efficient tagged unions, such as shape definitions. |
-| [wasmtools](examples/wasmtools/) | A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
+| [wasmtools](examples/wasmtools/) <br>*(⚠️ WIP)* | ⚠️ *Work in progress (compiler investigation ongoing).* A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
 | [with_demo](examples/with_demo/) | Demonstrates the `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
 | [xonix](examples/xonix/) | A faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
 
