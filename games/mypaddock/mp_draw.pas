@@ -48,7 +48,9 @@ procedure BgFillCircle(cx, cy, radius: Integer);
 function FontByte(ch, row: Integer): Byte;
 
 { Text takes (addr, len) Integer pairs (StrAddr/StrLen pattern): indexing a
-  by-value string param is unsupported by the compiler (emits base 0). }
+  by-value string param is unsupported by the compiler (emits base 0).
+  Single-char literals are Char, not String, so StrAddr/StrLen miscompile on
+  them (glyph silently missing) — always double the char and pass len 1. }
 
 procedure DrawText(x, y, addr, len: Integer; r, g, b: Integer);
 

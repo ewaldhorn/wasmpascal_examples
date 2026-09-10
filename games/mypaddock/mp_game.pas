@@ -973,7 +973,7 @@ begin
   n1 := IntToBuf(sheep_n);
   DrawDigits(x, 68, n1, HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
   x := x + n1 * 12;
-  DrawText(x, 68, StrAddr('/'), StrLen('/'),
+  DrawText(x, 68, StrAddr('//'), 1,
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
   x := x + 12;
   DrawDigits(x, 68, IntToBuf(SheepCap),
@@ -1052,7 +1052,7 @@ begin
   if plus then
   begin
     DrawText(cost_x, rr_y + (rr_h - 14) div 2,
-      StrAddr('+'), StrLen('+'), cr, cg, cb);
+      StrAddr('++'), 1, cr, cg, cb);
     cost_x := cost_x + 12;
   end;
   DrawDigits(cost_x, rr_y + (rr_h - 14) div 2, n, cr, cg, cb);
@@ -1076,7 +1076,7 @@ begin
   DrawDigits(nx, rr_y + (rr_h - 14) div 2, n,
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
   DrawText(nx + n * 12, rr_y + (rr_h - 14) div 2,
-    StrAddr(')'), StrLen(')'), HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+    StrAddr('))'), 1, HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
   n := IntToBuf(v);
   if avail then
   begin
@@ -1275,7 +1275,7 @@ begin
   if bill_sheep_sold > 0 then
   begin
     n := IntToBuf(bill_sheep_sold);
-    DrawText(cx, y + 13, StrAddr(' '), StrLen(' '),
+    DrawText(cx, y + 13, StrAddr('  '), 1,
       BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
     DrawDigits(cx + 12, y + 13, n, BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
     DrawText(cx + 12 + n * 12, y + 13,

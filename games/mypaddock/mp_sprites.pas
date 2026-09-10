@@ -57,7 +57,7 @@ begin
         TROUGH_WATER_R, TROUGH_WATER_G, TROUGH_WATER_B);
   end;
   if TroughNeedsRefill(t) then
-    DrawText(cx - 2, cy - 20, StrAddr('!'), StrLen('!'),
+    DrawText(cx - 2, cy - 20, StrAddr('!!'), 1,
       BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
 end;
 
@@ -102,7 +102,7 @@ begin
   worst := Trunc(s.hunger);
   if Trunc(s.thirst) < worst then worst := Trunc(s.thirst);
   if worst < 25 then
-    DrawText(cx - 2, cy - radius - 10, StrAddr('!'), StrLen('!'),
+    DrawText(cx - 2, cy - radius - 10, StrAddr('!!'), 1,
       BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
 end;
 
@@ -185,12 +185,12 @@ begin
     n := IntToBuf(e.value);
     total := (1 + n) * 12;
     DrawText(draw_x - total div 2, draw_y,
-      StrAddr('+'), StrLen('+'), COIN_FLOAT_R, COIN_FLOAT_G, COIN_FLOAT_B);
+      StrAddr('++'), 1, COIN_FLOAT_R, COIN_FLOAT_G, COIN_FLOAT_B);
     DrawDigits(draw_x - total div 2 + 12, draw_y, n,
       COIN_FLOAT_R, COIN_FLOAT_G, COIN_FLOAT_B);
   end
   else
-    DrawText(draw_x - 2, draw_y, StrAddr('*'), StrLen('*'),
+    DrawText(draw_x - 2, draw_y, StrAddr('**'), 1,
       255, 255, 255);
 end;
 
