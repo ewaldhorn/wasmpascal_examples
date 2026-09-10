@@ -73,7 +73,9 @@ node tests/mp_test.js /tmp/mypaddock_m6.wasm   # expect SUCCESS
 | `mp_world.pas` | world size / bounds (port of `world.odin`) |
 | `mp_draw.pas` | pixel rects/circles, 5x7 font + text |
 | `mp_render.pas` | background bake + viewport blit |
-| `mp_game.pas` | camera/input/panel + sim glue (sheep needs, workers, effects) |
+| `mp_game.pas` | init, frame update, input, panel/dialogs, save glue, debug getters |
+| `mp_shop.pas` | economy + shop UI: progression state, costs/caps/gates, Try*/Sell*/upkeep, shop drawing |
+| `mp_sim.pas` | sim glue: task assignment, sheep needs, worker machine, effects, offline |
 | `mp_sheep.pas` / `mp_trough.pas` / `mp_worker.pas` / `mp_effect.pas` | entity data + logic (ports of `sheep.odin` etc.) |
 | `mp_sprites.pas` | entity sprites + effect text |
 | `mp_host.pas` | canvas bootstrap + event loop (port of `main.odin`) |
