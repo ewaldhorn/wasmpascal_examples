@@ -116,6 +116,31 @@ begin
     i := i + 1;
 end;
 
+{ Reads one all-digit field, advancing i past it. Clearing ok is what stops
+  the caller from reading further fields out of a malformed record. }
+procedure ReadNum(base, n: Integer; var i: Integer; var v: Integer;
+  var ok: Boolean);
+begin
+  v := 0;
+  if not ok then Exit;
+  while (i < n) and IsDigit(BufByte(base, i)) do
+  begin
+    v := v * 10 + (BufByte(base, i) - 48);
+    i := i + 1;
+  end;
+end;
+
+{ Consumes a ',' field separator; false when it is missing. }
+function TakeComma(base, n: Integer; var i: Integer): Boolean;
+begin
+  TakeComma := false;
+  if (i < n) and (BufByte(base, i) = 44) then
+  begin
+    i := i + 1;
+    TakeComma := true;
+  end;
+end;
+
 function ClampNeed(v: Integer): Double;
 begin
   if v < 0 then ClampNeed := 0.0
@@ -209,7 +234,14 @@ begin
   for i := 0 to trough_n - 1 do
   begin
     if i > 0 then AppendChar(59);
+    { kind,x,y,amount — the position is what a tap-to-move drag changes, so
+      it has to survive the autosave. Tenths of a world pixel is far finer
+      than anyone can tap, and keeps the codec integer-only. }
     AppendInt(troughs[i].kind);
+    AppendChar(44);
+    AppendInt(Trunc(troughs[i].x * 10.0));
+    AppendChar(44);
+    AppendInt(Trunc(troughs[i].y * 10.0));
     AppendChar(44);
     AppendInt(Trunc(troughs[i].amount));
   end;
@@ -219,8 +251,8 @@ end;
 
 function LoadTroughs: Boolean;
 var
-  base, n, i, kind, amount: Integer;
-  ok: Boolean;
+  base, n, i, kind, amount, v2, x10, y10: Integer;
+  ok, placed: Boolean;
 begin
   base := SaveAddr;
   n := ls_get_item(StrAddr('mypaddockTroughs'), StrLen('mypaddockTroughs'),
@@ -238,35 +270,53 @@ begin
       i := i + 1
     else
     begin
+      { kind,x,y,amount is the current record; kind,amount is a save from
+        before troughs could be moved, and those land at random exactly as
+        they always did. }
       ok := true;
+      placed := false;
       kind := 0;
-      while (i < n) and IsDigit(BufByte(base, i)) do
-      begin
-        kind := kind * 10 + (BufByte(base, i) - 48);
-        i := i + 1;
-      end;
-      if (i >= n) or (BufByte(base, i) <> 44) then ok := false
-      else i := i + 1;
       amount := 0;
+      v2 := 0;
+      x10 := 0;
+      y10 := 0;
+      ReadNum(base, n, i, kind, ok);
+      if not TakeComma(base, n, i) then ok := false;
       if ok then
       begin
-        while (i < n) and IsDigit(BufByte(base, i)) do
+        ReadNum(base, n, i, v2, ok);
+        if TakeComma(base, n, i) then
         begin
-          amount := amount * 10 + (BufByte(base, i) - 48);
-          i := i + 1;
-        end;
-        if (i < n) and (BufByte(base, i) <> 59) then ok := false;
+          placed := true;
+          x10 := v2;
+          ReadNum(base, n, i, y10, ok);
+          if not TakeComma(base, n, i) then ok := false;
+          ReadNum(base, n, i, amount, ok);
+        end
+        else
+          amount := v2;
       end;
+      if ok and (i < n) and (BufByte(base, i) <> 59) then ok := false;
       if (not ok) or (kind < 0) or (kind > 1) then
         SkipEntry(base, n, i)
       else
       begin
         if (i < n) and (BufByte(base, i) = 59) then
           i := i + 1;
-        BoundsRandomPoint;
+        if placed then
+        begin
+          { mp_world clamps to the fence, so a stale or corrupt record can
+            never strand a trough outside the paddock. }
+          troughs[trough_n].x := FitTroughX(Double(x10) / 10.0);
+          troughs[trough_n].y := FitTroughY(Double(y10) / 10.0);
+        end
+        else
+        begin
+          BoundsRandomPoint;
+          troughs[trough_n].x := rnd_x;
+          troughs[trough_n].y := rnd_y;
+        end;
         troughs[trough_n].kind := kind;
-        troughs[trough_n].x := rnd_x;
-        troughs[trough_n].y := rnd_y;
         troughs[trough_n].amount := Double(amount);
         trough_n := trough_n + 1;
       end;

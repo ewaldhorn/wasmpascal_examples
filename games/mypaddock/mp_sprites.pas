@@ -14,7 +14,9 @@ uses
   mp_worker,
   mp_effect;
 
-procedure DrawTroughSprite(var t: TTrough; cam_x, cam_y: Double);
+procedure DrawTroughSprite(var t: TTrough; cam_x, cam_y: Double; selected: Boolean);
+
+procedure DrawTroughGhost(gx, gy, kind: Integer);
 
 procedure DrawSheepSprite(var s: TSheep; cam_x, cam_y: Double);
 
@@ -29,7 +31,7 @@ begin
   Culled := (cx < -20) or (cx > VIEW_W + 20) or (cy < -20) or (cy > CANVAS_H + 20);
 end;
 
-procedure DrawTroughSprite(var t: TTrough; cam_x, cam_y: Double);
+procedure DrawTroughSprite(var t: TTrough; cam_x, cam_y: Double; selected: Boolean);
 var
   cx, cy, fill_w: Integer;
   frac: Double;
@@ -56,6 +58,29 @@ begin
   if TroughNeedsRefill(t) then
     DrawText(cx - 2, cy - 20, StrAddr('!!'), 1,
       BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+  if selected then
+  begin
+    { Held trough: a coin-yellow ring (with a dark outer edge so it reads on
+      grass and over the watermark of its own shadow). }
+    CRectOutline(cx - 15, cy - 7, 30, 16,
+      PANEL_BD_R, PANEL_BD_G, PANEL_BD_B);
+    CRectOutline(cx - 14, cy - 6, 28, 14,
+      HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  end;
+end;
+
+{ Drop preview for a held trough: the body outline in the trough's own colour,
+  so feed and water stay told apart. Drawn where the drop will land (already
+  clamped to the fence), not wherever the cursor happens to be. }
+procedure DrawTroughGhost(gx, gy, kind: Integer);
+begin
+  CRectOutline(gx - 13, gy - 5, 26, 12, WOOL_HI_R, WOOL_HI_G, WOOL_HI_B);
+  if kind = TR_FOOD then
+    CRectOutline(gx - 12, gy - 4, 24, 10,
+      TROUGH_FOOD_R, TROUGH_FOOD_G, TROUGH_FOOD_B)
+  else
+    CRectOutline(gx - 12, gy - 4, 24, 10,
+      TROUGH_WATER_R, TROUGH_WATER_G, TROUGH_WATER_B);
 end;
 
 procedure DrawSheepSprite(var s: TSheep; cam_x, cam_y: Double);

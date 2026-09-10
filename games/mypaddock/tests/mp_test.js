@@ -382,6 +382,75 @@ async function boot(store, clock) {
   if (!woolOk) { console.log('FAIL wool band color'); failures++; }
   else console.log('PASS wool band color (wool=' + (wq.e.mp_s0wool() / 10) + ')');
 
+  // ---- Trough repositioning: tap a trough to pick it up, tap a spot to drop
+  // it. host.js relays touch as synthetic mouse events, so a click and a tap
+  // are the same two callbacks here; level 0 has cam 0, so screen coords are
+  // world coords and every drop lands on an exact value. ----
+  const storeT = { map: new Map(), reloaded: false };
+  const clockT = { now: 9600000.0, wall: 1700000000000.0 };
+  const tq = await boot(storeT, clockT);
+  tq.tick();
+  check('two troughs, none held', [tq.e.mp_tr_n(), tq.e.mp_tr_sel()], [2, -1]);
+  const t0x = tq.e.mp_tr0x(), t0y = tq.e.mp_tr0y();
+  const t1x = tq.e.mp_tr1x(), t1y = tq.e.mp_tr1y();
+  const cx0 = Math.floor(t0x / 100), cy0 = Math.floor(t0y / 100);
+  tq.tap(cx0, cy0); tq.tick();
+  check('tap picks a trough up', [tq.e.mp_tr_sel()], [0]);
+  check('pickup leaves it where it was',
+    [tq.e.mp_tr0x(), tq.e.mp_tr0y()], [t0x, t0y]);
+  check('hold banner drawn', tq.px(200, 560), [240, 200, 40, 255]);
+  tq.tap(cx0, cy0); tq.tick();
+  check('tapping the held trough again cancels',
+    [tq.e.mp_tr_sel(), tq.e.mp_tr0x(), tq.e.mp_tr0y()], [-1, t0x, t0y]);
+
+  // A click that wiggles a pixel or two is still a tap (DRAG_THRESHOLD is 6),
+  // so a real mouse click — never pixel-perfect — selects like a touch tap.
+  tq.down(cx0, cy0); tq.move(cx0 + 2, cy0 + 1); tq.up(cx0 + 2, cy0 + 1);
+  tq.tick();
+  check('wiggly click still selects', [tq.e.mp_tr_sel()], [0]);
+
+  // Pick a drop spot clear of both troughs' hit boxes (a tap inside one of
+  // those would pick that trough up instead of dropping). The candidates are
+  // spread further apart than an 80px box, so at most two can ever be
+  // knocked out and one always survives.
+  const clearOf = (sx, sy, ax, ay) =>
+    Math.abs(sx * 100 - ax) >= 4000 || Math.abs(sy * 100 - ay) >= 4000;
+  let dropX = 0, dropY = 0;
+  for (const [sx, sy] of [[300, 320], [420, 200], [200, 480], [480, 420],
+                          [120, 140], [360, 520], [520, 120], [160, 300]]) {
+    if (clearOf(sx, sy, t0x, t0y) && clearOf(sx, sy, t1x, t1y)) {
+      dropX = sx; dropY = sy; break;
+    }
+  }
+  if (dropX === 0) { console.log('FAIL no clear drop spot'); failures++; }
+  tq.tap(dropX, dropY); tq.tick();
+  check('tap drops it exactly there',
+    [tq.e.mp_tr_sel(), tq.e.mp_tr0x(), tq.e.mp_tr0y()],
+    [-1, dropX * 100, dropY * 100]);
+
+  // Drop outside the fence: clamped to bnd_l/t + the keep margins (22 + 12,
+  // 22 + 6), so the sprite still fits inside the rails.
+  tq.tap(dropX, dropY); tq.tick();
+  check('re-pick at the new spot', [tq.e.mp_tr_sel()], [0]);
+  tq.tap(5, 5); tq.tick();
+  check('drop clamps into the fence',
+    [tq.e.mp_tr_sel(), tq.e.mp_tr0x(), tq.e.mp_tr0y()], [-1, 3400, 2800]);
+
+  // The whole point of moving one: the position has to outlive the autosave
+  // (every 5s) and a reload. 400 ticks is 6.7s.
+  for (let i = 0; i < 400; i++) { tq.tick(); clockT.wall += 16.7; }
+  const rawTroughs = storeT.map.get('mypaddockTroughs');
+  console.log('trough save: ' + rawTroughs);
+  const rec0 = String(rawTroughs).split(';')[0].split(',');
+  // stored position is tenths (34.0 -> 340); the getter reports hundredths
+  check('save carries kind,x,y,amount',
+    [rec0.length, rec0[0], Number(rec0[1]), Number(rec0[2])],
+    [4, '0', 340, 280]);
+  const tq2 = await boot(storeT, clockT);
+  tq2.tick();
+  check('moved trough survives reload',
+    [tq2.e.mp_tr_n(), tq2.e.mp_tr0x(), tq2.e.mp_tr0y()], [2, 3400, 2800]);
+
   // ---- M8: level-10 paradigm — seeded save with 22 food + 22 water troughs
   // must cap at 110 sheep and still trade; minimap/camera render implicitly
   const storeL = { map: new Map(), reloaded: false };
@@ -393,6 +462,16 @@ async function boot(store, clock) {
   const lq = await boot(storeL, clockL);
   lq.tick();
   check('L10 cap fits paradigm', [lq.e.mp_sheep_cap()], [110]);
+  // The seeded save is the pre-repositioning 2-field record (kind,amount): it
+  // still loads, and those troughs land at random inside the fence.
+  check('legacy 2-field trough save still loads', [lq.e.mp_tr_n()], [44]);
+  const lx = lq.e.mp_tr0x() / 100, ly = lq.e.mp_tr0y() / 100;
+  // legacy records are placed at a random point in the paddock (bnd_l..bnd_r,
+  // i.e. 22..2958 by 22..2178 at level 10), not at the keep-inset clamp
+  const lin = (lx >= 22) && (lx <= 2958) && (ly >= 22) && (ly <= 2178);
+  console.log((lin ? 'PASS' : 'FAIL') + ' legacy trough placed in bounds ('
+    + lx + ',' + ly + ')');
+  if (!lin) failures++;
   lq.key('b'); lq.tick();
   lq.tap(400, 159); lq.tick(); // row0: buy sheep, gates pass at n=3
   check('L10 trading works', [lq.e.mp_sheep_n(), lq.e.mp_coins()], [4, 9919]);

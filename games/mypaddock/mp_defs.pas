@@ -85,6 +85,17 @@ const
   TR_FOOD = 0;
   TR_WATER = 1;
 
+  { Trough repositioning: a tap picks a trough up, the next tap in the paddock
+    viewport drops it. The hit box is the 24x10 sprite body (drawn from x-12..
+    x+12, y-4..y+6) plus slack for a fingertip; the drop clamp keeps the whole
+    sprite inside the fence. }
+  TROUGH_HIT_HW = 16;
+  TROUGH_HIT_UP = 16;
+  TROUGH_HIT_DN = 18;
+  TROUGH_KEEP_X = 12.0;
+  TROUGH_KEEP_TOP = 6.0;
+  TROUGH_KEEP_BOT = 8.0;
+
   { Worker tuning (worker.odin). }
   FARMER_SPEED = 34.0;
   HAND_SPEED = 34.0;

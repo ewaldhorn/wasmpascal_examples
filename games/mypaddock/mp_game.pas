@@ -40,6 +40,12 @@ var
   mm_moved: Boolean = false;
   mm_last_x: Integer = 0;
   mm_last_y: Integer = 0;
+  { Trough repositioning: tr_sel is the picked-up trough (index into
+    troughs[], -1 when none is held). ptr_x/ptr_y is the last canvas pointer
+    position, used to preview where a drop would land. }
+  tr_sel: Integer = -1;
+  ptr_x: Integer = 0;
+  ptr_y: Integer = 0;
   mwr_x: Integer = 0;
   mwr_y: Integer = 0;
   mwr_w: Integer = 0;
@@ -87,6 +93,18 @@ function DbgS0Wool: Integer;
 function DbgSheepCap: Integer;
 
 function DbgTr0: Integer;
+
+function DbgTrN: Integer;
+
+function DbgTrSel: Integer;
+
+function DbgTr0x: Integer;
+
+function DbgTr0y: Integer;
+
+function DbgTr1x: Integer;
+
+function DbgTr1y: Integer;
 
 function DbgWelcome: Integer;
 
@@ -171,6 +189,47 @@ begin
   KeyEquals := true;
 end;
 
+{ ---- trough repositioning: tap to pick up, tap to drop ---- }
+
+{ Nearest trough whose sprite hit box contains the world point, or -1.
+  Closest wins, so two troughs dropped on the same spot stay individually
+  reachable, and a nearby sheep never steals the tap. }
+function TroughAt(wx, wy: Double): Integer;
+var
+  i, best: Integer;
+  dx, dy, best_d, d: Double;
+begin
+  best := -1;
+  best_d := 0.0;
+  for i := 0 to trough_n - 1 do
+  begin
+    dx := wx - troughs[i].x;
+    dy := wy - troughs[i].y;
+    if (dx < -TROUGH_HIT_HW) or (dx > TROUGH_HIT_HW) then continue;
+    if (dy < -TROUGH_HIT_UP) or (dy > TROUGH_HIT_DN) then continue;
+    d := dx * dx + dy * dy;
+    if (best < 0) or (d < best_d) then
+    begin
+      best := i;
+      best_d := d;
+    end;
+  end;
+  TroughAt := best;
+end;
+
+{ Puts a held trough down at a world point. mp_world's FitTroughX/Y clamp it
+  so the whole sprite stays inside the fence. }
+procedure DropTrough(i: Integer; wx, wy: Double);
+var
+  x, y: Double;
+begin
+  x := FitTroughX(wx);
+  y := FitTroughY(wy);
+  troughs[i].x := x;
+  troughs[i].y := y;
+  AddSparkle(x, y - 16.0);
+end;
+
 procedure HandleShopClick(x, y: Integer);
 var
   i: Integer;
@@ -204,6 +263,7 @@ end;
 procedure HandleTap(x, y: Integer);
 var
   world_x, world_y: Double;
+  ti: Integer;
 begin
   if confirm_reset then
   begin
@@ -226,10 +286,35 @@ begin
     budget_open := false;
     Exit;
   end;
+  { Trough repositioning: inside the paddock viewport a tap picks a trough up,
+    otherwise it drops the one being held where it landed. Mouse clicks and
+    touch taps share this path — both are a press-release under the drag
+    threshold. The held trough stays held across a pan or a minimap jump, so
+    a distant drop is pan-then-tap. Any overlay above clears it. }
+  if x < VIEW_W then
+  begin
+    world_x := Double(x) + cam_x;
+    world_y := Double(y) + cam_y;
+    ti := TroughAt(world_x, world_y);
+    if ti >= 0 then
+    begin
+      { Tapping the held trough again puts it back where it was. }
+      if tr_sel = ti then tr_sel := -1
+      else tr_sel := ti;
+      Exit;
+    end;
+    if tr_sel >= 0 then
+    begin
+      DropTrough(tr_sel, world_x, world_y);
+      tr_sel := -1;
+      Exit;
+    end;
+  end;
   if InRect(x, y, SHOPBTN_X, SHOPBTN_Y, SHOPBTN_W, SHOPBTN_H) then
   begin
     shop_open := true;
     budget_open := false;
+    tr_sel := -1;
     Exit;
   end;
   if InRect(x, y, MUTEBTN_X, MUTEBTN_Y, MUTEBTN_W, MUTEBTN_H) then
@@ -241,12 +326,14 @@ begin
   if InRect(x, y, RSTBTN_X, RSTBTN_Y, RSTBTN_W, RSTBTN_H) then
   begin
     confirm_reset := true;
+    tr_sel := -1;
     Exit;
   end;
   if InRect(x, y, BUDGETBTN_X, BUDGETBTN_Y, BUDGETBTN_W, BUDGETBTN_H) then
   begin
     budget_open := true;
     shop_open := false;
+    tr_sel := -1;
     Exit;
   end;
   MinimapWorld;
@@ -293,6 +380,9 @@ begin
   confirm_reset := false;
   dragging := false;
   drag_moved := false;
+  tr_sel := -1;
+  ptr_x := 0;
+  ptr_y := 0;
   BoundsFor(paddock_level);
   if not LoadTroughs then
   begin
@@ -702,6 +792,39 @@ begin
   end;
 end;
 
+{ Drop preview while a trough is held: the outline sits where the drop will
+  land — clamped to the fence, exactly like DropTrough — so it shows the real
+  destination rather than the raw cursor. Skipped once the cursor leaves the
+  paddock viewport, where a tap is a panel or minimap tap instead. }
+procedure DrawDropPreview;
+var
+  x, y: Double;
+begin
+  if tr_sel < 0 then Exit;
+  if tr_sel >= trough_n then Exit;
+  if ptr_x >= VIEW_W then Exit;
+  x := FitTroughX(Double(ptr_x) + cam_x);
+  y := FitTroughY(Double(ptr_y) + cam_y);
+  DrawTroughGhost(Trunc(x - cam_x), Trunc(y - cam_y), troughs[tr_sel].kind);
+end;
+
+{ Move-mode banner: the only on-screen explanation of the gesture, so it
+  spells out both halves (drop, cancel) while it applies. }
+procedure DrawMoveHint;
+var
+  la, ll, w, h, x, y: Integer;
+begin
+  la := StrAddr('TAP A SPOT TO DROP -- ESC TO CANCEL');
+  ll := StrLen('TAP A SPOT TO DROP -- ESC TO CANCEL');
+  w := ll * 12 + 24;
+  h := 28;
+  x := (VIEW_W - w) div 2;
+  y := VIEW_H - h - 12;
+  CFillRect(x, y, w, h, PANEL_BG_R, PANEL_BG_G, PANEL_BG_B);
+  CRectThick(x, y, w, h, 2, HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  DrawText(x + 12, y + 9, la, ll, HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+end;
+
 procedure DrawFrame;
 var
   i: Integer;
@@ -710,13 +833,15 @@ begin
   CFillRect(0, 0, CANVAS_W, CANVAS_H, SKY_R, SKY_G, SKY_B);
   BlitWorld(cam_x, cam_y);
   for i := 0 to trough_n - 1 do
-    DrawTroughSprite(troughs[i], cam_x, cam_y);
+    DrawTroughSprite(troughs[i], cam_x, cam_y, i = tr_sel);
   for i := 0 to worker_n - 1 do
     DrawWorkerSprite(workers[i], cam_x, cam_y, has_dog);
   for i := 0 to sheep_n - 1 do
     DrawSheepSprite(sheep[i], cam_x, cam_y);
   for i := 0 to effect_n - 1 do
     DrawEffectSprite(effects[i], cam_x, cam_y);
+  DrawDropPreview;
+  if tr_sel >= 0 then DrawMoveHint;
   DrawPanel;
   if shop_open then DrawShop;
   if budget_open then DrawBudget;
@@ -733,6 +858,8 @@ end;
   tap, so panel buttons, shop rows and the minimap's jump-here all stay taps. }
 procedure HandlePointerDown(x, y: Integer);
 begin
+  ptr_x := x;
+  ptr_y := y;
   if shop_open or confirm_reset or budget_open then Exit;
   MinimapWorld;
   if InRect(x, y, mwr_x, mwr_y, mwr_w, mwr_h) then
@@ -756,6 +883,8 @@ procedure HandlePointerMove(x, y: Integer);
 var
   dx, dy: Integer;
 begin
+  ptr_x := x;
+  ptr_y := y;
   if mm_drag then
   begin
     dx := x - mm_last_x;
@@ -851,6 +980,50 @@ begin
   DbgTr0 := Trunc(troughs[0].amount * 100.0);
 end;
 
+function DbgTrN: Integer;
+begin
+  DbgTrN := trough_n;
+end;
+
+function DbgTrSel: Integer;
+begin
+  DbgTrSel := tr_sel;
+end;
+
+{ Trough positions in hundredths of a world pixel, matching mp_s0x/mp_s0y.
+  -1 when that trough does not exist. }
+function TrX(i: Integer): Integer;
+begin
+  if (i < 0) or (i >= trough_n) then TrX := -1
+  else TrX := Trunc(troughs[i].x * 100.0);
+end;
+
+function TrY(i: Integer): Integer;
+begin
+  if (i < 0) or (i >= trough_n) then TrY := -1
+  else TrY := Trunc(troughs[i].y * 100.0);
+end;
+
+function DbgTr0x: Integer;
+begin
+  DbgTr0x := TrX(0);
+end;
+
+function DbgTr0y: Integer;
+begin
+  DbgTr0y := TrY(0);
+end;
+
+function DbgTr1x: Integer;
+begin
+  DbgTr1x := TrX(1);
+end;
+
+function DbgTr1y: Integer;
+begin
+  DbgTr1y := TrY(1);
+end;
+
 function DbgWelcome: Integer;
 begin
   if welcome_timer > 0.0 then DbgWelcome := 1
@@ -899,11 +1072,13 @@ begin
     begin
       shop_open := not shop_open;
       budget_open := false;
+      tr_sel := -1;
     end
     else if c = 101 then
     begin
       budget_open := not budget_open;
       shop_open := false;
+      tr_sel := -1;
     end
     else if c = 109 then
     begin
@@ -917,6 +1092,7 @@ begin
     shop_open := false;
     confirm_reset := false;
     budget_open := false;
+    tr_sel := -1;
   end
   else if KeyEquals(addr, len, StrAddr('ArrowUp'), StrLen('ArrowUp')) then
   begin

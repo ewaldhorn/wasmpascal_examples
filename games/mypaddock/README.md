@@ -41,6 +41,9 @@ live minutes.
 
 - Drag the paddock — or the minimap — to pan; tap the minimap to jump
   somewhere.
+- Tap (or click) a feed or water trough to pick it up, then tap where it should
+  go — a yellow ring marks the one in hand and the outline follows the cursor.
+  `Esc` puts it back. Troughs keep the spot you chose, across reloads.
 - `B` — shop, `E` — budget, `M` — mute sound, arrow keys — pan.
 - The right-hand panel carries the SHOP, SFX, RESET and BUDGET buttons;
   tapping anywhere closes an open overlay (`Esc` too).
@@ -141,7 +144,10 @@ One frame at a time, entirely in Pascal:
   `app_env.play_sound(id)`; the oscillator patches live in `host.js`, mirroring
   the original Odin implementation.
 - Saves are flat `localStorage` keys written through `pascaldom_env`, with the
-  flock and trough arrays packed into composite strings.
+  flock and trough arrays packed into composite strings. A trough record is
+  `kind,x,y,amount` (position in tenths of a world pixel, because you can move
+  them); a save written before troughs were movable is `kind,amount`, and those
+  troughs land at random exactly as they used to.
 
 ## Files
 
