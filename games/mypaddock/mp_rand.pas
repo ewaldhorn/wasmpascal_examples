@@ -21,6 +21,8 @@ function BufByte(buf: Integer; i: Integer): Byte;
 
 function ParseF64(buf: Integer; blen: Integer): Double;
 
+function ParseInt(buf: Integer; blen: Integer): Integer;
+
 implementation
 
 procedure SeedRand(s: Cardinal);
@@ -80,6 +82,24 @@ begin
     end;
   end;
   ParseF64 := (ip + frac) * Double(s);
+end;
+
+function ParseInt(buf: Integer; blen: Integer): Integer;
+var
+  i, v, s: Integer;
+begin
+  v := 0; s := 1; i := 0;
+  if blen > 0 then
+  begin
+    if BufByte(buf, 0) = 45 then begin s := -1; i := 1; end
+    else if BufByte(buf, 0) = 43 then i := 1;
+    while i < blen do
+    begin
+      v := v * 10 + (BufByte(buf, i) - 48);
+      i := i + 1;
+    end;
+  end;
+  ParseInt := v * s;
 end;
 
 begin

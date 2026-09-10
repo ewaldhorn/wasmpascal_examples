@@ -50,7 +50,9 @@ exports
   DbgS0x name 'mp_s0x',
   DbgS0y name 'mp_s0y',
   DbgS0Hunger name 'mp_s0hunger',
-  DbgTr0 name 'mp_tr0';
+  DbgTr0 name 'mp_tr0',
+  DbgWelcome name 'mp_welcome',
+  DbgOfflineCoins name 'mp_offline_coins';
 
 begin
 end.

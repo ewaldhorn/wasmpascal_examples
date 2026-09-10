@@ -110,6 +110,10 @@ const
   UPKEEP_PER_SHEEP = 1;
   UPKEEP_PER_DOG = 4;
   UPKEEP_PER_HAND = 5;
+  OFFLINE_CAP_SECONDS = 28800.0;
+  OFFLINE_MIN_SECONDS = 30.0;
+  OFFLINE_WORKER_CYCLE_SEC = (SHEAR_THRESHOLD / WOOL_GROWTH_PER_SEC) / DOG_REQUIRED_AT;
+  AUTOSAVE_INTERVAL = 5.0;
 
   { Effect tuning (effect.odin). }
   EFFECT_FLOAT_DURATION = 0.9;
@@ -210,6 +214,7 @@ var
   act_a: Byte = 255;
   scratch: array[0..79] of Byte;
   numbuf: array[0..15] of Byte;
+  savebuf: array[0..2047] of Byte;
   sheep: array[0..MAX_SHEEP - 1] of TSheep;
   sheep_n: Integer = 0;
   workers: array[0..MAX_WORKERS - 1] of TWorker;

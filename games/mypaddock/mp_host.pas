@@ -9,7 +9,8 @@ interface
 uses
   mp_defs,
   mp_rand,
-  mp_game;
+  mp_game,
+  mp_env;
 
 var
   cv_h: Integer = 0;
@@ -88,14 +89,16 @@ procedure MpMain;
 var
   app, ver: Integer;
   seed: Cardinal;
+  nowms: Double;
 begin
   doc_h := dom_get_global('document');
   app := dom_get_element_by_id('stage');
   cv_h := dom_canvas_create(app, CANVAS_W, CANVAS_H);
   ctx_h := dom_canvas_get_context(cv_h);
 
-  seed := (Cardinal((dom_now - Trunc(dom_now)) * 1000000.0) xor $5A5A5A5A) or 1;
-  GameInit(seed);
+  nowms := mp_date_now();
+  seed := (Cardinal(Trunc(nowms / 1000.0)) xor $5A5A5A5A) or 1;
+  GameInit(seed, nowms);
   RefreshCanvasRect;
 
   ver := dom_get_element_by_id('version');

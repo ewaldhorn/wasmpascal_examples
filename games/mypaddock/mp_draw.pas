@@ -312,8 +312,9 @@ begin
   SetActive(r, g, b, 255);
   for tt := 0 to t - 1 do
   begin
-    if (w - tt * 2 <= 0) or (h - tt * 2 <= 0) then Break;
-    RectOutline(x + tt, y + tt, w - tt * 2, h - tt * 2);
+    { No Break-in-if here: Break would target the if, not the loop. }
+    if (w - tt * 2 > 0) and (h - tt * 2 > 0) then
+      RectOutline(x + tt, y + tt, w - tt * 2, h - tt * 2);
   end;
 end;
 

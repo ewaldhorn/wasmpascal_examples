@@ -3,13 +3,15 @@
 Sheep-farming idle game ported from Odin (`dinn/games/mypaddock`) to WasmPascal.
 See [PLAN.md](PLAN.md) for the full port plan.
 
-## Status: M3 — sim + live chrome
+## Status: M4 — economy + persistence
 
-Sheep needs/wander/trough self-serve, worker state machine (refill before
-shear, claim tracking), effects, sprites (sheep/worker/dog/troughs), minimap
-dots, live panel counts and shop costs/availability. Verified: 200s sim earns
-101 coins from shearing, sheep eat, troughs cycle. Still M4: shop row
-purchases, upkeep bills, autosave/offline, reset-YES. Still M5: sound.
+Shop row purchases (all 7 rows, live gates), upkeep bills with sell-off drain
+and bill/bankrupt banners, autosave every 5s, localStorage saves readable
+across reloads, offline catch-up with welcome banner, working reset (wipe +
+reload). Verified: sell→save→reload restores (50 coins, 2 sheep), exact
+upkeep bill (40→37 at 60s), 1h offline earns net +600 with welcome banner,
+250s run never goes negative. Still M5: sound. Needs one IDE Run to confirm
+the host provides the `mp_env` import (`date_now`/`js_reload`).
 
 ## How to run
 

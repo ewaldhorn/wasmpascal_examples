@@ -16,7 +16,9 @@ uses
   mp_sheep,
   mp_trough,
   mp_worker,
-  mp_effect;
+  mp_effect,
+  mp_store,
+  mp_env;
 
 var
   cam_x: Double = 0.0;
@@ -46,8 +48,24 @@ var
   wft_sheep: Integer = 0;
   wft_trough: Integer = 0;
   wft_ok: Boolean = false;
+  wall_ms_origin: Double = 0.0;
+  upkeep_timer: Double = 60.0;
+  autosave_timer: Double = 0.0;
+  welcome_timer: Double = 0.0;
+  bill_notice_timer: Double = 0.0;
+  offline_coins_earned: Integer = 0;
+  bill_sheep_sold: Integer = 0;
+  bill_hands_sold: Integer = 0;
+  bill_dog_sold: Boolean = false;
+  cs_sheep: Integer = 0;
+  cs_hands: Integer = 0;
+  cs_dog: Boolean = false;
+  off_next: array[0..MAX_SHEEP - 1] of Double;
+  off_last: array[0..MAX_SHEEP - 1] of Double;
+  off_free: array[0..31] of Double;
+  off_cycle: array[0..31] of Double;
 
-procedure GameInit(seed: Cardinal);
+procedure GameInit(seed: Cardinal; now_ms: Double);
 
 procedure GameUpdate(dt: Double);
 
@@ -74,6 +92,10 @@ function DbgS0y: Integer;
 function DbgS0Hunger: Integer;
 
 function DbgTr0: Integer;
+
+function DbgWelcome: Integer;
+
+function DbgOfflineCoins: Integer;
 
 implementation
 
@@ -125,12 +147,236 @@ end;
 function UpkeepCost: Integer;
 begin
   UpkeepCost := sheep_n * UPKEEP_PER_SHEEP + hand_count * UPKEEP_PER_HAND;
+  if has_dog then
+    UpkeepCost := UpkeepCost + UPKEEP_PER_DOG;
 end;
 
 function HandsRequiredFor(count: Integer): Integer;
 begin
   if count < HAND_REQUIRED_AT then HandsRequiredFor := 0
   else HandsRequiredFor := 1 + (count - HAND_REQUIRED_AT) div HAND_CAPACITY_STEP;
+end;
+
+function SellOneSheep: Boolean;
+begin
+  SellOneSheep := false;
+  if sheep_n <= SHEEP_MIN_KEPT then Exit;
+  sheep_n := sheep_n - 1;
+  coins := coins + SHEEP_SELL_VALUE;
+  SellOneSheep := true;
+end;
+
+function SellOneHand: Boolean;
+var
+  i: Integer;
+begin
+  SellOneHand := false;
+  i := worker_n - 1;
+  while i >= 0 do
+  begin
+    if workers[i].kind = WK_HAND then
+    begin
+      workers[i] := workers[worker_n - 1];
+      worker_n := worker_n - 1;
+      hand_count := hand_count - 1;
+      coins := coins + FARM_HAND_SELL_VALUE;
+      SellOneHand := true;
+      Exit;
+    end;
+    i := i - 1;
+  end;
+end;
+
+procedure ChargeUpkeep;
+var
+  done: Boolean;
+begin
+  coins := coins - UpkeepCost;
+  cs_sheep := 0;
+  cs_hands := 0;
+  cs_dog := false;
+  done := false;
+  while (coins < 0) and (not done) do
+  begin
+    if SellOneSheep then
+      cs_sheep := cs_sheep + 1
+    else
+      done := true;
+  end;
+  done := false;
+  while (coins < 0) and (not done) do
+  begin
+    if SellOneHand then
+      cs_hands := cs_hands + 1
+    else
+      done := true;
+  end;
+  if (coins < 0) and has_dog then
+  begin
+    has_dog := false;
+    coins := coins + DOG_SELL_VALUE;
+    cs_dog := true;
+  end;
+  if coins < 0 then
+    coins := 0;
+end;
+
+function TryExpandPaddock: Boolean;
+var
+  cost: Integer;
+begin
+  TryExpandPaddock := false;
+  if paddock_level >= MAX_PADDOCK_LEVEL then Exit;
+  cost := ExpandCost(paddock_level);
+  if coins < cost then Exit;
+  coins := coins - cost;
+  paddock_level := paddock_level + 1;
+  TryExpandPaddock := true;
+end;
+
+function TryBuySheep: Boolean;
+var
+  cost: Integer;
+begin
+  TryBuySheep := false;
+  if sheep_n >= SheepCap then Exit;
+  if sheep_n >= PaddockCap(paddock_level) then Exit;
+  if (sheep_n >= DOG_REQUIRED_AT) and (not has_dog) then Exit;
+  if hand_count < HandsRequiredFor(sheep_n + 1) then Exit;
+  cost := BuySheepCost(sheep_n);
+  if coins < cost then Exit;
+  if sheep_n >= MAX_SHEEP then Exit;
+  coins := coins - cost;
+  next_sheep_id := next_sheep_id + 1;
+  NewSheep(sheep[sheep_n], next_sheep_id);
+  sheep_n := sheep_n + 1;
+  TryBuySheep := true;
+end;
+
+function TryHireDog: Boolean;
+begin
+  TryHireDog := false;
+  if has_dog then Exit;
+  if coins < DOG_HIRE_COST then Exit;
+  coins := coins - DOG_HIRE_COST;
+  has_dog := true;
+  TryHireDog := true;
+end;
+
+function TryHireHand: Boolean;
+var
+  cost: Integer;
+begin
+  TryHireHand := false;
+  cost := HandCost(hand_count);
+  if coins < cost then Exit;
+  if worker_n >= MAX_WORKERS then Exit;
+  coins := coins - cost;
+  hand_count := hand_count + 1;
+  NewWorker(workers[worker_n], WK_HAND);
+  worker_n := worker_n + 1;
+  TryHireHand := true;
+end;
+
+function TryBuyTrough(kind: Integer): Boolean;
+begin
+  TryBuyTrough := false;
+  if coins < TROUGH_COST then Exit;
+  if trough_n >= MAX_TROUGHS then Exit;
+  coins := coins - TROUGH_COST;
+  BoundsRandomPoint;
+  NewTrough(troughs[trough_n], kind, rnd_x, rnd_y);
+  trough_n := trough_n + 1;
+  TryBuyTrough := true;
+end;
+
+function CurrentWallMs: Double;
+begin
+  CurrentWallMs := wall_ms_origin + time_acc * 1000.0;
+end;
+
+procedure SaveAll;
+var
+  dog_v: Integer;
+begin
+  SaveInt(StrAddr('mypaddockCoins'), StrLen('mypaddockCoins'), coins);
+  SaveInt(StrAddr('mypaddockPaddockLevel'), StrLen('mypaddockPaddockLevel'), paddock_level);
+  if has_dog then dog_v := 1 else dog_v := 0;
+  SaveInt(StrAddr('mypaddockDog'), StrLen('mypaddockDog'), dog_v);
+  SaveInt(StrAddr('mypaddockHands'), StrLen('mypaddockHands'), hand_count);
+  SaveFlock;
+  SaveTroughs;
+  SaveLastSeen(CurrentWallMs);
+  SaveSfx(sfx_enabled);
+end;
+
+procedure ApplyOfflineProgress(elapsed: Double);
+var
+  i, n, lanes, w, w_best, s_best: Integer;
+  coins_each: Integer;
+  regrow, t, assign: Double;
+  done: Boolean;
+begin
+  for i := 0 to sheep_n - 1 do
+  begin
+    sheep[i].hunger := 100.0;
+    sheep[i].thirst := 100.0;
+  end;
+  n := sheep_n;
+  if n = 0 then Exit;
+  regrow := SHEAR_THRESHOLD / WOOL_GROWTH_PER_SEC;
+  coins_each := Trunc(SHEAR_THRESHOLD) div WOOL_TO_COIN_DIV;
+  for i := 0 to n - 1 do
+  begin
+    t := (SHEAR_THRESHOLD - sheep[i].wool) / WOOL_GROWTH_PER_SEC;
+    if t < 0.0 then t := 0.0;
+    off_next[i] := t;
+    off_last[i] := -1.0;
+  end;
+  lanes := 1 + hand_count;
+  if lanes > 32 then lanes := 32;
+  for w := 0 to lanes - 1 do
+  begin
+    off_free[w] := 0.0;
+    off_cycle[w] := OFFLINE_WORKER_CYCLE_SEC;
+  end;
+  if has_dog then
+    off_cycle[0] := OFFLINE_WORKER_CYCLE_SEC / DOG_SPEED_MULT;
+  { NOTE: do not use Break inside the if below — the compiler resolves it
+    to the if-block, not the loop (infinite loop). Done-flag instead. }
+  done := false;
+  while not done do
+  begin
+    w_best := 0;
+    for w := 1 to lanes - 1 do
+      if off_free[w] < off_free[w_best] then
+        w_best := w;
+    s_best := 0;
+    for i := 1 to n - 1 do
+      if off_next[i] < off_next[s_best] then
+        s_best := i;
+    assign := off_free[w_best];
+    if off_next[s_best] > assign then
+      assign := off_next[s_best];
+    if assign > elapsed then
+      done := true
+    else
+    begin
+      coins := coins + coins_each;
+      off_last[s_best] := assign;
+      off_next[s_best] := assign + regrow;
+      off_free[w_best] := assign + off_cycle[w_best];
+    end;
+  end;
+  for i := 0 to n - 1 do
+  begin
+    if off_last[i] < 0.0 then
+      sheep[i].wool := sheep[i].wool + WOOL_GROWTH_PER_SEC * elapsed
+    else
+      sheep[i].wool := (elapsed - off_last[i]) * WOOL_GROWTH_PER_SEC;
+    if sheep[i].wool < 0.0 then sheep[i].wool := 0.0;
+    if sheep[i].wool > 100.0 then sheep[i].wool := 100.0;
+  end;
 end;
 
 function NearestTrough(kind: Integer; x, y: Double): Integer;
@@ -461,6 +707,34 @@ begin
   KeyEquals := true;
 end;
 
+procedure HandleShopClick(x, y: Integer);
+var
+  i: Integer;
+  ok: Boolean;
+begin
+  if (x < SHOP_PANEL_X) or (x >= SHOP_PANEL_X + SHOP_PANEL_W) or
+     (y < SHOP_PANEL_Y) or (y >= SHOP_PANEL_Y + SHOP_PANEL_H) then
+  begin
+    shop_open := false;
+    Exit;
+  end;
+  for i := 0 to SHOP_ROW_COUNT - 1 do
+  begin
+    ShopRowRect(i);
+    if not InRect(x, y, rr_x, rr_y, rr_w, rr_h) then
+      continue;
+    if i = 0 then ok := TryBuySheep
+    else if i = 1 then ok := TryExpandPaddock
+    else if i = 2 then ok := TryHireDog
+    else if i = 3 then ok := SellOneSheep
+    else if i = 4 then ok := TryBuyTrough(TR_FOOD)
+    else if i = 5 then ok := TryBuyTrough(TR_WATER)
+    else ok := TryHireHand;
+    { M5 plays purchase/deny/coin sounds here based on ok. }
+    Exit;
+  end;
+end;
+
 procedure HandleTap(x, y: Integer);
 var
   world_x, world_y: Double;
@@ -469,8 +743,8 @@ begin
   begin
     if InRect(x, y, YESBTN_X, YESBTN_Y, YESBTN_W, YESBTN_H) then
     begin
-      { M4 wires the real wipe+reload; M3 just closes. }
-      confirm_reset := false;
+      ResetSave;
+      mp_js_reload;
       Exit;
     end;
     confirm_reset := false;
@@ -478,10 +752,7 @@ begin
   end;
   if shop_open then
   begin
-    if (x < SHOP_PANEL_X) or (x >= SHOP_PANEL_X + SHOP_PANEL_W) or
-       (y < SHOP_PANEL_Y) or (y >= SHOP_PANEL_Y + SHOP_PANEL_H) then
-      shop_open := false;
-    { Row purchases land in M4; M3 only opens/closes the overlay. }
+    HandleShopClick(x, y);
     Exit;
   end;
   if InRect(x, y, SHOPBTN_X, SHOPBTN_Y, SHOPBTN_W, SHOPBTN_H) then
@@ -510,56 +781,133 @@ begin
   end;
 end;
 
-procedure GameInit(seed: Cardinal);
+procedure GameInit(seed: Cardinal; now_ms: Double);
 var
-  i: Integer;
+  i, cycles, earned_before: Integer;
+  last_seen, elapsed: Double;
 begin
   SeedRand(seed);
+  wall_ms_origin := now_ms;
   bg_level := -1;
   cam_x := 0.0;
   cam_y := 0.0;
-  paddock_level := 0;
-  coins := START_COINS;
-  has_dog := false;
-  hand_count := 0;
+  coins := LoadInt(StrAddr('mypaddockCoins'), StrLen('mypaddockCoins'), START_COINS);
+  paddock_level := LoadInt(StrAddr('mypaddockPaddockLevel'), StrLen('mypaddockPaddockLevel'), 0);
+  has_dog := LoadInt(StrAddr('mypaddockDog'), StrLen('mypaddockDog'), 0) <> 0;
+  hand_count := LoadInt(StrAddr('mypaddockHands'), StrLen('mypaddockHands'), 0);
   sheep_n := 0;
   worker_n := 0;
   trough_n := 0;
   effect_n := 0;
   next_sheep_id := 0;
   time_acc := 0.0;
+  upkeep_timer := UPKEEP_INTERVAL;
+  autosave_timer := 0.0;
+  welcome_timer := 0.0;
+  bill_notice_timer := 0.0;
+  offline_coins_earned := 0;
   shop_open := false;
   confirm_reset := false;
   dragging := false;
   drag_moved := false;
-  BoundsFor(0);
-  for i := 1 to 2 do
+  BoundsFor(paddock_level);
+  if not LoadTroughs then
   begin
-    BoundsRandomPoint;
-    if i = 1 then
-      NewTrough(troughs[trough_n], TR_FOOD, rnd_x, rnd_y)
-    else
-      NewTrough(troughs[trough_n], TR_WATER, rnd_x, rnd_y);
-    trough_n := trough_n + 1;
+    for i := 1 to 2 do
+    begin
+      BoundsRandomPoint;
+      if i = 1 then
+        NewTrough(troughs[trough_n], TR_FOOD, rnd_x, rnd_y)
+      else
+        NewTrough(troughs[trough_n], TR_WATER, rnd_x, rnd_y);
+      trough_n := trough_n + 1;
+    end;
   end;
-  for i := 1 to START_SHEEP do
-  begin
-    next_sheep_id := next_sheep_id + 1;
-    NewSheep(sheep[sheep_n], next_sheep_id);
-    sheep_n := sheep_n + 1;
-  end;
+  if not LoadFlock then
+    for i := 1 to START_SHEEP do
+    begin
+      next_sheep_id := next_sheep_id + 1;
+      NewSheep(sheep[sheep_n], next_sheep_id);
+      sheep_n := sheep_n + 1;
+    end;
   NewWorker(workers[worker_n], WK_FARMER);
   worker_n := worker_n + 1;
-  EnsureBackground(0);
+  for i := 1 to hand_count do
+  begin
+    { No Break-in-if (targets the if, not the loop); guard instead. }
+    if worker_n < MAX_WORKERS then
+    begin
+      NewWorker(workers[worker_n], WK_HAND);
+      worker_n := worker_n + 1;
+    end;
+  end;
+  sfx_enabled := LoadSfx;
+  EnsureBackground(paddock_level);
+  last_seen := LoadLastSeen;
+  if last_seen >= 0.0 then
+  begin
+    elapsed := (now_ms - last_seen) / 1000.0;
+    if elapsed < 0.0 then elapsed := 0.0;
+    if elapsed > OFFLINE_CAP_SECONDS then elapsed := OFFLINE_CAP_SECONDS;
+    if elapsed > OFFLINE_MIN_SECONDS then
+    begin
+      earned_before := coins;
+      ApplyOfflineProgress(elapsed);
+      cycles := Trunc(elapsed / UPKEEP_INTERVAL);
+      bill_sheep_sold := 0;
+      bill_hands_sold := 0;
+      bill_dog_sold := false;
+      for i := 1 to cycles do
+      begin
+        ChargeUpkeep;
+        bill_sheep_sold := bill_sheep_sold + cs_sheep;
+        bill_hands_sold := bill_hands_sold + cs_hands;
+        if cs_dog then bill_dog_sold := true;
+      end;
+      if (bill_sheep_sold > 0) or (bill_hands_sold > 0) or bill_dog_sold then
+        bill_notice_timer := 6.0
+      else if coins > earned_before then
+      begin
+        offline_coins_earned := coins - earned_before;
+        welcome_timer := 6.0;
+      end;
+    end;
+  end;
 end;
 
 procedure GameUpdate(dt: Double);
+var
+  sold_any: Boolean;
 begin
   time_acc := time_acc + dt;
+  if welcome_timer > 0.0 then
+    welcome_timer := welcome_timer - dt;
+  if bill_notice_timer > 0.0 then
+    bill_notice_timer := bill_notice_timer - dt;
   BoundsFor(paddock_level);
   UpdateSheepNeeds(dt);
   UpdateWorkers(dt);
   UpdateEffects(dt);
+  upkeep_timer := upkeep_timer - dt;
+  if upkeep_timer <= 0.0 then
+  begin
+    upkeep_timer := upkeep_timer + UPKEEP_INTERVAL;
+    ChargeUpkeep;
+    sold_any := (cs_sheep > 0) or (cs_hands > 0) or cs_dog;
+    if sold_any then
+    begin
+      bill_sheep_sold := cs_sheep;
+      bill_hands_sold := cs_hands;
+      bill_dog_sold := cs_dog;
+      bill_notice_timer := 6.0;
+    end;
+  end;
+  autosave_timer := autosave_timer + dt;
+  if autosave_timer >= AUTOSAVE_INTERVAL then
+  begin
+    autosave_timer := 0.0;
+    SaveAll;
+  end;
 end;
 
 procedure DrawMinimap;
@@ -704,6 +1052,42 @@ begin
     StrAddr(' COINS'), StrLen(' COINS'), cr, cg, cb);
 end;
 
+procedure DrawCountRow(i, na, nl, count, v: Integer; avail: Boolean);
+var
+  n, nx: Integer;
+begin
+  ShopRowRect(i);
+  if avail then
+    CFillRect(rr_x, rr_y, rr_w, rr_h, BTN_BG_R, BTN_BG_G, BTN_BG_B)
+  else
+    CFillRect(rr_x, rr_y, rr_w, rr_h, BTN_DIS_R, BTN_DIS_G, BTN_DIS_B);
+  DrawText(rr_x + 10, rr_y + (rr_h - 14) div 2, na, nl,
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  nx := rr_x + 10 + nl * 12;
+  n := IntToBuf(count);
+  DrawDigits(nx, rr_y + (rr_h - 14) div 2, n,
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  DrawText(nx + n * 12, rr_y + (rr_h - 14) div 2,
+    StrAddr(')'), StrLen(')'), HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  n := IntToBuf(v);
+  if avail then
+  begin
+    DrawDigits(rr_x + rr_w - (n + 6) * 12 - 10, rr_y + (rr_h - 14) div 2, n,
+      HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+    DrawText(rr_x + rr_w - 6 * 12 - 10, rr_y + (rr_h - 14) div 2,
+      StrAddr(' COINS'), StrLen(' COINS'),
+      HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  end
+  else
+  begin
+    DrawDigits(rr_x + rr_w - (n + 6) * 12 - 10, rr_y + (rr_h - 14) div 2, n,
+      HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+    DrawText(rr_x + rr_w - 6 * 12 - 10, rr_y + (rr_h - 14) div 2,
+      StrAddr(' COINS'), StrLen(' COINS'),
+      HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  end;
+end;
+
 function BuySheepCost(count: Integer): Integer;
 begin
   BuySheepCost := 20 + count * 20;
@@ -774,12 +1158,12 @@ begin
   else
     DrawShopRowText(3, StrAddr('SELL SHEEP'), StrLen('SELL SHEEP'),
       StrAddr('MIN 1 SHEEP'), StrLen('MIN 1 SHEEP'), false);
-  DrawShopRowCoins(4, StrAddr('FOOD TROUGH (1)'), StrLen('FOOD TROUGH (1)'),
-    TROUGH_COST, false, coins >= TROUGH_COST);
-  DrawShopRowCoins(5, StrAddr('WATER TROUGH (1)'), StrLen('WATER TROUGH (1)'),
-    TROUGH_COST, false, coins >= TROUGH_COST);
-  DrawShopRowCoins(6, StrAddr('HIRE FARM HAND (0)'), StrLen('HIRE FARM HAND (0)'),
-    HandCost(hand_count), false, coins >= HandCost(hand_count));
+  DrawCountRow(4, StrAddr('FOOD TROUGH ('), StrLen('FOOD TROUGH ('),
+    CountTroughs(TR_FOOD), TROUGH_COST, coins >= TROUGH_COST);
+  DrawCountRow(5, StrAddr('WATER TROUGH ('), StrLen('WATER TROUGH ('),
+    CountTroughs(TR_WATER), TROUGH_COST, coins >= TROUGH_COST);
+  DrawCountRow(6, StrAddr('HIRE FARM HAND ('), StrLen('HIRE FARM HAND ('),
+    hand_count, HandCost(hand_count), coins >= HandCost(hand_count));
   DrawText(SHOP_PANEL_X + 20, SHOP_PANEL_Y + SHOP_PANEL_H - 24,
     StrAddr('[ESC OR B TO CLOSE]'), StrLen('[ESC OR B TO CLOSE]'),
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
@@ -811,6 +1195,118 @@ begin
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
 end;
 
+procedure DrawWelcomeBanner;
+var
+  w, h, x, y, n, total, cx: Integer;
+begin
+  w := 420;
+  h := 40;
+  x := (VIEW_W - w) div 2;
+  y := 16;
+  CFillRect(x, y, w, h, PANEL_BG_R, PANEL_BG_G, PANEL_BG_B);
+  CRectThick(x, y, w, h, 2, PANEL_BD_R, PANEL_BD_G, PANEL_BD_B);
+  n := IntToBuf(offline_coins_earned);
+  total := 22 + n + 6;
+  cx := x + (w - total * 12) div 2;
+  DrawText(cx, y + 13,
+    StrAddr('WHILE YOU WERE AWAY: +'), StrLen('WHILE YOU WERE AWAY: +'),
+    HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  cx := cx + 22 * 12;
+  DrawDigits(cx, y + 13, n, HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  DrawText(cx + n * 12, y + 13,
+    StrAddr(' COINS'), StrLen(' COINS'),
+    HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+end;
+
+procedure DrawBillNotice;
+var
+  w, h, x, y, n, total, cx: Integer;
+  bankrupt: Boolean;
+begin
+  w := 460;
+  h := 40;
+  x := (VIEW_W - w) div 2;
+  y := 16;
+  CFillRect(x, y, w, h, PANEL_BG_R, PANEL_BG_G, PANEL_BG_B);
+  CRectThick(x, y, w, h, 2, BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+  bankrupt := (sheep_n <= SHEEP_MIN_KEPT) and (not has_dog) and
+    (hand_count = 0) and (coins = 0);
+  if bankrupt then
+  begin
+    DrawText(x + (w - 39 * 12) div 2, y + 13,
+      StrAddr('BANKRUPT - SOLD DOWN TO YOUR LAST SHEEP'),
+      StrLen('BANKRUPT - SOLD DOWN TO YOUR LAST SHEEP'),
+      BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+    Exit;
+  end;
+  total := 29;
+  if bill_sheep_sold > 0 then
+  begin
+    n := IntToBuf(bill_sheep_sold);
+    total := total + 1 + n + 6;
+  end;
+  if bill_hands_sold > 0 then
+  begin
+    n := IntToBuf(bill_hands_sold);
+    total := total + 3 + n + 10;
+    if bill_hands_sold > 1 then total := total + 1;
+  end;
+  if bill_dog_sold then
+  begin
+    if (bill_sheep_sold > 0) or (bill_hands_sold > 0) then
+      total := total + 10
+    else
+      total := total + 14;
+  end;
+  cx := x + (w - total * 12) div 2;
+  DrawText(cx, y + 13,
+    StrAddr('COULDN''T PAY THE BILLS - SOLD'),
+    StrLen('COULDN''T PAY THE BILLS - SOLD'),
+    BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+  cx := cx + 29 * 12;
+  if bill_sheep_sold > 0 then
+  begin
+    n := IntToBuf(bill_sheep_sold);
+    DrawText(cx, y + 13, StrAddr(' '), StrLen(' '),
+      BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+    DrawDigits(cx + 12, y + 13, n, BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+    DrawText(cx + 12 + n * 12, y + 13,
+      StrAddr(' SHEEP'), StrLen(' SHEEP'),
+      BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+    cx := cx + (1 + n + 6) * 12;
+  end;
+  if bill_hands_sold > 0 then
+  begin
+    n := IntToBuf(bill_hands_sold);
+    DrawText(cx, y + 13, StrAddr(' + '), StrLen(' + '),
+      BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+    DrawDigits(cx + 3 * 12, y + 13, n, BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+    if bill_hands_sold > 1 then
+    begin
+      DrawText(cx + (3 + n) * 12, y + 13,
+        StrAddr(' FARM HANDS'), StrLen(' FARM HANDS'),
+        BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+      cx := cx + (3 + n + 11) * 12;
+    end
+    else
+    begin
+      DrawText(cx + (3 + n) * 12, y + 13,
+        StrAddr(' FARM HAND'), StrLen(' FARM HAND'),
+        BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+      cx := cx + (3 + n + 10) * 12;
+    end;
+  end;
+  if bill_dog_sold then
+  begin
+    if (bill_sheep_sold > 0) or (bill_hands_sold > 0) then
+      DrawText(cx, y + 13, StrAddr(' + THE DOG'), StrLen(' + THE DOG'),
+        BAR_BAD_R, BAR_BAD_G, BAR_BAD_B)
+    else
+      DrawText(cx, y + 13, StrAddr(' THE SHEEP DOG'), StrLen(' THE SHEEP DOG'),
+        BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+  end;
+end;
+
 procedure DrawFrame;
 var
   i: Integer;
@@ -829,6 +1325,8 @@ begin
   DrawPanel;
   if shop_open then DrawShop;
   if confirm_reset then DrawResetConfirm;
+  if bill_notice_timer > 0.0 then DrawBillNotice
+  else if welcome_timer > 0.0 then DrawWelcomeBanner;
 end;
 
 procedure HandlePointerDown(x, y: Integer);
@@ -900,6 +1398,17 @@ end;
 function DbgTr0: Integer;
 begin
   DbgTr0 := Trunc(troughs[0].amount * 100.0);
+end;
+
+function DbgWelcome: Integer;
+begin
+  if welcome_timer > 0.0 then DbgWelcome := 1
+  else DbgWelcome := 0;
+end;
+
+function DbgOfflineCoins: Integer;
+begin
+  DbgOfflineCoins := offline_coins_earned;
 end;
 
 procedure HandleKeyDown(addr, len: Integer);
