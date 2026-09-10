@@ -2,8 +2,9 @@
 library mypaddock;
 
 { My Paddock — sheep-farming idle game, ported from Odin to WasmPascal.
-  Pixel-buffer pascaldom ABI (see PLAN.md §1). M2: camera + panel chrome.
-  mp_* getters are debug/test exports (sweep_state precedent). }
+  Pixel-buffer pascaldom ABI (see PLAN.md §1). M3: sim + live chrome.
+  Dbg* getters are debug/test exports (sweep_state precedent); they live in
+  mp_game and are re-exported here. }
 
 uses
   mp_host,
@@ -42,7 +43,14 @@ exports
   mp_cam_y name 'mp_cam_y',
   mp_shop_open name 'mp_shop_open',
   mp_sfx_on name 'mp_sfx_on',
-  mp_confirm name 'mp_confirm';
+  mp_confirm name 'mp_confirm',
+  DbgSheepN name 'mp_sheep_n',
+  DbgWorkerN name 'mp_worker_n',
+  DbgCoins name 'mp_coins',
+  DbgS0x name 'mp_s0x',
+  DbgS0y name 'mp_s0y',
+  DbgS0Hunger name 'mp_s0hunger',
+  DbgTr0 name 'mp_tr0';
 
 begin
 end.

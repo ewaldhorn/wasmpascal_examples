@@ -3,13 +3,13 @@
 Sheep-farming idle game ported from Odin (`dinn/games/mypaddock`) to WasmPascal.
 See [PLAN.md](PLAN.md) for the full port plan.
 
-## Status: M2 — camera + panel chrome
+## Status: M3 — sim + live chrome
 
-Scrollable-world camera (drag pan with clamp, arrow keys, minimap tap-jump),
-right panel (coins/sheep/upkeep lines, shop/mute/reset buttons, minimap with
-viewport box), shop overlay shell with 7 rows, reset confirmation dialog.
-No sim yet: coins/sheep/trough counts are placeholders; shop row clicks and
-reset-YES are no-ops wired in M4.
+Sheep needs/wander/trough self-serve, worker state machine (refill before
+shear, claim tracking), effects, sprites (sheep/worker/dog/troughs), minimap
+dots, live panel counts and shop costs/availability. Verified: 200s sim earns
+101 coins from shearing, sheep eat, troughs cycle. Still M4: shop row
+purchases, upkeep bills, autosave/offline, reset-YES. Still M5: sound.
 
 ## How to run
 
@@ -40,5 +40,7 @@ node tests/mp_test.js /tmp/mypaddock_m2.wasm   # expect SUCCESS
 | `mp_world.pas` | world size / bounds (port of `world.odin`) |
 | `mp_draw.pas` | pixel rects/circles, 5x7 font + text |
 | `mp_render.pas` | background bake + viewport blit |
-| `mp_game.pas` | init / update / frame seam (sim lands in M3) |
+| `mp_game.pas` | camera/input/panel + sim glue (sheep needs, workers, effects) |
+| `mp_sheep.pas` / `mp_trough.pas` / `mp_worker.pas` / `mp_effect.pas` | entity data + logic (ports of `sheep.odin` etc.) |
+| `mp_sprites.pas` | entity sprites + effect text |
 | `mp_host.pas` | canvas bootstrap + event loop (port of `main.odin`) |

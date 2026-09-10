@@ -54,6 +54,69 @@ const
   DRAG_THRESHOLD = 6;
   PAN_STEP = 48;
   START_COINS = 40;
+  START_SHEEP = 3;
+
+  { Sheep tuning (sheep.odin). }
+  SHEEP_SPEED = 14.0;
+  SHEEP_WANDER_MIN = 4.0;
+  SHEEP_WANDER_MAX = 10.0;
+  SHEEP_ARRIVE_DIST = 10.0;
+  HUNGER_DECAY_PER_SEC = 100.0 / 300.0;
+  THIRST_DECAY_PER_SEC = 100.0 / 240.0;
+  WOOL_GROWTH_PER_SEC = 100.0 / 347.8;
+  SHEAR_THRESHOLD = 80.0;
+  WOOL_TO_COIN_DIV = 4;
+
+  { Trough tuning (trough.odin / constants.odin). }
+  TROUGH_SHEEP_CAPACITY = 5;
+  TROUGH_CAPACITY = 15.0;
+  TROUGH_CONSUME_PER_VISIT = 1.0;
+  TROUGH_REFILL_THRESHOLD_FRAC = 0.3;
+  SHEEP_SEEK_THRESHOLD = 40.0;
+  TR_FOOD = 0;
+  TR_WATER = 1;
+
+  { Worker tuning (worker.odin). }
+  FARMER_SPEED = 34.0;
+  HAND_SPEED = 34.0;
+  WORKER_WANDER_MIN = 3.0;
+  WORKER_WANDER_MAX = 7.0;
+  WORKER_ARRIVE_DIST = 14.0;
+  WORKER_WORK_DURATION = 0.7;
+  DOG_SPEED_MULT = 1.75;
+  WK_FARMER = 0;
+  WK_HAND = 1;
+  WS_IDLE = 0;
+  WS_WALKING = 1;
+  WS_WORKING = 2;
+  WT_NONE = 0;
+  WT_REFILL_FOOD = 1;
+  WT_REFILL_WATER = 2;
+  WT_SHEAR = 3;
+
+  { Economy tuning (shop.odin / constants.odin) — mutations land in M4. }
+  TROUGH_COST = 50;
+  DOG_REQUIRED_AT = 10;
+  DOG_HIRE_COST = 150;
+  DOG_SELL_VALUE = 75;
+  HAND_REQUIRED_AT = 20;
+  HAND_CAPACITY_STEP = 10;
+  FARM_HAND_BASE_COST = 200;
+  FARM_HAND_COST_STEP = 100;
+  FARM_HAND_SELL_VALUE = 90;
+  SHEEP_SELL_VALUE = 10;
+  SHEEP_MIN_KEPT = 1;
+  UPKEEP_INTERVAL = 60.0;
+  UPKEEP_PER_SHEEP = 1;
+  UPKEEP_PER_DOG = 4;
+  UPKEEP_PER_HAND = 5;
+
+  { Effect tuning (effect.odin). }
+  EFFECT_FLOAT_DURATION = 0.9;
+  EFFECT_FLOAT_RISE = 30.0;
+  SPARKLE_DURATION = 0.5;
+  EK_COIN_FLOAT = 0;
+  EK_SPARKLE = 1;
 
   { Host callback ids (echoed back via pascaldom_invoke_callback). }
   CB_MOUSEDOWN = 0;
@@ -103,6 +166,38 @@ const
   BAR_BAD_R = 200; BAR_BAD_G = 70; BAR_BAD_B = 60;
   COIN_FLOAT_R = 255; COIN_FLOAT_G = 215; COIN_FLOAT_B = 60;
 
+type
+  TSheep = record
+    id: Integer;
+    x, y: Double;
+    target_x, target_y: Double;
+    facing: Double;
+    hunger, thirst, wool: Double;
+    wander_timer, bob_timer, flash_timer: Double;
+  end;
+  TTrough = record
+    kind: Integer;
+    x, y: Double;
+    amount: Double;
+  end;
+  TWorker = record
+    kind: Integer;
+    x, y: Double;
+    target_x, target_y: Double;
+    facing: Double;
+    walk_timer, wander_timer: Double;
+    state, task: Integer;
+    target_sheep_id: Integer;
+    target_trough: Integer;
+    work_timer, speed_mult: Double;
+  end;
+  TEffect = record
+    kind: Integer;
+    x, y: Double;
+    value: Integer;
+    timer, max_timer: Double;
+  end;
+
 var
   pixels: array[0..PIXEL_COUNT - 1] of Byte;
   bg: array[0..BG_MAX_COUNT - 1] of Byte;
@@ -115,6 +210,19 @@ var
   act_a: Byte = 255;
   scratch: array[0..79] of Byte;
   numbuf: array[0..15] of Byte;
+  sheep: array[0..MAX_SHEEP - 1] of TSheep;
+  sheep_n: Integer = 0;
+  workers: array[0..MAX_WORKERS - 1] of TWorker;
+  worker_n: Integer = 0;
+  troughs: array[0..MAX_TROUGHS - 1] of TTrough;
+  trough_n: Integer = 0;
+  effects: array[0..MAX_EFFECTS - 1] of TEffect;
+  effect_n: Integer = 0;
+  next_sheep_id: Integer = 0;
+  claimed_sheep: array[0..MAX_SHEEP - 1] of Integer;
+  claimed_sheep_n: Integer = 0;
+  claimed_troughs: array[0..MAX_TROUGHS - 1] of Integer;
+  claimed_troughs_n: Integer = 0;
   rng_state: Cardinal = 1;
   rnd_x: Double = 0.0;
   rnd_y: Double = 0.0;
@@ -144,6 +252,7 @@ function  dom_now: Double; external 'pascaldom_env' name 'dom_now';
 
 { math }
 function  mSqrt(x: Double): Double; external 'odin_env' name 'sqrt';
+function  mSin(x: Double): Double; external 'odin_env' name 'sin';
 
 implementation
 

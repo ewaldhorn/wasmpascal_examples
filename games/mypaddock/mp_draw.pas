@@ -33,6 +33,10 @@ procedure DrawDigits(x, y, n: Integer; r, g, b: Integer);
 
 procedure DrawLabelInt(x, y, pa, pl, v: Integer; r, g, b: Integer);
 
+procedure CircleOutline(cx, cy, radius: Integer);
+
+procedure DitherCircle(cx, cy, radius: Integer);
+
 procedure DimScreen;
 
 procedure BgPutPixel(x, y: Integer);
@@ -360,6 +364,53 @@ begin
   DrawText(x, y, pa, pl, r, g, b);
   n := IntToBuf(v);
   DrawDigits(x + pl * 12, y, n, r, g, b);
+end;
+
+procedure CircleOutline(cx, cy, radius: Integer);
+var
+  x, y, err: Integer;
+begin
+  if radius <= 0 then Exit;
+  x := radius;
+  y := 0;
+  err := 1 - radius;
+  while x >= y do
+  begin
+    PutPixel(cx + x, cy + y);
+    PutPixel(cx - x, cy + y);
+    PutPixel(cx + x, cy - y);
+    PutPixel(cx - x, cy - y);
+    PutPixel(cx + y, cy + x);
+    PutPixel(cx - y, cy + x);
+    PutPixel(cx + y, cy - x);
+    PutPixel(cx - y, cy - x);
+    y := y + 1;
+    if err <= 0 then
+      err := err + 2 * y + 1
+    else
+    begin
+      x := x - 1;
+      err := err + 2 * (y - x) + 1;
+    end;
+  end;
+end;
+
+{ DitherCircle draws a 50% checkerboard disc — stands in for Odin's
+  translucent shadow circles, which a raw RGBA buffer cannot blend. }
+procedure DitherCircle(cx, cy, radius: Integer);
+var
+  dy, chord, r2, dx: Integer;
+begin
+  if radius <= 0 then Exit;
+  SetActive(0, 0, 0, 255);
+  r2 := radius * radius;
+  for dy := -radius to radius do
+  begin
+    chord := Trunc(mSqrt(Double(r2 - dy * dy)));
+    for dx := -chord to chord do
+      if ((cx + dx + cy + dy) mod 2) = 0 then
+        PutPixel(cx + dx, cy + dy);
+  end;
 end;
 
 procedure DimScreen;
