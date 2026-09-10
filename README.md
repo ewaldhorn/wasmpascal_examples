@@ -17,6 +17,7 @@ WasmPascal makes it possible to use the browser as the development platform for,
 [Pascal Reference](#pascal-quick-reference)<br>
 [Learn Pascal Tutorial](#learn-pascal-tutorial)<br>
 [Examples](#examples)<br>
+[Games](#games)<br>
 [Blog Posts](#blog-posts)<br>
 
 ---
@@ -28,6 +29,7 @@ I want to make the examples in WasmPascal more accessible, and I also don't want
 ## Repository Structure
 
 - **[`examples/`](examples/)**: 48 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics.
+- **[`games/`](games/)**: Complete multi-file games built as finished projects — a full Pascal source tree, a hand-written browser host page, and a compiled `.wasm` binary ready to serve.
 - **[`docs/`](docs/)**: Complete offline documentation ported directly from the WasmPascal web IDE:
   - **[`docs/reference/`](docs/reference/)**: 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins.
   - **[`docs/tutorial/`](docs/tutorial/)**: 15-part "Learn Pascal" tutorial from your first `writeln` to multi-file OOP architectures.
@@ -60,6 +62,10 @@ python3 -m http.server 8080
 ```
 
 Then visit `http://localhost:8080/blog_posts/wasm_pascal_add_numbers/` (or any other subfolder) in your browser.
+
+### 3. Running the Games
+
+The projects in [`games/`](games/) are multi-unit builds like the ones above, with two differences worth knowing: their root file is a `library` rather than a `program`, and they import host modules the IDE does not supply. So they compile in the IDE but will not run there — each game's README covers its IDE build steps, and [Games](#games) below covers serving one locally.
 
 ## Caution
 
@@ -224,6 +230,26 @@ Looking for something specific? Here are the 48 examples organized by focus area
 | [wasmtools](examples/wasmtools/) <br>*(⚠️ WIP)* | ⚠️ *Work in progress (compiler investigation ongoing).* A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
 | [with_demo](examples/with_demo/) | Demonstrates the `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
 | [xonix](examples/xonix/) | A faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
+
+## Games
+
+Beyond the single-folder examples, this repo carries complete games: each one is a full Pascal source tree that ships with its own hand-written browser host page and a compiled `.wasm` binary, so it can be served as a finished project rather than pasted into the IDE.
+
+| Game | Description |
+|---|---|
+| [mypaddock](games/mypaddock/) | A complete sheep-farming game — buy sheep, keep them fed and watered, hire farm hands, sell wool, and pay an upkeep bill that never stops growing — with a live simulation economy, a pixel-buffer canvas renderer, synthesized sound, and saves that survive reloads. |
+
+### Running a game
+
+A game is three static files in one folder — `index.html`, `host.js`, and the compiled `.wasm` — with no build step and no server-side code. Serve the folder over HTTP and open it:
+
+```bash
+cd games/mypaddock
+python3 -m http.server 8931
+# then open http://localhost:8931/
+```
+
+Keep the three files together (the page fetches the `.wasm` from its own folder), and serve over HTTP(S) rather than `file://` — browsers refuse to load a `.wasm` binary from the filesystem. Any static host will do. Each game's README documents the build in the WasmPascal IDE, the host import surface it needs, and its save format.
 
 ## Blog posts
 
