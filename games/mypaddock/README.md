@@ -1,97 +1,180 @@
-# My Paddock (WasmPascal port)
+# My Paddock — a WasmPascal example game
 
-Sheep-farming idle game ported from Odin (`dinn/games/mypaddock`) to WasmPascal.
-See [PLAN.md](PLAN.md) for the full port plan.
+My Paddock is a complete sheep-farming game written in Pascal, compiled to
+WebAssembly with the browser-based [WasmPascal](https://wasmpascal.com/)
+compiler, and run by a small hand-written JavaScript host page.
 
-## Status: M6 — budget screen (new feature, no Odin equivalent)
+It's meant as a worked example. This is what a *finished, multi-file* WasmPascal
+project looks like: 18 Pascal files (one `library` root plus 17 units), a
+pixel-buffer canvas renderer, a live simulation with its own little economy,
+synthesised sound, and a save file that survives reloads — plus the handful of
+files it takes to host the compiled result.
 
-Lifetime income vs expenses overlay: SHEARING / SALES / UPKEEP / PURCHASES /
-START / NET, opened with the BUDGET panel button or `E` (any tap, `E` or
-`Esc` closes). Four counters hooked at every money mutation (shear, all
-livestock sales, upkeep bills, all purchases, incl. offline bulk sim),
-persisted as four save keys, with the invariant
-`coins = 40 + shear + sales - upkeep - spent` covered by tests (incl.
-accumulation across reloads and wipe on reset). Note the panel's
-`UPKEEP: -N` is the per-60s *rate* while the budget's `UPKEEP` is lifetime
-*paid* — they only agree after bills have actually fired. Offline simulates
-1/10th of the elapsed time at full rates (upkeep included), so an hour away
-plays ~6 live minutes — deliberate retune, diverges from Odin. Sheep bodies
-show shear readiness: grey while growing (lighter at 25/50/75%), white when
-shearable.
+Everything on screen is drawn from code. No images, no assets, no framework.
+Hosting it takes three files: `index.html`, `host.js` and `mypaddock.wasm`.
 
-## Limits (M8 paradigm)
+The game started life as an Odin project (`dinn/games/mypaddock`) and was ported
+unit by unit.
 
-Paddock goes to level 10 (cap 110 sheep: 10 + 10/level). Troughs cap at 44
-(22 food+water pairs × 5 each); staff at 11 hands + farmer + 1 dog (10 hands
-needed at 110). Costs extend unchanged (sheep 20+20n, paddock up to 1160,
-hands 200+100n); upkeep never caps (164/min at max flock). Engine arrays
-hold 120 sheep / 12 workers / 44 troughs; the level-10 world needs a
-26 MB background bake, so memory is `{$M 48M}`.
+## The game
 
-### Earlier: M5 — sound + playable host page
+You own a paddock. Buy sheep — then keep them alive: they get hungry and thirsty,
+so you buy food and water troughs and hire farm hands to feed, water and shear
+them. Wool sells for coins. Every 60 seconds an upkeep bill falls due; if you
+can't pay, the game sells sheep to cover it.
 
-Shop row purchases (all 7 rows, live gates), upkeep bills with sell-off drain
-and bill/bankrupt banners, autosave every 5s, localStorage saves readable
-across reloads, offline catch-up with welcome banner, working reset (progress
-wiped, SFX preference kept — Odin parity). Sound: 7 SFX through host
-`app_env.play_sound(id)` with Web Audio patches transcribed from
-`sound.odin`; mute state lives in `mp_sound.pas` and persists. Verified: all
-7 ids fire end-to-end (denied/coin/purchase/sold via UI script, shear in the
-200s sim, feed+water on worker refills in a ~720s run), mute suppresses all,
-plus a real headless-Chromium screenshot of `index.html` showing the live
-game. Still open: one IDE Run to confirm the web IDE host provides the
-`mp_env` (`date_now`/`js_reload`) and `app_env` (`play_sound`) imports.
+Progression runs to paddock level 10, which caps the flock at 110 sheep (10 plus
+10 per level). Troughs stop at 44 (22 food/water pairs), and the flock starts
+demanding a sheep dog as it grows. Ten farm hands keep 110 sheep fed and shorn;
+the engine allows eleven. Every purchase gets more expensive than the last, and
+upkeep never stops growing — 164 coins a minute at a full flock.
 
-## How to run
+The BUDGET screen (`E`, or the BUDGET button) is a lifetime ledger: shearing
+income, livestock sales, upkeep paid, purchases, the 40 starting coins, and the
+net. It always satisfies `coins = 40 + shear + sales - upkeep - spent`.
 
-In the WasmPascal web IDE ([wasmpascal.com](https://wasmpascal.com/)):
+Close the page and the game simulates what you missed when you come back — at
+one tenth of the elapsed time and full rates, so an hour away plays about six
+live minutes.
 
-1. Click **Upload files** and select all `.pas` files in this folder at once.
-2. The editor picks `mypaddock.pas` (the `library` root) automatically.
-3. Click **Run**. (Needs IDE host support for `mp_env` + `app_env`; unconfirmed.)
+**Controls** (also printed on the page):
 
-## Play locally (no IDE)
+- Drag the paddock to pan; tap the minimap to jump somewhere.
+- `B` — shop, `E` — budget, `M` — mute sound, arrow keys — pan.
+- The right-hand panel carries the SHOP, SFX, RESET and BUDGET buttons;
+  tapping anywhere closes an open overlay (`Esc` too).
+- Sound needs one click or keypress first — browsers don't allow audio before a
+  user gesture.
 
-`index.html` + `host.js` implement the full import surface
-(`pascaldom_env`, `odin_env`, `mp_env`, `app_env.play_sound`), so the game
-runs from any static server — `.wasm` won't load over `file://`:
+## Build it in the WasmPascal web IDE
+
+1. Open [wasmpascal.com](https://wasmpascal.com/).
+2. Click **Upload files** and select **all the `.pas` files** in this folder at
+   once. (Only `.pas` files — `index.html`, `host.js` and the test harness are
+   for hosting, not compiling.)
+3. Fix the root file. The IDE picks the root by looking for a file that starts
+   with `program`; `mypaddock.pas` starts with `library`, so nothing matches and
+   the IDE falls back to the alphabetically first file — which is `mp_defs.pas`.
+   Select `mypaddock.pas` in the file dropdown, then choose
+   **Files… → Set as root**. (The IDE's "doesn't start with `program` — Run may
+   fail" note is expected here; a `library` root is what this project uses.)
+4. Optional but tidy: **Rename project** to `mypaddock`, so the compiler names
+   its output `mypaddock.wasm`, which is the filename the host page asks for.
+5. Click **Run** (`Ctrl`/`Cmd`+`Enter`). What matters is the compile: the
+   console reports something like `Compiled mypaddock (35430 bytes) — running…`
+   (it uses your project name — `mp_defs` if you skipped the rename). Then the
+   IDE's own runner says **Program failed to start**. That is expected, not a
+   broken build — see the next section. Click **Stop** if the toolbar stays
+   locked.
+6. Choose **Download… → Compiled .wasm**, and keep the file next to
+   `index.html` as `mypaddock.wasm`.
+
+There is no separate Build button in the IDE — **Run** is what compiles, and the
+download stays available afterwards even though starting the program failed.
+
+### Why the IDE can't run this game
+
+The IDE's runner supplies `pascaldom_env`, `odin_env` and `wasmpascal_env`. This
+game also imports two modules that only exist because this game wants them:
+
+- `mp_env` — `date_now` (wall clock, for offline progress) and `js_reload`
+  (page reload after a reset).
+- `app_env` — `play_sound`, the seven sound effects.
+
+The IDE has no way to know about those, so the module can't be instantiated
+there (the failure is a WebAssembly link error naming `mp_env`/`app_env`).
+Compiling and downloading still work fine; the IDE's exported standalone app
+would hit the same wall, for the same reason.
+
+That's exactly what `host.js` in this folder is for: it implements the whole
+import surface, which is why the game runs here. The imports this build
+actually needs are:
+
+- `pascaldom_env` — 13 calls: the DOM handle bridge, the pixel-buffer canvas
+  (`create` / `get_context` / `render`), the animation loop, events, and
+  `localStorage`.
+- `odin_env` — `sqrt`, `sin`.
+- `mp_env` — `date_now`, `js_reload`.
+- `app_env` — `play_sound`.
+
+## Host it
+
+The game is three static files in one folder — `index.html`, `host.js`,
+`mypaddock.wasm` — with no build step and no server-side code:
 
 ```bash
 cd games/mypaddock
-/path/to/dinn/wasmpascal/wasmpascal -o mypaddock.wasm mypaddock.pas
 python3 -m http.server 8931
-# open http://localhost:8931/index.html (click once to unlock audio)
+# then open http://localhost:8931/
 ```
 
-## How to test (local compiler)
+Any static host will do: GitHub Pages, Netlify drop, Cloudflare Pages, S3,
+nginx on a VPS. Upload the three files and you're done. Three things to know:
 
-The compiler lives at `dinn/wasmpascal` (binary `wasmpascal`); the harness
-stubs `pascaldom_env`/`odin_env`/`mp_env`/`app_env` under Node:
+- **Keep them together.** The page fetches `mypaddock.wasm` from its own folder,
+  so the names and the directory layout matter. If the IDE named your download
+  something else (say `mp_defs.wasm`), rename it — or point
+  `host.js`'s `mypaddock.wasm` reference at the new name.
+- **Serve over HTTP(S), not `file://`.** Browsers refuse to fetch a `.wasm`
+  binary from the filesystem; double-clicking `index.html` shows
+  `load failed: …` instead of the game.
+- **Saves are per-origin.** Progress lives in the browser's `localStorage`
+  (12 keys prefixed `mypaddock`), so a save made on `localhost` won't appear on
+  your deployed site. RESET wipes progress but keeps the sound preference, as in
+  the original game.
 
-```bash
-cd games/mypaddock
-/path/to/dinn/wasmpascal/wasmpascal -o /tmp/mypaddock_m6.wasm mypaddock.pas
-node tests/mp_test.js /tmp/mypaddock_m6.wasm   # expect SUCCESS
-```
+## How it works
+
+One frame at a time, entirely in Pascal:
+
+- `pascaldom_main` is called once by the host after instantiation. The game
+  builds a background image of the whole world once (a pixel buffer, then
+  blitted each frame through `dom_canvas_render`) and only redraws what moves.
+- At level 10 that background bake is 2980 × 2200 × 4 bytes ≈ 26 MB, which is
+  why the root file asks for a larger heap with `{$M 48M}` — a real WasmPascal
+  ceiling worth knowing about before you build something big.
+- The simulation runs off host wall-clock deltas (`dom_now`), so bills,
+  shearing, needs and the autosave (every 5 seconds) all advance by elapsed time
+  rather than frame count.
+- Sound is seven events (`mp_sound.pas`), each one call to
+  `app_env.play_sound(id)`; the oscillator patches live in `host.js`, mirroring
+  the original Odin implementation.
+- Saves are flat `localStorage` keys written through `pascaldom_env`, with the
+  flock and trough arrays packed into composite strings.
 
 ## Files
 
 | File | Contents |
 |---|---|
-| `mypaddock.pas` | `library` root, `{$M 32M}`, exports |
+| `mypaddock.pas` | `library` root, `{$M 48M}`, the exports the host calls |
 | `mp_defs.pas` | constants, full palette, pixel/bg buffers, host imports |
-| `mp_rand.pas` | xorshift RNG + `ParseF64` buffer helper |
-| `mp_world.pas` | world size / bounds (port of `world.odin`) |
-| `mp_draw.pas` | pixel rects/circles, 5x7 font + text |
+| `mp_rand.pas` | xorshift RNG + float parsing helper |
+| `mp_world.pas` | world size and camera bounds |
+| `mp_draw.pas` | pixel rects/circles, 5×7 font and text |
 | `mp_render.pas` | background bake + viewport blit |
-| `mp_game.pas` | init, frame update, input, panel/dialogs, save glue, debug getters |
-| `mp_shop.pas` | economy + shop UI: progression state, costs/caps/gates, Try*/Sell*/upkeep, shop drawing |
-| `mp_sim.pas` | sim glue: task assignment, sheep needs, worker machine, effects, offline |
-| `mp_sheep.pas` / `mp_trough.pas` / `mp_worker.pas` / `mp_effect.pas` | entity data + logic (ports of `sheep.odin` etc.) |
-| `mp_sprites.pas` | entity sprites + effect text |
-| `mp_host.pas` | canvas bootstrap + event loop (port of `main.odin`) |
-| `mp_sound.pas` | 7 sound events + `sfx_on` mute state (port of `sound.odin` API) |
-| `mp_store.pas` | save/load/offline/reset via localStorage (port of `storage.odin`) |
-| `mp_env.pas` | `mp_env` externals: wall clock + reload (port of `mypaddock_env`) |
-| `host.js` + `index.html` | local browser host: full import surface + 7 Web Audio patches |
-| `mypaddock.wasm` | compiled game (rebuild with the command above) |
+| `mp_game.pas` | init, frame update, input, overlays, save glue, debug getters |
+| `mp_shop.pas` | economy: progression state, costs/caps/gates, upkeep, shop UI |
+| `mp_sim.pas` | simulation glue: task assignment, needs, worker machine, offline |
+| `mp_sheep.pas` / `mp_trough.pas` / `mp_worker.pas` / `mp_effect.pas` | entity data + logic |
+| `mp_sprites.pas` | entity sprites and floating effect text |
+| `mp_host.pas` | canvas bootstrap + event loop |
+| `mp_sound.pas` | sound events + `sfx_on` mute state |
+| `mp_store.pas` | save/load/offline/reset via localStorage |
+| `mp_env.pas` | the `mp_env` externals: wall clock + reload |
+| `index.html` + `host.js` | the browser host: full import surface + 7 Web Audio patches |
+| `mypaddock.wasm` | the compiled game — this is the file the host page loads |
+| `tests/mp_test.js` | Node harness that boots the `.wasm` against stub hosts |
+
+The `.wasm` here is a current build of these sources. The harness needs no
+compiler — it runs the binary under Node with stub hosts and covers the economy,
+save/load, offline catch-up, and the budget identity:
+
+```bash
+node tests/mp_test.js mypaddock.wasm   # prints PASS lines, ends in SUCCESS
+```
+
+## Credits
+
+Original game in Odin: `dinn/games/mypaddock`. Compiler and IDE:
+[wasmpascal.com](https://wasmpascal.com/). Licensed under the repository's MIT
+license.
