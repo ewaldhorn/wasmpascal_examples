@@ -29,15 +29,21 @@ procedure BgFillCircle(cx, cy, radius: Integer);
 
 function FontByte(ch, row: Integer): Byte;
 
-procedure DrawText(x, y: Integer; s: string; r, g, b: Integer);
+{ Text takes (addr, len) Integer pairs (StrAddr/StrLen pattern): indexing a
+  by-value string param is unsupported by the compiler (emits base 0). }
 
-procedure DrawTextLarge(x, y: Integer; s: string; r, g, b: Integer);
+procedure DrawText(x, y, addr, len: Integer; r, g, b: Integer);
 
-function TextWidth(s: string): Integer;
+procedure DrawTextLarge(x, y, addr, len: Integer; r, g, b: Integer);
 
-function TextWidthLarge(s: string): Integer;
+function TextWidth(len: Integer): Integer;
+
+function TextWidthLarge(len: Integer): Integer;
 
 implementation
+
+uses
+  mp_rand;
 
 procedure SetActive(r, g, b, a: Integer);
 begin
@@ -207,60 +213,63 @@ begin
   FontByte := FONT[(ch - 32) * 7 + row];
 end;
 
-procedure DrawText(x, y: Integer; s: string; r, g, b: Integer);
+procedure DrawGlyph(cx, y, ch, scale: Integer);
 var
-  i, ch, row, col, bits, cx: Integer;
+  row, col, bits: Integer;
+begin
+  for row := 0 to 6 do
+  begin
+    bits := FontByte(ch, row);
+    for col := 0 to 4 do
+      if ((bits shr (4 - col)) and 1) = 1 then
+        FillRect(cx + col * scale, y + row * scale, scale, scale);
+  end;
+end;
+
+function UpperByte(v: Byte): Integer;
+begin
+  if (v >= 97) and (v <= 122) then UpperByte := v - 32
+  else UpperByte := v;
+end;
+
+procedure DrawText(x, y, addr, len: Integer; r, g, b: Integer);
+var
+  i, ch, cx: Integer;
 begin
   SetActive(r, g, b, 255);
   cx := x;
-  for i := 1 to Length(s) do
+  for i := 0 to len - 1 do
   begin
-    ch := Ord(UpCase(s[i]));
+    ch := UpperByte(BufByte(addr, i));
     if (ch >= 32) and (ch <= 95) then
-    begin
-      for row := 0 to 6 do
-      begin
-        bits := FontByte(ch, row);
-        for col := 0 to 4 do
-          if ((bits shr (4 - col)) and 1) = 1 then
-            FillRect(cx + col * 2, y + row * 2, 2, 2);
-      end;
-    end;
+      DrawGlyph(cx, y, ch, 2);
     cx := cx + 12;
   end;
 end;
 
-procedure DrawTextLarge(x, y: Integer; s: string; r, g, b: Integer);
+procedure DrawTextLarge(x, y, addr, len: Integer; r, g, b: Integer);
 var
-  i, ch, row, col, bits, cx: Integer;
+  i, ch, cx: Integer;
 begin
   SetActive(r, g, b, 255);
   cx := x;
-  for i := 1 to Length(s) do
+  for i := 0 to len - 1 do
   begin
-    ch := Ord(UpCase(s[i]));
+    ch := UpperByte(BufByte(addr, i));
     if (ch >= 32) and (ch <= 95) then
-    begin
-      for row := 0 to 6 do
-      begin
-        bits := FontByte(ch, row);
-        for col := 0 to 4 do
-          if ((bits shr (4 - col)) and 1) = 1 then
-            FillRect(cx + col * 4, y + row * 4, 4, 4);
-      end;
-    end;
+      DrawGlyph(cx, y, ch, 4);
     cx := cx + 24;
   end;
 end;
 
-function TextWidth(s: string): Integer;
+function TextWidth(len: Integer): Integer;
 begin
-  TextWidth := Length(s) * 12;
+  TextWidth := len * 12;
 end;
 
-function TextWidthLarge(s: string): Integer;
+function TextWidthLarge(len: Integer): Integer;
 begin
-  TextWidthLarge := Length(s) * 24;
+  TextWidthLarge := len * 24;
 end;
 
 begin

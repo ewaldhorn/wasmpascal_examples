@@ -46,11 +46,13 @@ var
 begin
   CFillRect(0, 0, CANVAS_W, CANVAS_H, SKY_R, SKY_G, SKY_B);
   BlitWorld(0.0, 0.0);
-  tw := TextWidthLarge('MY PADDOCK');
-  DrawTextLarge((CANVAS_W - tw) div 2, 40, 'MY PADDOCK',
+  tw := TextWidthLarge(StrLen('MY PADDOCK'));
+  DrawTextLarge((CANVAS_W - tw) div 2, 40,
+    StrAddr('MY PADDOCK'), StrLen('MY PADDOCK'),
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
-  tw := TextWidth('WASMPASCAL PORT - M1');
-  DrawText((CANVAS_W - tw) div 2, 90, 'WASMPASCAL PORT - M1',
+  tw := TextWidth(StrLen('WASMPASCAL PORT - M1'));
+  DrawText((CANVAS_W - tw) div 2, 90,
+    StrAddr('WASMPASCAL PORT - M1'), StrLen('WASMPASCAL PORT - M1'),
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
 end;
 
