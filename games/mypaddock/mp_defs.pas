@@ -35,6 +35,26 @@ const
   MAX_TROUGHS = 20;
   MAX_EFFECTS = 64;
 
+  { Panel / minimap / shop / dialog layout. Single source of truth: draw code
+    and hit-testing both use these consts (mirrors renderer.odin's rect procs). }
+  PANEL_X = 580;
+  PANEL_PAD = 14;
+  PANEL_BTN_W = 192;
+  SHOPBTN_X = 594; SHOPBTN_Y = 116; SHOPBTN_W = 192; SHOPBTN_H = 32;
+  MUTEBTN_X = 594; MUTEBTN_Y = 156; MUTEBTN_W = 192; MUTEBTN_H = 32;
+  MM_X = 594; MM_Y = 220; MM_W = 192; MM_H = 150;
+  RSTBTN_X = 594; RSTBTN_Y = 430; RSTBTN_W = 192; RSTBTN_H = 28;
+  SHOP_PANEL_X = 170; SHOP_PANEL_Y = 12;
+  SHOP_PANEL_W = 460; SHOP_PANEL_H = 576;
+  SHOP_ROW_H = 58; SHOP_ROW_COUNT = 7; SHOP_ROWS_TOP = 118;
+  SHOPROW_X = 194; SHOPROW_W = 412; SHOPROW_H = 48;
+  RESET_W = 380; RESET_H = 150; RESET_X = 210; RESET_Y = 225;
+  YESBTN_X = 240; YESBTN_Y = 315; YESBTN_W = 150; YESBTN_H = 36;
+  NOBTN_X = 410; NOBTN_Y = 315; NOBTN_W = 150; NOBTN_H = 36;
+  DRAG_THRESHOLD = 6;
+  PAN_STEP = 48;
+  START_COINS = 40;
+
   { Host callback ids (echoed back via pascaldom_invoke_callback). }
   CB_MOUSEDOWN = 0;
   CB_MOUSEMOVE = 1;
@@ -94,6 +114,7 @@ var
   act_b: Byte = 255;
   act_a: Byte = 255;
   scratch: array[0..79] of Byte;
+  numbuf: array[0..15] of Byte;
   rng_state: Cardinal = 1;
   rnd_x: Double = 0.0;
   rnd_y: Double = 0.0;

@@ -115,6 +115,8 @@ begin
 end;
 
 procedure InvokeCallback(id: Integer);
+var
+  n: Integer;
 begin
   case id of
     CB_MOUSEDOWN:
@@ -133,7 +135,10 @@ begin
         HandlePointerUp(cw_x, cw_y);
       end;
     CB_KEYDOWN:
-      HandleKeyDown;
+      begin
+        n := dom_get_property_str(last_event, 'key', Integer(@scratch), 80);
+        HandleKeyDown(Integer(@scratch), n);
+      end;
     CB_TICK:
       Tick;
     CB_RESIZE:

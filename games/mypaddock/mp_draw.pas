@@ -21,6 +21,20 @@ procedure FillCircle(cx, cy, radius: Integer);
 
 procedure CFillCircle(cx, cy, rad, r, g, b: Integer);
 
+procedure RectOutline(x, y, w, h: Integer);
+
+procedure CRectOutline(x, y, w, h, r, g, b: Integer);
+
+procedure CRectThick(x, y, w, h, t, r, g, b: Integer);
+
+function IntToBuf(v: Integer): Integer;
+
+procedure DrawDigits(x, y, n: Integer; r, g, b: Integer);
+
+procedure DrawLabelInt(x, y, pa, pl, v: Integer; r, g, b: Integer);
+
+procedure DimScreen;
+
 procedure BgPutPixel(x, y: Integer);
 
 procedure BgFillRect(x, y, w, h: Integer);
@@ -270,6 +284,93 @@ end;
 function TextWidthLarge(len: Integer): Integer;
 begin
   TextWidthLarge := len * 24;
+end;
+
+procedure RectOutline(x, y, w, h: Integer);
+begin
+  if (w <= 0) or (h <= 0) then Exit;
+  FillRect(x, y, w, 1);
+  FillRect(x, y + h - 1, w, 1);
+  FillRect(x, y, 1, h);
+  FillRect(x + w - 1, y, 1, h);
+end;
+
+procedure CRectOutline(x, y, w, h, r, g, b: Integer);
+begin
+  SetActive(r, g, b, 255);
+  RectOutline(x, y, w, h);
+end;
+
+procedure CRectThick(x, y, w, h, t, r, g, b: Integer);
+var
+  tt: Integer;
+begin
+  SetActive(r, g, b, 255);
+  for tt := 0 to t - 1 do
+  begin
+    if (w - tt * 2 <= 0) or (h - tt * 2 <= 0) then Break;
+    RectOutline(x + tt, y + tt, w - tt * 2, h - tt * 2);
+  end;
+end;
+
+function IntToBuf(v: Integer): Integer;
+var
+  x, d, i, j, t, neg: Integer;
+begin
+  x := v; neg := 0;
+  if x < 0 then begin neg := 1; x := -x; end;
+  d := 0;
+  if x = 0 then begin numbuf[0] := 48; d := 1; end
+  else
+    while x > 0 do
+    begin
+      numbuf[d] := Byte(48 + (x mod 10));
+      x := x div 10;
+      d := d + 1;
+    end;
+  i := 0; j := d - 1;
+  while i < j do
+  begin
+    t := numbuf[i]; numbuf[i] := numbuf[j]; numbuf[j] := Byte(t);
+    i := i + 1; j := j - 1;
+  end;
+  if neg = 1 then
+  begin
+    i := d;
+    while i > 0 do begin numbuf[i] := numbuf[i - 1]; i := i - 1; end;
+    numbuf[0] := 45;
+    d := d + 1;
+  end;
+  IntToBuf := d;
+end;
+
+procedure DrawDigits(x, y, n: Integer; r, g, b: Integer);
+var
+  i: Integer;
+begin
+  SetActive(r, g, b, 255);
+  for i := 0 to n - 1 do
+    DrawGlyph(x + i * 12, y, numbuf[i], 2);
+end;
+
+procedure DrawLabelInt(x, y, pa, pl, v: Integer; r, g, b: Integer);
+var
+  n: Integer;
+begin
+  DrawText(x, y, pa, pl, r, g, b);
+  n := IntToBuf(v);
+  DrawDigits(x + pl * 12, y, n, r, g, b);
+end;
+
+procedure DimScreen;
+var
+  x, y: Integer;
+begin
+  SetActive(0, 0, 0, 255);
+  for y := 0 to CANVAS_H - 1 do
+    for x := 0 to CANVAS_W - 1 do
+      if ((x + y) mod 2) = 0 then
+        PutPixel(x, y);
 end;
 
 begin
