@@ -28,6 +28,7 @@ var
   shop_open: Boolean = false;
   confirm_reset: Boolean = false;
   budget_open: Boolean = false;
+  help_open: Boolean = false;
   { Mute state lives in mp_sound as sfx_on (avoids a unit cycle). }
   dragging: Boolean = false;
   drag_moved: Boolean = false;
@@ -286,6 +287,12 @@ begin
     budget_open := false;
     Exit;
   end;
+  { Help is a read-only card: any tap anywhere dismisses it, like BUDGET. }
+  if help_open then
+  begin
+    help_open := false;
+    Exit;
+  end;
   { Trough repositioning: inside the paddock viewport a tap picks a trough up,
     otherwise it drops the one being held where it landed. Mouse clicks and
     touch taps share this path — both are a press-release under the drag
@@ -314,6 +321,7 @@ begin
   begin
     shop_open := true;
     budget_open := false;
+    help_open := false;
     tr_sel := -1;
     Exit;
   end;
@@ -333,6 +341,15 @@ begin
   begin
     budget_open := true;
     shop_open := false;
+    help_open := false;
+    tr_sel := -1;
+    Exit;
+  end;
+  if InRect(x, y, HELPBTN_X, HELPBTN_Y, HELPBTN_W, HELPBTN_H) then
+  begin
+    help_open := true;
+    shop_open := false;
+    budget_open := false;
     tr_sel := -1;
     Exit;
   end;
@@ -378,6 +395,7 @@ begin
   offline_coins_earned := 0;
   shop_open := false;
   confirm_reset := false;
+  help_open := false;
   dragging := false;
   drag_moved := false;
   tr_sel := -1;
@@ -591,6 +609,15 @@ begin
       StrAddr('BUDGET'), StrLen('BUDGET'),
       BTN_BG_R, BTN_BG_G, BTN_BG_B,
       HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  if help_open then
+    DrawButton(HELPBTN_X, HELPBTN_Y, HELPBTN_W, HELPBTN_H,
+      StrAddr('HELP'), StrLen('HELP'),
+      BTN_SEL_R, BTN_SEL_G, BTN_SEL_B, HUD_BG_R, HUD_BG_G, HUD_BG_B)
+  else
+    DrawButton(HELPBTN_X, HELPBTN_Y, HELPBTN_W, HELPBTN_H,
+      StrAddr('HELP'), StrLen('HELP'),
+      BTN_BG_R, BTN_BG_G, BTN_BG_B,
+      HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
 end;
 
 procedure DrawResetConfirm;
@@ -677,6 +704,104 @@ begin
   DrawSignedLine(BUD_X + 20, y, StrAddr('NET'), StrLen('NET'), net, net >= 0);
   DrawText(BUD_X + (BUD_W - 18 * 12) div 2, BUD_Y + BUD_H - 24,
     StrAddr('[E OR ESC TO CLOSE]'), StrLen('[E OR ESC TO CLOSE]'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+end;
+
+{ Help overlay (new feature, no Odin equivalent): the goal, then every control.
+  Opened by the HELP panel button or H; dismissed by any tap, H, or Esc. Rows
+  advance 12px and stay under 36 chars, so they fit the 432px text gutter. }
+procedure DrawHelp;
+var
+  y: Integer;
+begin
+  DimScreen;
+  CFillRect(HELP_X, HELP_Y, HELP_W, HELP_H, PANEL_BG_R, PANEL_BG_G, PANEL_BG_B);
+  CRectThick(HELP_X, HELP_Y, HELP_W, HELP_H, 2,
+    PANEL_BD_R, PANEL_BD_G, PANEL_BD_B);
+  DrawTextLarge(HELP_X + 24, HELP_Y + 16,
+    StrAddr('HOW TO PLAY'), StrLen('HOW TO PLAY'),
+    PANEL_BD_R, PANEL_BD_G, PANEL_BD_B);
+  y := HELP_Y + 60;
+  DrawText(HELP_X + 24, y,
+    StrAddr('BUY SHEEP, THEN KEEP THEM FED,'),
+    StrLen('BUY SHEEP, THEN KEEP THEM FED,'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('WATERED AND SHORN. WOOL SELLS'),
+    StrLen('WATERED AND SHORN. WOOL SELLS'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('FOR COINS. UPKEEP IS BILLED'),
+    StrLen('FOR COINS. UPKEEP IS BILLED'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('EVERY 60 SECONDS.'), StrLen('EVERY 60 SECONDS.'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := HELP_Y + 160;
+  DrawText(HELP_X + 24, y,
+    StrAddr('CONTROLS'), StrLen('CONTROLS'),
+    HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  y := HELP_Y + 184;
+  DrawText(HELP_X + 24, y,
+    StrAddr('DRAG PADDOCK OR MINIMAP TO PAN'),
+    StrLen('DRAG PADDOCK OR MINIMAP TO PAN'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('TAP THE MINIMAP TO JUMP'), StrLen('TAP THE MINIMAP TO JUMP'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('TAP A TROUGH, THEN A SPOT TO MOVE'),
+    StrLen('TAP A TROUGH, THEN A SPOT TO MOVE'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('ESC PUTS A HELD TROUGH BACK'),
+    StrLen('ESC PUTS A HELD TROUGH BACK'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('ARROW KEYS PAN THE VIEW'), StrLen('ARROW KEYS PAN THE VIEW'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('B SHOP  E BUDGET  M MUTE  H HELP'),
+    StrLen('B SHOP  E BUDGET  M MUTE  H HELP'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('CLICK ANYWHERE TO CLOSE THIS'),
+    StrLen('CLICK ANYWHERE TO CLOSE THIS'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := HELP_Y + 344;
+  DrawText(HELP_X + 24, y,
+    StrAddr('KEEPING SHEEP ALIVE'), StrLen('KEEPING SHEEP ALIVE'),
+    HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
+  y := HELP_Y + 368;
+  DrawText(HELP_X + 24, y,
+    StrAddr('SHEEP GET HUNGRY AND THIRSTY;'),
+    StrLen('SHEEP GET HUNGRY AND THIRSTY;'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('HANDS REFILL TROUGHS AND SHEAR'),
+    StrLen('HANDS REFILL TROUGHS AND SHEAR'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('WOOL. SELL WOOL FOR COINS.'), StrLen('WOOL. SELL WOOL FOR COINS.'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := y + 20;
+  DrawText(HELP_X + 24, y,
+    StrAddr('AND UPKEEP BILLS YOU AGAIN.'),
+    StrLen('AND UPKEEP BILLS YOU AGAIN.'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  DrawText(HELP_X + (HELP_W - 19 * 12) div 2, HELP_Y + HELP_H - 24,
+    StrAddr('[H OR ESC TO CLOSE]'), StrLen('[H OR ESC TO CLOSE]'),
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
 end;
 
@@ -845,6 +970,7 @@ begin
   DrawPanel;
   if shop_open then DrawShop;
   if budget_open then DrawBudget;
+  if help_open then DrawHelp;
   if confirm_reset then DrawResetConfirm;
   if bill_notice_timer > 0.0 then DrawBillNotice
   else if welcome_timer > 0.0 then DrawWelcomeBanner;
@@ -860,7 +986,7 @@ procedure HandlePointerDown(x, y: Integer);
 begin
   ptr_x := x;
   ptr_y := y;
-  if shop_open or confirm_reset or budget_open then Exit;
+  if shop_open or confirm_reset or budget_open or help_open then Exit;
   MinimapWorld;
   if InRect(x, y, mwr_x, mwr_y, mwr_w, mwr_h) then
   begin
@@ -1072,12 +1198,21 @@ begin
     begin
       shop_open := not shop_open;
       budget_open := false;
+      help_open := false;
       tr_sel := -1;
     end
     else if c = 101 then
     begin
       budget_open := not budget_open;
       shop_open := false;
+      help_open := false;
+      tr_sel := -1;
+    end
+    else if c = 104 then
+    begin
+      help_open := not help_open;
+      shop_open := false;
+      budget_open := false;
       tr_sel := -1;
     end
     else if c = 109 then
@@ -1092,6 +1227,7 @@ begin
     shop_open := false;
     confirm_reset := false;
     budget_open := false;
+    help_open := false;
     tr_sel := -1;
   end
   else if KeyEquals(addr, len, StrAddr('ArrowUp'), StrLen('ArrowUp')) then

@@ -49,6 +49,11 @@ const
   RSTBTN_X = 594; RSTBTN_Y = 430; RSTBTN_W = 192; RSTBTN_H = 28;
   BUDGETBTN_X = 594; BUDGETBTN_Y = 470; BUDGETBTN_W = 192; BUDGETBTN_H = 32;
   BUD_X = 220; BUD_W = 360; BUD_Y = 140; BUD_H = 320;
+  { Help overlay: the panel column is free below the BUDGET button (y 502), so
+    HELP sits at 510..542. The panel's right edge lands exactly on PANEL_X, so
+    the HUD stays visible while help is up. }
+  HELPBTN_X = 594; HELPBTN_Y = 510; HELPBTN_W = 192; HELPBTN_H = 32;
+  HELP_X = 100; HELP_Y = 40; HELP_W = 480; HELP_H = 520;
   SHOP_PANEL_X = 170; SHOP_PANEL_Y = 12;
   SHOP_PANEL_W = 460; SHOP_PANEL_H = 576;
   SHOP_ROW_H = 58; SHOP_ROW_COUNT = 7; SHOP_ROWS_TOP = 118;

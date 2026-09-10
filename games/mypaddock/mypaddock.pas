@@ -63,6 +63,11 @@ begin
   if budget_open then mp_budget_open := 1 else mp_budget_open := 0;
 end;
 
+function mp_help_open: Integer;
+begin
+  if help_open then mp_help_open := 1 else mp_help_open := 0;
+end;
+
 exports
   MpMain name 'pascaldom_main',
   InvokeCallback name 'pascaldom_invoke_callback',
@@ -93,7 +98,8 @@ exports
   mp_stat_sales name 'mp_stat_sales',
   mp_stat_upkeep name 'mp_stat_upkeep',
   mp_stat_spent name 'mp_stat_spent',
-  mp_budget_open name 'mp_budget_open';
+  mp_budget_open name 'mp_budget_open',
+  mp_help_open name 'mp_help_open';
 
 begin
 end.

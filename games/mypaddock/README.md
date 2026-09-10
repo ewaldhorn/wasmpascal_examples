@@ -33,6 +33,9 @@ The BUDGET screen (`E`, or the BUDGET button) is a lifetime ledger: shearing
 income, livestock sales, upkeep paid, purchases, the 40 starting coins, and the
 net. It always satisfies `coins = 40 + shear + sales - upkeep - spent`.
 
+The HELP card (`H`, or the HELP button) restates the goal and every control on
+screen — the same list as below, for anyone who never reads this file.
+
 Close the page and the game simulates what you missed when you come back — at
 one tenth of the elapsed time and full rates, so an hour away plays about six
 live minutes.
@@ -44,8 +47,8 @@ live minutes.
 - Tap (or click) a feed or water trough to pick it up, then tap where it should
   go — a yellow ring marks the one in hand and the outline follows the cursor.
   `Esc` puts it back. Troughs keep the spot you chose, across reloads.
-- `B` — shop, `E` — budget, `M` — mute sound, arrow keys — pan.
-- The right-hand panel carries the SHOP, SFX, RESET and BUDGET buttons;
+- `B` — shop, `E` — budget, `H` — help, `M` — mute sound, arrow keys — pan.
+- The right-hand panel carries the SHOP, SFX, RESET, BUDGET and HELP buttons;
   tapping anywhere closes an open overlay (`Esc` too).
 - Sound needs one click or keypress first — browsers don't allow audio before a
   user gesture.

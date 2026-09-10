@@ -355,6 +355,48 @@ async function boot(store, clock) {
   check('reset wipes stats too',
     [storeH.reloaded ? 1 : 0, statKeys.every((k) => !storeH.map.has(k)) ? 1 : 0], [1, 1]);
 
+  // ---- Help overlay: the HELP button or H opens it, any tap / H / Esc
+  // closes it, and it stays exclusive with the shop and the budget ----
+  const storeP = { map: new Map(), reloaded: false };
+  const clockP = { now: 9900000.0, wall: 1700000000000.0 };
+  const hp = await boot(storeP, clockP);
+  hp.tick();
+  check('help starts closed', [hp.e.mp_help_open()], [0]);
+  check('help button at rest', hp.px(600, 515), [96, 72, 46, 255]);
+  hp.tap(690, 526); hp.tick();
+  check('help button opens help', [hp.e.mp_help_open()], [1]);
+  check('help button lit while open', hp.px(600, 515), [210, 160, 60, 255]);
+  check('help panel covers the paddock', hp.px(110, 300), [45, 34, 24, 255]);
+  const helpTitle = hp.band(124, 388, 56, 84, 210, 160, 60);
+  console.log('HELP title pixels:', helpTitle);
+  if (helpTitle < 100) { console.log('FAIL help title'); failures++; }
+  else console.log('PASS help title');
+  hp.tap(300, 300); hp.tick();
+  check('any tap closes help', [hp.e.mp_help_open()], [0]);
+  hp.tap(690, 526); hp.tick();
+  hp.tap(690, 526); hp.tick();
+  check('button tap closes help', [hp.e.mp_help_open()], [0]);
+  hp.key('h'); hp.tick();
+  check('h opens help', [hp.e.mp_help_open()], [1]);
+  hp.key('h'); hp.tick();
+  check('h closes help', [hp.e.mp_help_open()], [0]);
+  hp.key('h'); hp.tick();
+  hp.key('Escape'); hp.tick();
+  check('esc closes help', [hp.e.mp_help_open()], [0]);
+  // A tap that lands on another panel button closes help without firing it,
+  // exactly like the budget card.
+  hp.key('h'); hp.tick();
+  hp.tap(690, 132); hp.tick();
+  check('help holds the shop closed',
+    [hp.e.mp_help_open(), hp.e.mp_shop_open()], [0, 0]);
+  hp.key('h'); hp.tick();
+  hp.key('e'); hp.tick();
+  check('budget replaces help',
+    [hp.e.mp_help_open(), hp.e.mp_budget_open()], [0, 1]);
+  hp.key('h'); hp.tick();
+  check('help replaces budget',
+    [hp.e.mp_help_open(), hp.e.mp_budget_open()], [1, 0]);
+
   // ---- Wool readiness colors: grey bands while growing, white at >=80 ----
   const storeW = { map: new Map(), reloaded: false };
   const clockW = { now: 9000000.0, wall: 1700000000000.0 };
