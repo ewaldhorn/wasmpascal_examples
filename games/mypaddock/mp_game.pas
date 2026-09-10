@@ -30,6 +30,13 @@ var
   hand_count: Integer = 0;
   shop_open: Boolean = false;
   confirm_reset: Boolean = false;
+  budget_open: Boolean = false;
+  { Lifetime money stats (persisted): income from shearing and all livestock
+    sales, upkeep bills charged, and all shop purchases. }
+  stat_shear: Integer = 0;
+  stat_sales: Integer = 0;
+  stat_upkeep: Integer = 0;
+  stat_spent: Integer = 0;
   { Mute state lives in mp_sound as sfx_on (avoids a unit cycle). }
   dragging: Boolean = false;
   drag_moved: Boolean = false;
@@ -98,6 +105,16 @@ function DbgWelcome: Integer;
 
 function DbgOfflineCoins: Integer;
 
+function DbgStatShear: Integer;
+
+function DbgStatSales: Integer;
+
+function DbgStatUpkeep: Integer;
+
+function DbgStatSpent: Integer;
+
+function DbgBudgetOpen: Integer;
+
 implementation
 
 function InRect(x, y, rx, ry, rw, rh: Integer): Boolean;
@@ -164,6 +181,7 @@ begin
   if sheep_n <= SHEEP_MIN_KEPT then Exit;
   sheep_n := sheep_n - 1;
   coins := coins + SHEEP_SELL_VALUE;
+  stat_sales := stat_sales + SHEEP_SELL_VALUE;
   SellOneSheep := true;
 end;
 
@@ -181,6 +199,7 @@ begin
       worker_n := worker_n - 1;
       hand_count := hand_count - 1;
       coins := coins + FARM_HAND_SELL_VALUE;
+      stat_sales := stat_sales + FARM_HAND_SELL_VALUE;
       SellOneHand := true;
       Exit;
     end;
@@ -191,8 +210,11 @@ end;
 procedure ChargeUpkeep;
 var
   done: Boolean;
+  bill: Integer;
 begin
-  coins := coins - UpkeepCost;
+  bill := UpkeepCost;
+  stat_upkeep := stat_upkeep + bill;
+  coins := coins - bill;
   cs_sheep := 0;
   cs_hands := 0;
   cs_dog := false;
@@ -216,6 +238,7 @@ begin
   begin
     has_dog := false;
     coins := coins + DOG_SELL_VALUE;
+    stat_sales := stat_sales + DOG_SELL_VALUE;
     cs_dog := true;
   end;
   if coins < 0 then
@@ -231,6 +254,7 @@ begin
   cost := ExpandCost(paddock_level);
   if coins < cost then Exit;
   coins := coins - cost;
+  stat_spent := stat_spent + cost;
   paddock_level := paddock_level + 1;
   TryExpandPaddock := true;
 end;
@@ -248,6 +272,7 @@ begin
   if coins < cost then Exit;
   if sheep_n >= MAX_SHEEP then Exit;
   coins := coins - cost;
+  stat_spent := stat_spent + cost;
   next_sheep_id := next_sheep_id + 1;
   NewSheep(sheep[sheep_n], next_sheep_id);
   sheep_n := sheep_n + 1;
@@ -260,6 +285,7 @@ begin
   if has_dog then Exit;
   if coins < DOG_HIRE_COST then Exit;
   coins := coins - DOG_HIRE_COST;
+  stat_spent := stat_spent + DOG_HIRE_COST;
   has_dog := true;
   TryHireDog := true;
 end;
@@ -273,6 +299,7 @@ begin
   if coins < cost then Exit;
   if worker_n >= MAX_WORKERS then Exit;
   coins := coins - cost;
+  stat_spent := stat_spent + cost;
   hand_count := hand_count + 1;
   NewWorker(workers[worker_n], WK_HAND);
   worker_n := worker_n + 1;
@@ -285,6 +312,7 @@ begin
   if coins < TROUGH_COST then Exit;
   if trough_n >= MAX_TROUGHS then Exit;
   coins := coins - TROUGH_COST;
+  stat_spent := stat_spent + TROUGH_COST;
   BoundsRandomPoint;
   NewTrough(troughs[trough_n], kind, rnd_x, rnd_y);
   trough_n := trough_n + 1;
@@ -309,6 +337,10 @@ begin
   SaveTroughs;
   SaveLastSeen(CurrentWallMs);
   SaveSfx(sfx_on);
+  SaveInt(StrAddr('mypaddockStatShear'), StrLen('mypaddockStatShear'), stat_shear);
+  SaveInt(StrAddr('mypaddockStatSales'), StrLen('mypaddockStatSales'), stat_sales);
+  SaveInt(StrAddr('mypaddockStatUpkeep'), StrLen('mypaddockStatUpkeep'), stat_upkeep);
+  SaveInt(StrAddr('mypaddockStatSpent'), StrLen('mypaddockStatSpent'), stat_spent);
 end;
 
 procedure ApplyOfflineProgress(elapsed: Double);
@@ -364,6 +396,7 @@ begin
     else
     begin
       coins := coins + coins_each;
+      stat_shear := stat_shear + coins_each;
       off_last[s_best] := assign;
       off_next[s_best] := assign + regrow;
       off_free[w_best] := assign + off_cycle[w_best];
@@ -640,6 +673,7 @@ begin
             begin
               earned := SheepShear(sheep[idx]);
               coins := coins + earned;
+              stat_shear := stat_shear + earned;
               AddCoinEffect(sheep[idx].x, sheep[idx].y - 20.0, earned);
               PlayShear;
             end;
@@ -761,9 +795,15 @@ begin
     HandleShopClick(x, y);
     Exit;
   end;
+  if budget_open then
+  begin
+    budget_open := false;
+    Exit;
+  end;
   if InRect(x, y, SHOPBTN_X, SHOPBTN_Y, SHOPBTN_W, SHOPBTN_H) then
   begin
     shop_open := true;
+    budget_open := false;
     Exit;
   end;
   if InRect(x, y, MUTEBTN_X, MUTEBTN_Y, MUTEBTN_W, MUTEBTN_H) then
@@ -775,6 +815,12 @@ begin
   if InRect(x, y, RSTBTN_X, RSTBTN_Y, RSTBTN_W, RSTBTN_H) then
   begin
     confirm_reset := true;
+    Exit;
+  end;
+  if InRect(x, y, BUDGETBTN_X, BUDGETBTN_Y, BUDGETBTN_W, BUDGETBTN_H) then
+  begin
+    budget_open := true;
+    shop_open := false;
     Exit;
   end;
   MinimapWorld;
@@ -802,6 +848,10 @@ begin
   paddock_level := LoadInt(StrAddr('mypaddockPaddockLevel'), StrLen('mypaddockPaddockLevel'), 0);
   has_dog := LoadInt(StrAddr('mypaddockDog'), StrLen('mypaddockDog'), 0) <> 0;
   hand_count := LoadInt(StrAddr('mypaddockHands'), StrLen('mypaddockHands'), 0);
+  stat_shear := LoadInt(StrAddr('mypaddockStatShear'), StrLen('mypaddockStatShear'), 0);
+  stat_sales := LoadInt(StrAddr('mypaddockStatSales'), StrLen('mypaddockStatSales'), 0);
+  stat_upkeep := LoadInt(StrAddr('mypaddockStatUpkeep'), StrLen('mypaddockStatUpkeep'), 0);
+  stat_spent := LoadInt(StrAddr('mypaddockStatSpent'), StrLen('mypaddockStatSpent'), 0);
   sheep_n := 0;
   worker_n := 0;
   trough_n := 0;
@@ -859,6 +909,9 @@ begin
     if elapsed > OFFLINE_MIN_SECONDS then
     begin
       earned_before := coins;
+      { M6b: offline runs at 1/10th speed but full pay — scale the window,
+        not the rates. Upkeep cycles below use the scaled elapsed too. }
+      elapsed := elapsed / OFFLINE_TIME_DIV;
       ApplyOfflineProgress(elapsed);
       cycles := Trunc(elapsed / UPKEEP_INTERVAL);
       bill_sheep_sold := 0;
@@ -1013,6 +1066,15 @@ begin
     BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
   DrawText(RSTBTN_X + (RSTBTN_W - 5 * 12) div 2, RSTBTN_Y + 7,
     StrAddr('RESET'), StrLen('RESET'), BAR_BAD_R, BAR_BAD_G, BAR_BAD_B);
+  if budget_open then
+    DrawButton(BUDGETBTN_X, BUDGETBTN_Y, BUDGETBTN_W, BUDGETBTN_H,
+      StrAddr('BUDGET'), StrLen('BUDGET'),
+      BTN_SEL_R, BTN_SEL_G, BTN_SEL_B, HUD_BG_R, HUD_BG_G, HUD_BG_B)
+  else
+    DrawButton(BUDGETBTN_X, BUDGETBTN_Y, BUDGETBTN_W, BUDGETBTN_H,
+      StrAddr('BUDGET'), StrLen('BUDGET'),
+      BTN_BG_R, BTN_BG_G, BTN_BG_B,
+      HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
 end;
 
 procedure DrawShopRowText(i, na, nl, ca, cl: Integer; avail: Boolean);
@@ -1203,6 +1265,67 @@ begin
     HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
 end;
 
+{ Budget overlay (new feature, no Odin equivalent): lifetime income vs
+  expenses. Sign chars use doubled literals (single-char StrAddr trap). }
+procedure DrawSignedLine(x, y, la, ll, v: Integer; income: Boolean);
+var
+  n, dv, vx, sr, sg, sb: Integer;
+  neg: Boolean;
+begin
+  DrawText(x, y, la, ll, HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  if income then
+  begin sr := HUD_COIN_R; sg := HUD_COIN_G; sb := HUD_COIN_B; end
+  else
+  begin sr := BAR_BAD_R; sg := BAR_BAD_G; sb := BAR_BAD_B; end;
+  { v is already signed (expense call sites pass negated counters);
+    a zero expense still reads as -0. }
+  dv := v;
+  neg := (dv < 0) or ((dv = 0) and (not income));
+  if dv < 0 then dv := -dv;
+  n := IntToBuf(dv);
+  vx := x + BUD_W - 40 - (1 + n) * 12;
+  if neg then
+    DrawText(vx, y, StrAddr('--'), 1, sr, sg, sb)
+  else
+    DrawText(vx, y, StrAddr('++'), 1, sr, sg, sb);
+  DrawDigits(vx + 12, y, n, sr, sg, sb);
+end;
+
+procedure DrawBudget;
+var
+  y, net: Integer;
+begin
+  DimScreen;
+  CFillRect(BUD_X, BUD_Y, BUD_W, BUD_H, PANEL_BG_R, PANEL_BG_G, PANEL_BG_B);
+  CRectThick(BUD_X, BUD_Y, BUD_W, BUD_H, 2, PANEL_BD_R, PANEL_BD_G, PANEL_BD_B);
+  DrawTextLarge(BUD_X + 24, BUD_Y + 16,
+    StrAddr('BUDGET'), StrLen('BUDGET'), PANEL_BD_R, PANEL_BD_G, PANEL_BD_B);
+  DrawText(BUD_X + 24, BUD_Y + 48,
+    StrAddr('LIFETIME TOTALS'), StrLen('LIFETIME TOTALS'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+  y := BUD_Y + 70;
+  DrawSignedLine(BUD_X + 20, y, StrAddr('SHEARING'), StrLen('SHEARING'),
+    stat_shear, true);
+  y := y + 32;
+  DrawSignedLine(BUD_X + 20, y, StrAddr('SALES'), StrLen('SALES'),
+    stat_sales, true);
+  y := y + 32;
+  DrawSignedLine(BUD_X + 20, y, StrAddr('UPKEEP'), StrLen('UPKEEP'),
+    -stat_upkeep, false);
+  y := y + 32;
+  DrawSignedLine(BUD_X + 20, y, StrAddr('PURCHASES'), StrLen('PURCHASES'),
+    -stat_spent, false);
+  y := y + 32;
+  DrawSignedLine(BUD_X + 20, y, StrAddr('START'), StrLen('START'),
+    START_COINS, true);
+  y := y + 32;
+  net := START_COINS + stat_shear + stat_sales - stat_upkeep - stat_spent;
+  DrawSignedLine(BUD_X + 20, y, StrAddr('NET'), StrLen('NET'), net, net >= 0);
+  DrawText(BUD_X + (BUD_W - 18 * 12) div 2, BUD_Y + BUD_H - 24,
+    StrAddr('[E OR ESC TO CLOSE]'), StrLen('[E OR ESC TO CLOSE]'),
+    HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
+end;
+
 procedure DrawWelcomeBanner;
 var
   w, h, x, y, n, total, cx: Integer;
@@ -1332,6 +1455,7 @@ begin
     DrawEffectSprite(effects[i], cam_x, cam_y);
   DrawPanel;
   if shop_open then DrawShop;
+  if budget_open then DrawBudget;
   if confirm_reset then DrawResetConfirm;
   if bill_notice_timer > 0.0 then DrawBillNotice
   else if welcome_timer > 0.0 then DrawWelcomeBanner;
@@ -1339,7 +1463,7 @@ end;
 
 procedure HandlePointerDown(x, y: Integer);
 begin
-  if shop_open or confirm_reset or (x >= VIEW_W) then Exit;
+  if shop_open or confirm_reset or budget_open or (x >= VIEW_W) then Exit;
   dragging := true;
   drag_moved := false;
   drag_last_x := x;
@@ -1419,6 +1543,31 @@ begin
   DbgOfflineCoins := offline_coins_earned;
 end;
 
+function DbgStatShear: Integer;
+begin
+  DbgStatShear := stat_shear;
+end;
+
+function DbgStatSales: Integer;
+begin
+  DbgStatSales := stat_sales;
+end;
+
+function DbgStatUpkeep: Integer;
+begin
+  DbgStatUpkeep := stat_upkeep;
+end;
+
+function DbgStatSpent: Integer;
+begin
+  DbgStatSpent := stat_spent;
+end;
+
+function DbgBudgetOpen: Integer;
+begin
+  if budget_open then DbgBudgetOpen := 1 else DbgBudgetOpen := 0;
+end;
+
 procedure HandleKeyDown(addr, len: Integer);
 var
   c: Integer;
@@ -1427,7 +1576,16 @@ begin
   begin
     c := BufByte(addr, 0);
     if (c >= 65) and (c <= 90) then c := c + 32;
-    if c = 98 then shop_open := not shop_open
+    if c = 98 then
+    begin
+      shop_open := not shop_open;
+      budget_open := false;
+    end
+    else if c = 101 then
+    begin
+      budget_open := not budget_open;
+      shop_open := false;
+    end
     else if c = 109 then
     begin
       sfx_on := not sfx_on;
@@ -1439,6 +1597,7 @@ begin
   begin
     shop_open := false;
     confirm_reset := false;
+    budget_open := false;
   end
   else if KeyEquals(addr, len, StrAddr('ArrowUp'), StrLen('ArrowUp')) then
   begin

@@ -36,6 +36,31 @@ begin
   if confirm_reset then mp_confirm := 1 else mp_confirm := 0;
 end;
 
+function mp_stat_shear: Integer;
+begin
+  mp_stat_shear := DbgStatShear;
+end;
+
+function mp_stat_sales: Integer;
+begin
+  mp_stat_sales := DbgStatSales;
+end;
+
+function mp_stat_upkeep: Integer;
+begin
+  mp_stat_upkeep := DbgStatUpkeep;
+end;
+
+function mp_stat_spent: Integer;
+begin
+  mp_stat_spent := DbgStatSpent;
+end;
+
+function mp_budget_open: Integer;
+begin
+  if budget_open then mp_budget_open := 1 else mp_budget_open := 0;
+end;
+
 exports
   MpMain name 'pascaldom_main',
   InvokeCallback name 'pascaldom_invoke_callback',
@@ -53,7 +78,12 @@ exports
   DbgS0Hunger name 'mp_s0hunger',
   DbgTr0 name 'mp_tr0',
   DbgWelcome name 'mp_welcome',
-  DbgOfflineCoins name 'mp_offline_coins';
+  DbgOfflineCoins name 'mp_offline_coins',
+  mp_stat_shear name 'mp_stat_shear',
+  mp_stat_sales name 'mp_stat_sales',
+  mp_stat_upkeep name 'mp_stat_upkeep',
+  mp_stat_spent name 'mp_stat_spent',
+  mp_budget_open name 'mp_budget_open';
 
 begin
 end.

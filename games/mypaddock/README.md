@@ -3,7 +3,21 @@
 Sheep-farming idle game ported from Odin (`dinn/games/mypaddock`) to WasmPascal.
 See [PLAN.md](PLAN.md) for the full port plan.
 
-## Status: M5 — sound + playable host page
+## Status: M6 — budget screen (new feature, no Odin equivalent)
+
+Lifetime income vs expenses overlay: SHEARING / SALES / UPKEEP / PURCHASES /
+START / NET, opened with the BUDGET panel button or `E` (any tap, `E` or
+`Esc` closes). Four counters hooked at every money mutation (shear, all
+livestock sales, upkeep bills, all purchases, incl. offline bulk sim),
+persisted as four save keys, with the invariant
+`coins = 40 + shear + sales - upkeep - spent` covered by tests (incl.
+accumulation across reloads and wipe on reset). Note the panel's
+`UPKEEP: -N` is the per-60s *rate* while the budget's `UPKEEP` is lifetime
+*paid* — they only agree after bills have actually fired. Offline simulates
+1/10th of the elapsed time at full rates (upkeep included), so an hour away
+plays ~6 live minutes — deliberate retune, diverges from Odin.
+
+### Earlier: M5 — sound + playable host page
 
 Shop row purchases (all 7 rows, live gates), upkeep bills with sell-off drain
 and bill/bankrupt banners, autosave every 5s, localStorage saves readable

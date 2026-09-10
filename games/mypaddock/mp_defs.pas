@@ -44,6 +44,8 @@ const
   MUTEBTN_X = 594; MUTEBTN_Y = 156; MUTEBTN_W = 192; MUTEBTN_H = 32;
   MM_X = 594; MM_Y = 220; MM_W = 192; MM_H = 150;
   RSTBTN_X = 594; RSTBTN_Y = 430; RSTBTN_W = 192; RSTBTN_H = 28;
+  BUDGETBTN_X = 594; BUDGETBTN_Y = 470; BUDGETBTN_W = 192; BUDGETBTN_H = 32;
+  BUD_X = 220; BUD_W = 360; BUD_Y = 140; BUD_H = 320;
   SHOP_PANEL_X = 170; SHOP_PANEL_Y = 12;
   SHOP_PANEL_W = 460; SHOP_PANEL_H = 576;
   SHOP_ROW_H = 58; SHOP_ROW_COUNT = 7; SHOP_ROWS_TOP = 118;
@@ -113,6 +115,10 @@ const
   OFFLINE_CAP_SECONDS = 28800.0;
   OFFLINE_MIN_SECONDS = 30.0;
   OFFLINE_WORKER_CYCLE_SEC = (SHEAR_THRESHOLD / WOOL_GROWTH_PER_SEC) / DOG_REQUIRED_AT;
+  { Deliberate divergence from Odin (M6b): offline simulates 1/10th of the
+    elapsed window at full pay rates — absence is the same economy in slow
+    motion, so flocks are never liquidated by absence alone. }
+  OFFLINE_TIME_DIV = 10.0;
   AUTOSAVE_INTERVAL = 5.0;
 
   { Effect tuning (effect.odin). }

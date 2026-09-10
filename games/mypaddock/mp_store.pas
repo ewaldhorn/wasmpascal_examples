@@ -352,6 +352,10 @@ begin
   ls_set_item(StrAddr('mypaddockFlock'), StrLen('mypaddockFlock'), SaveAddr, 0);
   ls_set_item(StrAddr('mypaddockTroughs'), StrLen('mypaddockTroughs'), SaveAddr, 0);
   ls_set_item(StrAddr('mypaddockLastSeen'), StrLen('mypaddockLastSeen'), SaveAddr, 0);
+  ls_set_item(StrAddr('mypaddockStatShear'), StrLen('mypaddockStatShear'), SaveAddr, 0);
+  ls_set_item(StrAddr('mypaddockStatSales'), StrLen('mypaddockStatSales'), SaveAddr, 0);
+  ls_set_item(StrAddr('mypaddockStatUpkeep'), StrLen('mypaddockStatUpkeep'), SaveAddr, 0);
+  ls_set_item(StrAddr('mypaddockStatSpent'), StrLen('mypaddockStatSpent'), SaveAddr, 0);
 end;
 
 begin
