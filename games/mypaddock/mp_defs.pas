@@ -7,7 +7,6 @@ unit mp_defs;
 interface
 
 const
-  VERSION = 'M1';
   CANVAS_W = 800;
   CANVAS_H = 600;
   PIXEL_COUNT = CANVAS_W * CANVAS_H * 4;
@@ -39,7 +38,6 @@ const
     and hit-testing both use these consts (mirrors renderer.odin's rect procs). }
   PANEL_X = 580;
   PANEL_PAD = 14;
-  PANEL_BTN_W = 192;
   SHOPBTN_X = 594; SHOPBTN_Y = 116; SHOPBTN_W = 192; SHOPBTN_H = 32;
   MUTEBTN_X = 594; MUTEBTN_Y = 156; MUTEBTN_W = 192; MUTEBTN_H = 32;
   MM_X = 594; MM_Y = 220; MM_W = 192; MM_H = 150;
@@ -58,7 +56,11 @@ const
   START_COINS = 40;
   START_SHEEP = 3;
 
-  { Sheep tuning (sheep.odin). }
+  { Sheep tuning (sheep.odin). Spawn values match new_sheep exactly. }
+  SHEEP_SPAWN_HUNGER = 65.0;
+  SHEEP_SPAWN_THIRST = 60.0;
+  SHEEP_SPAWN_WOOL = 35.0;
+  TWO_PI = 6.283185307179586;
   SHEEP_SPEED = 14.0;
   SHEEP_WANDER_MIN = 4.0;
   SHEEP_WANDER_MAX = 10.0;
@@ -252,12 +254,10 @@ var
 
 { ---- environment externals (pascaldom_env / odin_env) ---- }
 function  dom_get_global(nm: string): Integer; external 'pascaldom_env' name 'dom_get_global';
-function  dom_get_property(h: Integer; k: string): Integer; external 'pascaldom_env' name 'dom_get_property';
 function  dom_get_element_by_id(id: string): Integer; external 'pascaldom_env' name 'dom_get_element_by_id';
 procedure dom_set_inner_text(h: Integer; text: string); external 'pascaldom_env' name 'dom_set_inner_text';
 function  dom_get_property_str(h: Integer; k: string; buf: Integer; maxlen: Integer): Integer;
           external 'pascaldom_env' name 'dom_get_property_str';
-procedure dom_call_method0(h: Integer; nm: string); external 'pascaldom_env' name 'dom_call_method0';
 function  dom_call_method_ret(h: Integer; nm: string): Integer;
           external 'pascaldom_env' name 'dom_call_method_ret';
 procedure dom_add_event_listener(h: Integer; event: string; cb: Integer);

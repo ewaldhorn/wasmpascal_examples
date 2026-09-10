@@ -39,11 +39,11 @@ begin
   s.target_x := rnd_x;
   s.target_y := rnd_y;
   s.facing := 1.0;
-  s.hunger := 65.0;
-  s.thirst := 60.0;
-  s.wool := 35.0;
+  s.hunger := SHEEP_SPAWN_HUNGER;
+  s.thirst := SHEEP_SPAWN_THIRST;
+  s.wool := SHEEP_SPAWN_WOOL;
   s.wander_timer := RngFloat * SHEEP_WANDER_MAX;
-  s.bob_timer := RngFloat * 6.283185307179586;
+  s.bob_timer := RngFloat * TWO_PI;
   s.flash_timer := 0.0;
 end;
 
@@ -112,8 +112,7 @@ end;
 
 function SheepCanShear(var s: TSheep): Boolean;
 begin
-  if s.wool >= SHEAR_THRESHOLD then SheepCanShear := true
-  else SheepCanShear := false;
+  SheepCanShear := s.wool >= SHEAR_THRESHOLD;
 end;
 
 function SheepShear(var s: TSheep): Integer;

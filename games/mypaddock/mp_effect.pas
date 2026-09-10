@@ -38,8 +38,7 @@ end;
 function EffectUpdate(var e: TEffect; dt: Double): Boolean;
 begin
   e.timer := e.timer - dt;
-  if e.timer > 0.0 then EffectUpdate := true
-  else EffectUpdate := false;
+  EffectUpdate := e.timer > 0.0;
 end;
 
 begin

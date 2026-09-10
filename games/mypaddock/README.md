@@ -55,12 +55,12 @@ python3 -m http.server 8931
 ## How to test (local compiler)
 
 The compiler lives at `dinn/wasmpascal` (binary `wasmpascal`); the harness
-stubs `pascaldom_env`/`odin_env` under Node:
+stubs `pascaldom_env`/`odin_env`/`mp_env`/`app_env` under Node:
 
 ```bash
 cd games/mypaddock
-/path/to/dinn/wasmpascal/wasmpascal -o /tmp/mypaddock_m2.wasm mypaddock.pas
-node tests/mp_test.js /tmp/mypaddock_m2.wasm   # expect SUCCESS
+/path/to/dinn/wasmpascal/wasmpascal -o /tmp/mypaddock_m6.wasm mypaddock.pas
+node tests/mp_test.js /tmp/mypaddock_m6.wasm   # expect SUCCESS
 ```
 
 ## Files

@@ -23,10 +23,7 @@ end;
 
 function TroughNeedsRefill(var t: TTrough): Boolean;
 begin
-  if t.amount < TROUGH_CAPACITY * TROUGH_REFILL_THRESHOLD_FRAC then
-    TroughNeedsRefill := true
-  else
-    TroughNeedsRefill := false;
+  TroughNeedsRefill := t.amount < TROUGH_CAPACITY * TROUGH_REFILL_THRESHOLD_FRAC;
 end;
 
 begin

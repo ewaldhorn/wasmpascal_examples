@@ -25,6 +25,13 @@ function ParseInt(buf: Integer; blen: Integer): Integer;
 
 implementation
 
+const
+  { ASCII codes for the parsers below (named: Byte/Char mixing is fragile). }
+  CH_MINUS = 45;
+  CH_PLUS = 43;
+  CH_DOT = 46;
+  CH_ZERO = 48;
+
 procedure SeedRand(s: Cardinal);
 begin
   rng_state := s;
@@ -63,19 +70,19 @@ begin
   ip := 0.0; frac := 0.0; scale := 0.1; s := 1; i := 0;
   if blen > 0 then
   begin
-    if BufByte(buf, 0) = 45 then begin s := -1; i := 1; end
-    else if BufByte(buf, 0) = 43 then i := 1;
-    while (i < blen) and (BufByte(buf, i) <> 46) do
+    if BufByte(buf, 0) = CH_MINUS then begin s := -1; i := 1; end
+    else if BufByte(buf, 0) = CH_PLUS then i := 1;
+    while (i < blen) and (BufByte(buf, i) <> CH_DOT) do
     begin
-      ip := ip * 10.0 + Double(BufByte(buf, i) - 48);
+      ip := ip * 10.0 + Double(BufByte(buf, i) - CH_ZERO);
       i := i + 1;
     end;
-    if (i < blen) and (BufByte(buf, i) = 46) then
+    if (i < blen) and (BufByte(buf, i) = CH_DOT) then
     begin
       i := i + 1;
       while i < blen do
       begin
-        frac := frac + Double(BufByte(buf, i) - 48) * scale;
+        frac := frac + Double(BufByte(buf, i) - CH_ZERO) * scale;
         scale := scale * 0.1;
         i := i + 1;
       end;
@@ -91,11 +98,11 @@ begin
   v := 0; s := 1; i := 0;
   if blen > 0 then
   begin
-    if BufByte(buf, 0) = 45 then begin s := -1; i := 1; end
-    else if BufByte(buf, 0) = 43 then i := 1;
+    if BufByte(buf, 0) = CH_MINUS then begin s := -1; i := 1; end
+    else if BufByte(buf, 0) = CH_PLUS then i := 1;
     while i < blen do
     begin
-      v := v * 10 + (BufByte(buf, i) - 48);
+      v := v * 10 + (BufByte(buf, i) - CH_ZERO);
       i := i + 1;
     end;
   end;

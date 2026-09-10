@@ -119,10 +119,7 @@ implementation
 
 function InRect(x, y, rx, ry, rw, rh: Integer): Boolean;
 begin
-  if (x >= rx) and (x < rx + rw) and (y >= ry) and (y < ry + rh) then
-    InRect := true
-  else
-    InRect := false;
+  InRect := (x >= rx) and (x < rx + rw) and (y >= ry) and (y < ry + rh);
 end;
 
 procedure ClampCamera;

@@ -26,10 +26,7 @@ implementation
 
 function Culled(cx, cy: Integer): Boolean;
 begin
-  if (cx < -20) or (cx > VIEW_W + 20) or (cy < -20) or (cy > CANVAS_H + 20) then
-    Culled := true
-  else
-    Culled := false;
+  Culled := (cx < -20) or (cx > VIEW_W + 20) or (cy < -20) or (cy > CANVAS_H + 20);
 end;
 
 procedure DrawTroughSprite(var t: TTrough; cam_x, cam_y: Double);
