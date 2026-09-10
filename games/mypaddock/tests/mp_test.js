@@ -325,6 +325,48 @@ async function boot(store, clock) {
   check('reset wipes stats too',
     [storeH.reloaded ? 1 : 0, statKeys.every((k) => !storeH.map.has(k)) ? 1 : 0], [1, 1]);
 
+  // ---- Wool readiness colors: grey bands while growing, white at >=80 ----
+  const storeW = { map: new Map(), reloaded: false };
+  const clockW = { now: 9000000.0, wall: 1700000000000.0 };
+  const wq = await boot(storeW, clockW);
+  wq.tick();
+  const s0px = () => wq.px(Math.floor(wq.e.mp_s0x() / 100), Math.floor(wq.e.mp_s0y() / 100)).slice(0, 3);
+  // spawn wool 35 -> band L1 (20<=35<40) -> grey 138; body center is solid
+  check('spawn wool grey L1', [wq.e.mp_s0wool(), ...s0px()], [350, 138, 138, 138]);
+  const woolColor = (w10) => {
+    const w = w10 / 10;
+    if (w < 15) return [232, 190, 172];
+    if (w >= 80) return [255, 255, 250];
+    const lvl = w < 20 ? 0 : w < 40 ? 1 : w < 60 ? 2 : 3;
+    const g = 100 + lvl * 38;
+    return [g, g, g];
+  };
+  for (let i = 0; i < 20000; i++) { wq.tick(); clockW.wall += 16.7; }
+  let woolOk = false;
+  for (let t = 0; t < 6 && !woolOk; t++) {
+    const exp = woolColor(wq.e.mp_s0wool());
+    const got = s0px();
+    woolOk = exp.every((v, k) => v === got[k]);
+    if (!woolOk) { wq.tick(); clockW.wall += 16.7; }
+  }
+  if (!woolOk) { console.log('FAIL wool band color'); failures++; }
+  else console.log('PASS wool band color (wool=' + (wq.e.mp_s0wool() / 10) + ')');
+
+  // ---- M8: level-10 paradigm — seeded save with 22 food + 22 water troughs
+  // must cap at 110 sheep and still trade; minimap/camera render implicitly
+  const storeL = { map: new Map(), reloaded: false };
+  const clockL = { now: 9500000.0, wall: 1700000000000.0 };
+  storeL.map.set('mypaddockPaddockLevel', '10');
+  storeL.map.set('mypaddockCoins', '9999');
+  storeL.map.set('mypaddockTroughs',
+    Array(22).fill('0,15').concat(Array(22).fill('1,15')).join(';'));
+  const lq = await boot(storeL, clockL);
+  lq.tick();
+  check('L10 cap fits paradigm', [lq.e.mp_sheep_cap()], [110]);
+  lq.key('b'); lq.tick();
+  lq.tap(400, 159); lq.tick(); // row0: buy sheep, gates pass at n=3
+  check('L10 trading works', [lq.e.mp_sheep_n(), lq.e.mp_coins()], [4, 9919]);
+
   console.log(failures === 0 ? 'SUCCESS' : 'FAILURE');
   clearTimeout(t);
   process.exit(failures === 0 ? 0 : 1);
