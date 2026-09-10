@@ -2,13 +2,14 @@
 library mypaddock;
 
 { My Paddock — sheep-farming idle game, ported from Odin to WasmPascal.
-  Pixel-buffer pascaldom ABI (see PLAN.md §1). M3: sim + live chrome.
+  Pixel-buffer pascaldom ABI (see PLAN.md §1). M5: sim + chrome + save + sound.
   Dbg* getters are debug/test exports (sweep_state precedent); they live in
   mp_game and are re-exported here. }
 
 uses
   mp_host,
-  mp_game;
+  mp_game,
+  mp_sound;
 
 function mp_cam_x: Integer;
 begin
@@ -27,7 +28,7 @@ end;
 
 function mp_sfx_on: Integer;
 begin
-  if sfx_enabled then mp_sfx_on := 1 else mp_sfx_on := 0;
+  if sfx_on then mp_sfx_on := 1 else mp_sfx_on := 0;
 end;
 
 function mp_confirm: Integer;

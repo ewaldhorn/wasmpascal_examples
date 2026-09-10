@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>My Paddock (WasmPascal port)</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; background: #1c150e; color: #ffe9c4;
+    font-family: monospace; text-align: center;
+  }
+  h1 { font-size: 18px; margin: 10px 0 2px; letter-spacing: 2px; }
+  p { font-size: 12px; margin: 4px 8px; }
+  #stage canvas {
+    width: min(960px, 96vw); height: auto; aspect-ratio: 800 / 600;
+    image-rendering: pixelated; border: 2px solid #a07c3c;
+    touch-action: none; background: #000;
+  }
+  #version { font-size: 11px; opacity: 0.7; margin: 4px; }
+</style>
+</head>
+<body>
+<h1>MY PADDOCK</h1>
+<p>Drag the paddock to pan &middot; tap the minimap to jump &middot;
+SHOP / SFX / RESET buttons on the right &middot; keys: B shop, M mute, arrows pan</p>
+<div id="stage"></div>
+<div id="version">loading&hellip;</div>
+<script src="host.js"></script>
+</body>
+</html>

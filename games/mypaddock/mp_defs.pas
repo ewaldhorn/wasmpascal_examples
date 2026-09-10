@@ -122,6 +122,16 @@ const
   EK_COIN_FLOAT = 0;
   EK_SPARKLE = 1;
 
+  { Host sound ids (app_env.play_sound; Web Audio patch per id, see host.js).
+    Order matches Odin sound.odin's play_* procs. }
+  SND_FEED = 0;
+  SND_WATER = 1;
+  SND_SHEAR = 2;
+  SND_COIN = 3;
+  SND_PURCHASE = 4;
+  SND_DENIED = 5;
+  SND_SOLD = 6;
+
   { Host callback ids (echoed back via pascaldom_invoke_callback). }
   CB_MOUSEDOWN = 0;
   CB_MOUSEMOVE = 1;

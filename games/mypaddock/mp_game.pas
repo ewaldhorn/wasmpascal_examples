@@ -1,7 +1,7 @@
 unit mp_game;
 
-{ M3: sheep/worker/trough/effect sim + live panel/shop text. Economy
-  mutations (row purchases) and sound arrive in M4/M5. Port of game.odin's
+{ M3/M4/M5: sheep/worker/trough/effect sim + live panel/shop text,
+  economy mutations, save/offline, and sound events. Port of game.odin's
   update procs + renderer.odin's panel/shop draw (draw parts). }
 
 interface
@@ -14,6 +14,7 @@ uses
   mp_render,
   mp_sprites,
   mp_sheep,
+  mp_sound,
   mp_trough,
   mp_worker,
   mp_effect,
@@ -29,7 +30,7 @@ var
   hand_count: Integer = 0;
   shop_open: Boolean = false;
   confirm_reset: Boolean = false;
-  sfx_enabled: Boolean = true;
+  { Mute state lives in mp_sound as sfx_on (avoids a unit cycle). }
   dragging: Boolean = false;
   drag_moved: Boolean = false;
   drag_last_x: Integer = 0;
@@ -307,7 +308,7 @@ begin
   SaveFlock;
   SaveTroughs;
   SaveLastSeen(CurrentWallMs);
-  SaveSfx(sfx_enabled);
+  SaveSfx(sfx_on);
 end;
 
 procedure ApplyOfflineProgress(elapsed: Double);
@@ -640,6 +641,7 @@ begin
               earned := SheepShear(sheep[idx]);
               coins := coins + earned;
               AddCoinEffect(sheep[idx].x, sheep[idx].y - 20.0, earned);
+              PlayShear;
             end;
         end
         else if workers[i].task = WT_REFILL_FOOD then
@@ -647,12 +649,14 @@ begin
           troughs[workers[i].target_trough].amount := TROUGH_CAPACITY;
           AddSparkle(troughs[workers[i].target_trough].x,
             troughs[workers[i].target_trough].y - 16.0);
+          PlayFeed;
         end
         else if workers[i].task = WT_REFILL_WATER then
         begin
           troughs[workers[i].target_trough].amount := TROUGH_CAPACITY;
           AddSparkle(troughs[workers[i].target_trough].x,
             troughs[workers[i].target_trough].y - 16.0);
+          PlayWater;
         end;
         workers[i].state := WS_IDLE;
         workers[i].task := WT_NONE;
@@ -730,7 +734,9 @@ begin
     else if i = 4 then ok := TryBuyTrough(TR_FOOD)
     else if i = 5 then ok := TryBuyTrough(TR_WATER)
     else ok := TryHireHand;
-    { M5 plays purchase/deny/coin sounds here based on ok. }
+    if not ok then PlayDenied
+    else if i = 3 then PlayCoin
+    else PlayPurchase;
     Exit;
   end;
 end;
@@ -762,7 +768,8 @@ begin
   end;
   if InRect(x, y, MUTEBTN_X, MUTEBTN_Y, MUTEBTN_W, MUTEBTN_H) then
   begin
-    sfx_enabled := not sfx_enabled;
+    sfx_on := not sfx_on;
+    SaveSfx(sfx_on);
     Exit;
   end;
   if InRect(x, y, RSTBTN_X, RSTBTN_Y, RSTBTN_W, RSTBTN_H) then
@@ -841,7 +848,7 @@ begin
       worker_n := worker_n + 1;
     end;
   end;
-  sfx_enabled := LoadSfx;
+  sfx_on := LoadSfx;
   EnsureBackground(paddock_level);
   last_seen := LoadLastSeen;
   if last_seen >= 0.0 then
@@ -900,6 +907,7 @@ begin
       bill_hands_sold := cs_hands;
       bill_dog_sold := cs_dog;
       bill_notice_timer := 6.0;
+      PlaySold;
     end;
   end;
   autosave_timer := autosave_timer + dt;
@@ -982,9 +990,9 @@ begin
       StrAddr('SHOP'), StrLen('SHOP'),
       BTN_BG_R, BTN_BG_G, BTN_BG_B,
       HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B);
-  if sfx_enabled then begin la := StrAddr('SFX ON'); ll := 6; end
+  if sfx_on then begin la := StrAddr('SFX ON'); ll := 6; end
   else begin la := StrAddr('SFX OFF'); ll := 7; end;
-  if sfx_enabled then
+  if sfx_on then
     DrawButton(MUTEBTN_X, MUTEBTN_Y, MUTEBTN_W, MUTEBTN_H, la, ll,
       BTN_BG_R, BTN_BG_G, BTN_BG_B,
       HUD_TEXT_R, HUD_TEXT_G, HUD_TEXT_B)
@@ -1420,7 +1428,11 @@ begin
     c := BufByte(addr, 0);
     if (c >= 65) and (c <= 90) then c := c + 32;
     if c = 98 then shop_open := not shop_open
-    else if c = 109 then sfx_enabled := not sfx_enabled;
+    else if c = 109 then
+    begin
+      sfx_on := not sfx_on;
+      SaveSfx(sfx_on);
+    end;
     Exit;
   end;
   if KeyEquals(addr, len, StrAddr('Escape'), StrLen('Escape')) then

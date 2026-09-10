@@ -102,7 +102,7 @@ begin
   RefreshCanvasRect;
 
   ver := dom_get_element_by_id('version');
-  if ver <> 0 then dom_set_inner_text(ver, 'M1');
+  if ver <> 0 then dom_set_inner_text(ver, 'M5');
 
   dom_add_event_listener(doc_h, 'mousedown', CB_MOUSEDOWN);
   dom_add_event_listener(doc_h, 'mousemove', CB_MOUSEMOVE);
