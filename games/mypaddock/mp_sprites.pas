@@ -60,7 +60,7 @@ end;
 
 procedure DrawSheepSprite(var s: TSheep; cam_x, cam_y: Double);
 var
-  cx, cy, bob, radius, head_x, worst: Integer;
+  cx, cy, bob, radius, head_x, worst, lvl, grey: Integer;
   frac: Double;
   br, bg2, bb: Integer;
 begin
@@ -79,11 +79,18 @@ begin
   begin
     br := SHEEP_SKIN_R; bg2 := SHEEP_SKIN_G; bb := SHEEP_SKIN_B;
   end
+  else if s.wool >= SHEAR_THRESHOLD then
+  begin
+    br := WOOL_HI_R; bg2 := WOOL_HI_G; bb := WOOL_HI_B;
+  end
   else
   begin
-    br := WOOL_LO_R + Trunc((WOOL_HI_R - WOOL_LO_R) * frac);
-    bg2 := WOOL_LO_G + Trunc((WOOL_HI_G - WOOL_LO_G) * frac);
-    bb := WOOL_LO_B + Trunc((WOOL_HI_B - WOOL_LO_B) * frac);
+    if s.wool < SHEAR_THRESHOLD * 0.25 then lvl := 0
+    else if s.wool < SHEAR_THRESHOLD * 0.5 then lvl := 1
+    else if s.wool < SHEAR_THRESHOLD * 0.75 then lvl := 2
+    else lvl := 3;
+    grey := WOOL_GREY_BASE + lvl * WOOL_GREY_STEP;
+    br := grey; bg2 := grey; bb := grey;
   end;
   CFillCircle(cx, cy + bob, radius, br, bg2, bb);
   head_x := cx + Trunc(s.facing) * (radius + 2);

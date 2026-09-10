@@ -20,18 +20,23 @@ const
   WORLD_EXPAND_W = 240;
   WORLD_EXPAND_H = 160;
   PADDOCK_MARGIN = 22;
-  MAX_PADDOCK_LEVEL = 4;
+  { M8: paddock goes to 10 (cap 110 sheep); troughs/workers scaled to fit:
+    22 food+water pairs x 5 = 110 need 44 troughs, 10 hands + farmer need
+    12 worker slots. Costs, upkeep, gates unchanged — they extend. }
+  MAX_PADDOCK_LEVEL = 10;
 
   { Largest world: (580+4*240) x (600+4*160) = 1540 x 1240. Needs {$M 32M}. }
-  BG_MAX_W = 1540;
-  BG_MAX_H = 1240;
+  { M8: must fit the level-10 world: 580 + 10*240 = 2980 by 600 + 10*160
+    = 2200 (26.2 MB — needs {$M 48M}, see mypaddock.pas). }
+  BG_MAX_W = 2980;
+  BG_MAX_H = 2200;
   BG_MAX_COUNT = BG_MAX_W * BG_MAX_H * 4;
 
   { Entity caps: fixed arrays + counts (no dynamic arrays in wasmpascal).
     Gameplay flock cap stays 50 (paddock_level 4); 120 is array headroom. }
   MAX_SHEEP = 120;
-  MAX_WORKERS = 8;
-  MAX_TROUGHS = 20;
+  MAX_WORKERS = 12;
+  MAX_TROUGHS = 44;
   MAX_EFFECTS = 64;
 
   { Panel / minimap / shop / dialog layout. Single source of truth: draw code
@@ -161,8 +166,12 @@ const
   FLOWER1_R = 255; FLOWER1_G = 220; FLOWER1_B = 60;
   FLOWER2_R = 255; FLOWER2_G = 140; FLOWER2_B = 180;
   FLOWER3_R = 190; FLOWER3_G = 120; FLOWER3_B = 220;
-  WOOL_LO_R = 240; WOOL_LO_G = 236; WOOL_LO_B = 224;
   WOOL_HI_R = 255; WOOL_HI_G = 255; WOOL_HI_B = 250;
+  { Shear-readiness greys: body is grey while wool grows (bands at 25/50/75%
+    of SHEAR_THRESHOLD), white once ready. Neutral grey reads against grass
+    and never collides with warm wool white or skin pink. }
+  WOOL_GREY_BASE = 100;
+  WOOL_GREY_STEP = 38;
   SHEEP_FACE_R = 60; SHEEP_FACE_G = 55; SHEEP_FACE_B = 55;
   SHEEP_LEG_R = 50; SHEEP_LEG_G = 45; SHEEP_LEG_B = 45;
   SHEEP_SKIN_R = 232; SHEEP_SKIN_G = 190; SHEEP_SKIN_B = 172;

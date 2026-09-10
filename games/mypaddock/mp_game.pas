@@ -75,6 +75,10 @@ function DbgS0y: Integer;
 
 function DbgS0Hunger: Integer;
 
+function DbgS0Wool: Integer;
+
+function DbgSheepCap: Integer;
+
 function DbgTr0: Integer;
 
 function DbgWelcome: Integer;
@@ -778,6 +782,16 @@ end;
 function DbgS0Hunger: Integer;
 begin
   DbgS0Hunger := Trunc(sheep[0].hunger);
+end;
+
+function DbgS0Wool: Integer;
+begin
+  DbgS0Wool := Trunc(sheep[0].wool * 10.0);
+end;
+
+function DbgSheepCap: Integer;
+begin
+  DbgSheepCap := SheepCap;
 end;
 
 function DbgTr0: Integer;

@@ -1,4 +1,6 @@
-{$M 32M}
+{ 48M: bg bake of the level-10 world is 2980*2200*4 = 26.2 MB, plus the
+  1.9 MB frame and program data. Raised from 32M in M8. }
+{$M 48M}
 library mypaddock;
 
 { My Paddock — sheep-farming idle game, ported from Odin to WasmPascal.
@@ -76,6 +78,8 @@ exports
   DbgS0x name 'mp_s0x',
   DbgS0y name 'mp_s0y',
   DbgS0Hunger name 'mp_s0hunger',
+  DbgS0Wool name 'mp_s0wool',
+  DbgSheepCap name 'mp_sheep_cap',
   DbgTr0 name 'mp_tr0',
   DbgWelcome name 'mp_welcome',
   DbgOfflineCoins name 'mp_offline_coins',

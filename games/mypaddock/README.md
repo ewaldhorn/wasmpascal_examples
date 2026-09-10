@@ -15,7 +15,18 @@ accumulation across reloads and wipe on reset). Note the panel's
 `UPKEEP: -N` is the per-60s *rate* while the budget's `UPKEEP` is lifetime
 *paid* — they only agree after bills have actually fired. Offline simulates
 1/10th of the elapsed time at full rates (upkeep included), so an hour away
-plays ~6 live minutes — deliberate retune, diverges from Odin.
+plays ~6 live minutes — deliberate retune, diverges from Odin. Sheep bodies
+show shear readiness: grey while growing (lighter at 25/50/75%), white when
+shearable.
+
+## Limits (M8 paradigm)
+
+Paddock goes to level 10 (cap 110 sheep: 10 + 10/level). Troughs cap at 44
+(22 food+water pairs × 5 each); staff at 11 hands + farmer + 1 dog (10 hands
+needed at 110). Costs extend unchanged (sheep 20+20n, paddock up to 1160,
+hands 200+100n); upkeep never caps (164/min at max flock). Engine arrays
+hold 120 sheep / 12 workers / 44 troughs; the level-10 world needs a
+26 MB background bake, so memory is `{$M 48M}`.
 
 ### Earlier: M5 — sound + playable host page
 
