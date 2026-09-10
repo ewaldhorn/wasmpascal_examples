@@ -33,6 +33,13 @@ var
   drag_moved: Boolean = false;
   drag_last_x: Integer = 0;
   drag_last_y: Integer = 0;
+  { Minimap scrub: a press-drag on the minimap pans the camera too, so the
+    white viewport box follows the cursor. Separate state from the paddock
+    drag because the deltas are scaled by mwr_scale, not 1:1. }
+  mm_drag: Boolean = false;
+  mm_moved: Boolean = false;
+  mm_last_x: Integer = 0;
+  mm_last_y: Integer = 0;
   mwr_x: Integer = 0;
   mwr_y: Integer = 0;
   mwr_w: Integer = 0;
@@ -718,9 +725,27 @@ begin
   else if welcome_timer > 0.0 then DrawWelcomeBanner;
 end;
 
+{ Pointer input has one path for mouse and touch (mp_host relays touches as
+  synthetic mouse events). A press-drag over the paddock viewport pans the
+  camera 1:1; the same gesture over the minimap scrubs it — the delta is
+  divided by mwr_scale, so the viewport box tracks the cursor in minimap
+  pixels. Either way a press-release that moved less than DRAG_THRESHOLD is a
+  tap, so panel buttons, shop rows and the minimap's jump-here all stay taps. }
 procedure HandlePointerDown(x, y: Integer);
 begin
-  if shop_open or confirm_reset or budget_open or (x >= VIEW_W) then Exit;
+  if shop_open or confirm_reset or budget_open then Exit;
+  MinimapWorld;
+  if InRect(x, y, mwr_x, mwr_y, mwr_w, mwr_h) then
+  begin
+    dragging := false;
+    mm_drag := true;
+    mm_moved := false;
+    mm_last_x := x;
+    mm_last_y := y;
+    Exit;
+  end;
+  if x >= VIEW_W then Exit;
+  mm_drag := false;
   dragging := true;
   drag_moved := false;
   drag_last_x := x;
@@ -731,6 +756,23 @@ procedure HandlePointerMove(x, y: Integer);
 var
   dx, dy: Integer;
 begin
+  if mm_drag then
+  begin
+    dx := x - mm_last_x;
+    dy := y - mm_last_y;
+    if (dx > DRAG_THRESHOLD) or (dx < -DRAG_THRESHOLD) or
+       (dy > DRAG_THRESHOLD) or (dy < -DRAG_THRESHOLD) then
+      mm_moved := true;
+    if mwr_scale > 0.0 then
+    begin
+      cam_x := cam_x + Double(dx) / mwr_scale;
+      cam_y := cam_y + Double(dy) / mwr_scale;
+      ClampCamera;
+    end;
+    mm_last_x := x;
+    mm_last_y := y;
+    Exit;
+  end;
   if not dragging then Exit;
   dx := x - drag_last_x;
   dy := y - drag_last_y;
@@ -747,7 +789,17 @@ end;
 procedure HandlePointerUp(x, y: Integer);
 var
   was_drag: Boolean;
+  was_tap: Boolean;
 begin
+  if mm_drag then
+  begin
+    was_tap := not mm_moved;
+    mm_drag := false;
+    mm_moved := false;
+    { A minimap drag has already panned; only a press-release jumps. }
+    if was_tap then HandleTap(x, y);
+    Exit;
+  end;
   was_drag := dragging and drag_moved;
   dragging := false;
   drag_moved := false;

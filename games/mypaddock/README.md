@@ -39,7 +39,8 @@ live minutes.
 
 **Controls** (also printed on the page):
 
-- Drag the paddock to pan; tap the minimap to jump somewhere.
+- Drag the paddock — or the minimap — to pan; tap the minimap to jump
+  somewhere.
 - `B` — shop, `E` — budget, `M` — mute sound, arrow keys — pan.
 - The right-hand panel carries the SHOP, SFX, RESET and BUDGET buttons;
   tapping anywhere closes an open overlay (`Esc` too).

@@ -161,6 +161,36 @@ async function boot(store, clock) {
   keyTick('ArrowUp'); keyTick('ArrowLeft'); keyTick('ArrowDown'); keyTick('ArrowRight');
   check('arrows clamp', [e.mp_cam_x(), e.mp_cam_y()], [0, 0]);
 
+  // ---- Minimap drag: a press-drag on the map scrubs the camera (the
+  // viewport box tracks the cursor in minimap pixels) instead of the old
+  // teleport-to-the-release-point; a press-release that barely moves is
+  // still a jump-to-here tap. Needs a world wider than the viewport, so
+  // this boots its own level-2 save (world 1060x920 vs view 580x600).
+  const storeM = { map: new Map(), reloaded: false };
+  const clockM = { now: 9500000.0, wall: 1700000000000.0 };
+  storeM.map.set('mypaddockPaddockLevel', '2');
+  const mq = await boot(storeM, clockM);
+  mq.tick();
+  // Minimap box: world letterboxed into 192x150 at (594,220) -> scale is the
+  // smaller ratio 150/920, drawing 172x150 at (604,220); so one minimap px
+  // is 920/150 world px.
+  const wmpx = 920 / 150;
+  const mapX = 594 + Math.trunc((192 - 172) / 2);
+  const mapY = 220;
+  mq.down(100, 100); mq.move(60, 60); mq.up(60, 60); mq.tick();
+  check('paddock drag pans 1:1', [mq.e.mp_cam_x(), mq.e.mp_cam_y()], [40, 40]);
+  mq.down(650, 295); mq.move(670, 295); mq.up(670, 295); mq.tick();
+  // +20 map px pans +20*wmpx world px. The old code ignored the press (x was
+  // in the panel) and jumped to the release point instead: [114,160].
+  check('minimap drag scrubs the camera',
+    [mq.e.mp_cam_x(), mq.e.mp_cam_y()],
+    [Math.trunc(40 + 20 * wmpx), 40]);
+  mq.down(650, 300); mq.move(653, 300); mq.up(653, 300); mq.tick();
+  check('sub-threshold minimap press still jumps',
+    [mq.e.mp_cam_x(), mq.e.mp_cam_y()],
+    [Math.trunc((653 - mapX) / (1 / wmpx) - 580 / 2),
+     Math.trunc((300 - mapY) / (1 / wmpx) - 600 / 2)]);
+
   // ---- M3 sim ----
   check('flock spawned', [e.mp_sheep_n(), e.mp_worker_n()], [3, 1]);
   const x0a = e.mp_s0x(), y0a = e.mp_s0y();
