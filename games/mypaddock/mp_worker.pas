@@ -19,6 +19,11 @@ function WorkerStepToward(var w: TWorker; tx, ty, dt: Double): Boolean;
 
 procedure WorkerWander(var w: TWorker; dt: Double);
 
+{ What the worker is about to do, as the (addr, len) pair the speech bubble
+  draws. WT_NONE is "...": an idle worker has nothing to do. Lives here, not
+  in the sprite code, so the debug export reports exactly what is drawn. }
+procedure WorkerTaskLabel(task: Integer; var addr, len: Integer);
+
 implementation
 
 function WorkerSpeed(kind: Integer): Double;
@@ -66,6 +71,18 @@ begin
   if dx > 0.5 then w.facing := 1.0
   else if dx < -0.5 then w.facing := -1.0;
   WorkerStepToward := false;
+end;
+
+procedure WorkerTaskLabel(task: Integer; var addr, len: Integer);
+begin
+  if task = WT_SHEAR then
+  begin addr := StrAddr('SHEAR'); len := StrLen('SHEAR'); end
+  else if task = WT_REFILL_FOOD then
+  begin addr := StrAddr('REFILL FOOD'); len := StrLen('REFILL FOOD'); end
+  else if task = WT_REFILL_WATER then
+  begin addr := StrAddr('REFILL WATER'); len := StrLen('REFILL WATER'); end
+  else
+  begin addr := StrAddr('...'); len := StrLen('...'); end;
 end;
 
 procedure WorkerWander(var w: TWorker; dt: Double);

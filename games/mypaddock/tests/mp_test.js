@@ -120,6 +120,17 @@ async function boot(store, clock) {
   if (titlePx < 200) { console.log('FAIL title pixels'); failures++; }
   else console.log('PASS title pixels');
 
+  // ---- Speech bubbles: every worker carries one above its head. At boot the
+  // lone farmer has nothing to do (no sheep, no troughs), so the pale card is
+  // drawn and its label reads "..." — length 3, and index 1 is past the
+  // roster. A job-bearing worker swaps in a word instead (see the shear check
+  // at the end of the suite). ----
+  const bubblePx = g.band(0, 580, 0, 600, 250, 245, 225);
+  console.log('speech bubble pixels:', bubblePx);
+  check('idle worker draws a speech bubble', [bubblePx > 400 ? 1 : 0], [1]);
+  check('idle worker bubble reads ...',
+    [e.mp_wbubble(0), e.mp_wbubble(1)], [3, -1]);
+
   // drag pans then clamps at level 0 (world == viewport); release is a drag
   g.down(100, 100); g.move(200, 150); tick(); g.up(200, 150); tick();
   check('cam clamped after drag', [e.mp_cam_x(), e.mp_cam_y()], [0, 0]);
@@ -517,6 +528,27 @@ async function boot(store, clock) {
   lq.key('b'); lq.tick();
   lq.tap(400, 159); lq.tick(); // row0: buy sheep, gates pass at n=3
   check('L10 trading works', [lq.e.mp_sheep_n(), lq.e.mp_coins()], [4, 9919]);
+
+  // ---- Farm hands share lone jobs (round-robin): two staggered single shear
+  // jobs with the farmer idle must not both go to workers[0]. Before the fix
+  // the idle scan always started at index 0, so the farmer won every tie and
+  // hired hands wandered forever in small flocks. ----
+  const storeJ = { map: new Map(), reloaded: false };
+  const clockJ = { now: 12500000.0, wall: 1700000000000.0 };
+  storeJ.map.set('mypaddockCoins', '9999');
+  storeJ.map.set('mypaddockHands', '1');
+  storeJ.map.set('mypaddockFlock', '100,100,79;100,100,40');
+  const jq = await boot(storeJ, clockJ);
+  jq.tick();
+  let handSheared = false;
+  let handSaidShear = false;
+  for (let i = 0; i < 9500; i++) {
+    jq.tick(); clockJ.wall += 16.7;
+    if (jq.e.mp_w1task() === 3) handSheared = true; // WT_SHEAR
+    if (jq.e.mp_wbubble(1) === 5) handSaidShear = true; // bubble says 'SHEAR'
+  }
+  check('lone shear job reaches the hired hand', [handSheared ? 1 : 0], [1]);
+  check('hand bubble names the job it took', [handSaidShear ? 1 : 0], [1]);
 
   console.log(failures === 0 ? 'SUCCESS' : 'FAILURE');
   clearTimeout(t);

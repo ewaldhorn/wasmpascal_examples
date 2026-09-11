@@ -63,6 +63,16 @@ begin
   if budget_open then mp_budget_open := 1 else mp_budget_open := 0;
 end;
 
+function mp_w1task: Integer;
+begin
+  mp_w1task := DbgW1Task;
+end;
+
+function mp_wbubble(idx: Integer): Integer;
+begin
+  mp_wbubble := DbgWBubble(idx);
+end;
+
 function mp_help_open: Integer;
 begin
   if help_open then mp_help_open := 1 else mp_help_open := 0;
@@ -99,7 +109,9 @@ exports
   mp_stat_upkeep name 'mp_stat_upkeep',
   mp_stat_spent name 'mp_stat_spent',
   mp_budget_open name 'mp_budget_open',
-  mp_help_open name 'mp_help_open';
+  mp_help_open name 'mp_help_open',
+  mp_w1task name 'mp_w1task',
+  mp_wbubble name 'mp_wbubble';
 
 begin
 end.

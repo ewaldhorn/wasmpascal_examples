@@ -20,6 +20,12 @@ var
   wft_sheep: Integer = 0;
   wft_trough: Integer = 0;
   wft_ok: Boolean = false;
+  { Round-robin cursor for handing new jobs to idle workers. Without it the
+    worker loop below always scans from index 0, so the farmer (always [0])
+    wins every tie when only one job is up — the norm in a small flock — and
+    hired hands visibly never work. The cursor advances only when a job is
+    actually assigned, so consecutive lone jobs strictly alternate takers. }
+  rr_next: Integer = 0;
   off_next: array[0..MAX_SHEEP - 1] of Double;
   off_last: array[0..MAX_SHEEP - 1] of Double;
   off_free: array[0..31] of Double;
@@ -286,9 +292,10 @@ end;
 
 procedure UpdateWorkers(dt: Double);
 var
-  i, idx, earned: Integer;
+  i, j, k, idx, earned, n_idle: Integer;
   tx, ty: Double;
   valid: Boolean;
+  idle: array[0..MAX_WORKERS - 1] of Integer;
 begin
   claimed_sheep_n := 0;
   claimed_troughs_n := 0;
@@ -307,35 +314,16 @@ begin
       claimed_troughs_n := claimed_troughs_n + 1;
     end;
   end;
+  { Advance workers that already have jobs. Idle workers are assigned below in
+    round-robin order (see rr_next): scanning from index 0 every frame let the
+    farmer take every lone job, leaving hired hands permanently wandering. }
   for i := 0 to worker_n - 1 do
   begin
     if (workers[i].kind = WK_FARMER) and has_dog then
       workers[i].speed_mult := DOG_SPEED_MULT
     else
       workers[i].speed_mult := 1.0;
-    if workers[i].state = WS_IDLE then
-    begin
-      WorkerFindTask;
-      if not wft_ok then
-        WorkerWander(workers[i], dt)
-      else
-      begin
-        workers[i].task := wft_task;
-        workers[i].state := WS_WALKING;
-        if wft_task = WT_SHEAR then
-        begin
-          workers[i].target_sheep_id := sheep[wft_sheep].id;
-          claimed_sheep[claimed_sheep_n] := workers[i].target_sheep_id;
-          claimed_sheep_n := claimed_sheep_n + 1;
-        end
-        else
-        begin
-          workers[i].target_trough := wft_trough;
-          claimed_troughs[claimed_troughs_n] := wft_trough;
-          claimed_troughs_n := claimed_troughs_n + 1;
-        end;
-      end;
-    end
+    if workers[i].state = WS_IDLE then continue
     else if workers[i].state = WS_WALKING then
     begin
       valid := true;
@@ -400,6 +388,49 @@ begin
         end;
         workers[i].state := WS_IDLE;
         workers[i].task := WT_NONE;
+      end;
+    end;
+  end;
+  { Hand new jobs to idle workers in round-robin order starting after the last
+    assignee, so lone jobs alternate takers instead of always going to the
+    farmer. Claims are appended on each assignment exactly as before, so later
+    takers in the same frame still see earlier ones. }
+  if worker_n > 0 then
+  begin
+    rr_next := rr_next mod worker_n;
+    n_idle := 0;
+    for k := 0 to worker_n - 1 do
+    begin
+      i := (rr_next + k) mod worker_n;
+      if workers[i].state = WS_IDLE then
+      begin
+        idle[n_idle] := i;
+        n_idle := n_idle + 1;
+      end;
+    end;
+    for j := 0 to n_idle - 1 do
+    begin
+      i := idle[j];
+      WorkerFindTask;
+      if not wft_ok then
+        WorkerWander(workers[i], dt)
+      else
+      begin
+        workers[i].task := wft_task;
+        workers[i].state := WS_WALKING;
+        if wft_task = WT_SHEAR then
+        begin
+          workers[i].target_sheep_id := sheep[wft_sheep].id;
+          claimed_sheep[claimed_sheep_n] := workers[i].target_sheep_id;
+          claimed_sheep_n := claimed_sheep_n + 1;
+        end
+        else
+        begin
+          workers[i].target_trough := wft_trough;
+          claimed_troughs[claimed_troughs_n] := wft_trough;
+          claimed_troughs_n := claimed_troughs_n + 1;
+        end;
+        rr_next := (i + 1) mod worker_n;
       end;
     end;
   end;

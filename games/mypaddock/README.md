@@ -23,6 +23,10 @@ so you buy food and water troughs and hire farm hands to feed, water and shear
 them. Wool sells for coins. Every 60 seconds an upkeep bill falls due; if you
 can't pay, the game sells sheep to cover it.
 
+Each farm hand — and the farmer — carries a speech bubble saying what it is
+about to do (`SHEAR`, `REFILL FOOD`, `REFILL WATER`), so you can watch a job get
+taken and followed. An idle worker shows `...`.
+
 Progression runs to paddock level 10, which caps the flock at 110 sheep (10 plus
 10 per level). Troughs stop at 44 (22 food/water pairs), and the flock starts
 demanding a sheep dog as it grows. Ten farm hands keep 110 sheep fed and shorn;

@@ -212,6 +212,11 @@ const
   PANEL_BD_R = 210; PANEL_BD_G = 160; PANEL_BD_B = 60;
   BAR_BAD_R = 200; BAR_BAD_G = 70; BAR_BAD_B = 60;
   COIN_FLOAT_R = 255; COIN_FLOAT_G = 215; COIN_FLOAT_B = 60;
+  { Worker speech bubbles: pale card so the dark glyphs stay readable over
+    grass, which a mid-tone fill would not. }
+  BUBBLE_BG_R = 250; BUBBLE_BG_G = 245; BUBBLE_BG_B = 225;
+  BUBBLE_BD_R = 70; BUBBLE_BD_G = 52; BUBBLE_BD_B = 34;
+  BUBBLE_TEXT_R = 50; BUBBLE_TEXT_G = 38; BUBBLE_TEXT_B = 26;
 
 type
   TSheep = record

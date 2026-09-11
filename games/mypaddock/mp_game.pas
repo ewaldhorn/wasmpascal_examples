@@ -121,6 +121,16 @@ function DbgStatSpent: Integer;
 
 function DbgBudgetOpen: Integer;
 
+{ First hired hand's current task (WT_* in mp_defs, -1 when no hand hired).
+  Debug/test export: proves lone jobs reach hands instead of always going to
+  the farmer (workers[0]). }
+function DbgW1Task: Integer;
+
+{ Length of a worker's speech-bubble label (3 = "...", WT_NONE), -1 when the
+  index is past the flock's workers. Debug/test export: reports exactly the
+  pair DrawSpeechBubble draws, without pixel-scanning the frame. }
+function DbgWBubble(idx: Integer): Integer;
+
 implementation
 
 function InRect(x, y, rx, ry, rw, rh: Integer): Boolean;
@@ -1184,6 +1194,24 @@ end;
 function DbgBudgetOpen: Integer;
 begin
   if budget_open then DbgBudgetOpen := 1 else DbgBudgetOpen := 0;
+end;
+
+function DbgW1Task: Integer;
+begin
+  if worker_n < 2 then DbgW1Task := -1
+  else DbgW1Task := workers[1].task;
+end;
+
+function DbgWBubble(idx: Integer): Integer;
+var
+  a, l: Integer;
+begin
+  if (idx < 0) or (idx >= worker_n) then DbgWBubble := -1
+  else
+  begin
+    WorkerTaskLabel(workers[idx].task, a, l);
+    DbgWBubble := l;
+  end;
 end;
 
 procedure HandleKeyDown(addr, len: Integer);

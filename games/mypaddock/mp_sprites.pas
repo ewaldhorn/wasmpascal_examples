@@ -148,6 +148,39 @@ begin
   CFillRect(cx - 4 + facing * 3, cy - 21, 8, 4, hat_r, hat_g, hat_b);
 end;
 
+{ Speech bubble: pale card with a dark outline and a stepped tail pointing
+  down at the worker's hat, label centred. Clamped to the viewport so a
+  worker near an edge still gets a fully visible bubble; the tail chases the
+  worker's head, so it stays attached even when the card is nudged sideways.
+  head_y is the top of the hat, so the card clears the head. }
+procedure DrawSpeechBubble(cx, head_y, addr, len: Integer);
+var
+  pad_x, pad_y, box_w, box_h, bx, by, tail_x: Integer;
+begin
+  pad_x := 6;
+  pad_y := 4;
+  box_w := len * 12 + pad_x * 2;
+  box_h := 14 + pad_y * 2;
+  bx := cx - box_w div 2;
+  by := head_y - 6 - box_h;
+  if bx < 2 then bx := 2;
+  if bx + box_w > VIEW_W - 2 then bx := VIEW_W - 2 - box_w;
+  if by < 2 then by := 2;
+  CFillRect(bx, by, box_w, box_h, BUBBLE_BG_R, BUBBLE_BG_G, BUBBLE_BG_B);
+  CRectOutline(bx, by, box_w, box_h, BUBBLE_BD_R, BUBBLE_BD_G, BUBBLE_BD_B);
+  { Tail drawn after the card, so its outline covers the card's bottom edge
+    where they meet and the two read as one shape. }
+  tail_x := cx;
+  if tail_x < bx + 9 then tail_x := bx + 9;
+  if tail_x > bx + box_w - 9 then tail_x := bx + box_w - 9;
+  CFillRect(tail_x - 4, by + box_h - 1, 9, 5, BUBBLE_BD_R, BUBBLE_BD_G, BUBBLE_BD_B);
+  CFillRect(tail_x - 3, by + box_h - 1, 7, 3, BUBBLE_BG_R, BUBBLE_BG_G, BUBBLE_BG_B);
+  CFillRect(tail_x - 2, by + box_h + 3, 5, 4, BUBBLE_BD_R, BUBBLE_BD_G, BUBBLE_BD_B);
+  CFillRect(tail_x - 1, by + box_h + 3, 3, 2, BUBBLE_BG_R, BUBBLE_BG_G, BUBBLE_BG_B);
+  DrawText(bx + pad_x, by + pad_y, addr, len,
+    BUBBLE_TEXT_R, BUBBLE_TEXT_G, BUBBLE_TEXT_B);
+end;
+
 procedure DrawDog(cx, cy, bob, dir: Integer);
 var
   head_x: Integer;
@@ -187,19 +220,10 @@ begin
     if has_dog then
       DrawDog(cx - dir * 16, cy + 6, bob, dir);
   end;
-  if w.state = WS_WORKING then
-  begin
-    if w.task = WT_REFILL_FOOD then
-    begin ta := StrAddr('REFILLING FOOD'); tl := StrLen('REFILLING FOOD'); end
-    else if w.task = WT_REFILL_WATER then
-    begin ta := StrAddr('REFILLING WATER'); tl := StrLen('REFILLING WATER'); end
-    else if w.task = WT_SHEAR then
-    begin ta := StrAddr('SHEARING'); tl := StrLen('SHEARING'); end
-    else begin ta := 0; tl := 0; end;
-    if tl > 0 then
-      DrawText(cx - (tl * 12) div 2, cy - 34, ta, tl,
-        HUD_COIN_R, HUD_COIN_G, HUD_COIN_B);
-  end;
+  { Every worker announces what it is about to do, walking or working alike;
+    WT_NONE reads "...", so an idle hand looks idle rather than blank. }
+  WorkerTaskLabel(w.task, ta, tl);
+  DrawSpeechBubble(cx, cy - 21, ta, tl);
 end;
 
 procedure DrawEffectSprite(var e: TEffect; cam_x, cam_y: Double);
