@@ -126,9 +126,9 @@ function DbgBudgetOpen: Integer;
   the farmer (workers[0]). }
 function DbgW1Task: Integer;
 
-{ Length of a worker's speech-bubble label (3 = "...", WT_NONE), -1 when the
-  index is past the flock's workers. Debug/test export: reports exactly the
-  pair DrawSpeechBubble draws, without pixel-scanning the frame. }
+{ Length of a worker's speech-bubble label, -1 when the worker is idle (no
+  bubble is drawn) or the index is past the roster. Debug/test export:
+  reports exactly what DrawSpeechBubble draws, without pixel-scanning. }
 function DbgWBubble(idx: Integer): Integer;
 
 implementation
@@ -1207,6 +1207,8 @@ var
   a, l: Integer;
 begin
   if (idx < 0) or (idx >= worker_n) then DbgWBubble := -1
+  else if workers[idx].state = WS_IDLE then
+    DbgWBubble := -1
   else
   begin
     WorkerTaskLabel(workers[idx].task, a, l);

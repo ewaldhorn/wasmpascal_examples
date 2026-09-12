@@ -1,4 +1,4 @@
-// My Paddock — browser host for mypaddock.wasm (M5).
+// My Paddock — browser host for mypaddock.wasm (v1.0.7).
 // Implements the full wasm import surface:
 //   pascaldom_env.* (pixel-buffer canvas bridge, events, localStorage),
 //   odin_env.sqrt/sin, mp_env.date_now/js_reload, app_env.play_sound.

@@ -33,7 +33,7 @@ const
   BG_MAX_COUNT = BG_MAX_W * BG_MAX_H * 4;
 
   { Entity caps: fixed arrays + counts (no dynamic arrays in wasmpascal).
-    Gameplay flock cap stays 50 (paddock_level 4); 120 is array headroom. }
+    Gameplay flock cap is 110 (paddock_level 10); 120 is array headroom. }
   MAX_SHEEP = 120;
   MAX_WORKERS = 12;
   MAX_TROUGHS = 44;

@@ -120,16 +120,17 @@ async function boot(store, clock) {
   if (titlePx < 200) { console.log('FAIL title pixels'); failures++; }
   else console.log('PASS title pixels');
 
-  // ---- Speech bubbles: every worker carries one above its head. At boot the
-  // lone farmer has nothing to do (no sheep, no troughs), so the pale card is
-  // drawn and its label reads "..." — length 3, and index 1 is past the
-  // roster. A job-bearing worker swaps in a word instead (see the shear check
-  // at the end of the suite). ----
+  // ---- Speech bubbles: only a worker that actually has a job (walking or
+  // working) carries one above its head. At boot the lone farmer is idle —
+  // no sheep, no troughs — so no pale card is drawn at all and mp_wbubble
+  // reports -1 for both the farmer and the (nonexistent) index 1. A
+  // job-bearing worker shows a word instead (see the shear check at the
+  // end of the suite). ----
   const bubblePx = g.band(0, 580, 0, 600, 250, 245, 225);
   console.log('speech bubble pixels:', bubblePx);
-  check('idle worker draws a speech bubble', [bubblePx > 400 ? 1 : 0], [1]);
-  check('idle worker bubble reads ...',
-    [e.mp_wbubble(0), e.mp_wbubble(1)], [3, -1]);
+  check('idle worker draws no speech bubble', [bubblePx === 0 ? 1 : 0], [1]);
+  check('idle worker bubble absent',
+    [e.mp_wbubble(0), e.mp_wbubble(1)], [-1, -1]);
 
   // drag pans then clamps at level 0 (world == viewport); release is a drag
   g.down(100, 100); g.move(200, 150); tick(); g.up(200, 150); tick();

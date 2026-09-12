@@ -220,10 +220,13 @@ begin
     if has_dog then
       DrawDog(cx - dir * 16, cy + 6, bob, dir);
   end;
-  { Every worker announces what it is about to do, walking or working alike;
-    WT_NONE reads "...", so an idle hand looks idle rather than blank. }
-  WorkerTaskLabel(w.task, ta, tl);
-  DrawSpeechBubble(cx, cy - 21, ta, tl);
+  { A worker with a job announces it, walking or working alike; an idle
+    worker (WT_NONE) stays quiet and gets no bubble at all. }
+  if w.state <> WS_IDLE then
+  begin
+    WorkerTaskLabel(w.task, ta, tl);
+    DrawSpeechBubble(cx, cy - 21, ta, tl);
+  end;
 end;
 
 procedure DrawEffectSprite(var e: TEffect; cam_x, cam_y: Double);
