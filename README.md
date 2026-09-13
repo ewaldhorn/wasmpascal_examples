@@ -11,71 +11,71 @@ WasmPascal makes it possible to use the browser as the development platform for,
 
 ---
 
-**Quick Navigation**:<br>
-[How to Run](#how-to-run-the-examples)<br>
-[Repository Structure](#repository-structure)<br>
-[Pascal Reference](#pascal-quick-reference)<br>
-[Learn Pascal Tutorial](#learn-pascal-tutorial)<br>
-[Examples](#examples)<br>
-[Games](#games)<br>
-[Blog Posts](#blog-posts)<br>
+**Quick Navigation**
+
+- [How to Run](#how-to-run-the-examples)
+- [Repository Structure](#repository-structure)
+- [Pascal Reference](#pascal-quick-reference)
+- [Learn Pascal Tutorial](#learn-pascal-tutorial)
+- [Examples](#examples)
+- [Games](#games)
+- [Blog Posts](#blog-posts)
 
 ---
 
-## This Repo
+## About This Repo
 
 I want to make the examples in WasmPascal more accessible, and I also don't want to update the compiler every time I add a new example. So my plan is to, over time, put all the example programs in this repo, possibly with more and/or better documentation. WasmPascal has grown a bit beyond the quick experiment I originally intended, so bear with me as I get the supporting documentation in place!
 
+> **Note:** Not all examples are working yet. The Pascal compiler is still being fine-tuned and a handful of examples may not behave as expected. Known issues are called out inline (e.g. `wasmtools` has an active compiler investigation underway).
+
 ## Repository Structure
 
-- **[`examples/`](examples/)**: 48 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics.
-- **[`games/`](games/)**: Complete multi-file games built as finished projects — a full Pascal source tree, a hand-written browser host page, and a compiled `.wasm` binary ready to serve.
-- **[`docs/`](docs/)**: Complete offline documentation ported directly from the WasmPascal web IDE:
-  - **[`docs/reference/`](docs/reference/)**: 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins.
-  - **[`docs/tutorial/`](docs/tutorial/)**: 15-part "Learn Pascal" tutorial from your first `writeln` to multi-file OOP architectures.
-- **[`blog_posts/`](blog_posts/)**: Runnable companion code and HTML test harnesses for articles published on [nofuss.co.za](https://nofuss.co.za/).
+| Folder | Contents |
+|---|---|
+| [`examples/`](examples/) | 48 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics. |
+| [`games/`](games/) | Complete multi-file games — full Pascal source trees, hand-written browser host pages, and compiled `.wasm` binaries ready to serve. |
+| [`docs/reference/`](docs/reference/) | 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins. |
+| [`docs/tutorial/`](docs/tutorial/) | 15-part "Learn Pascal" tutorial, from your first `writeln` to multi-file OOP architectures. |
+| [`blog_posts/`](blog_posts/) | Runnable companion code and HTML test harnesses for articles published on [nofuss.co.za](https://nofuss.co.za/). |
 
 ## How to Run the Examples
 
 ### 1. In the WasmPascal Web IDE
 
-The fastest way to try any example is directly in your browser at **[wasmpascal.com](https://wasmpascal.com/)**:
+The fastest way to try any example is directly in your browser at **[wasmpascal.com](https://wasmpascal.com/)**.
 
-- **Single-file examples** (e.g. `hello`, `basic_canvas`, `breakout`, `crt_demo`):
-  1. Open [wasmpascal.com](https://wasmpascal.com/).
-  2. Copy and paste the `.pas` code into the editor (or click **Upload files** on the toolbar).
-  3. Click **Run** (or press `Ctrl+Enter` / `Cmd+Enter`).
+**Single-file examples** (e.g. `hello`, `basic_canvas`, `breakout`, `crt_demo`):
+1. Open [wasmpascal.com](https://wasmpascal.com/).
+2. Copy and paste the `.pas` code into the editor, or click **Upload files** on the toolbar.
+3. Click **Run** (or press `Ctrl+Enter` / `Cmd+Enter`).
 
-- **Multi-unit projects** (`dugster`, `flightleader`, `sweep`):
-  1. Open [wasmpascal.com](https://wasmpascal.com/).
-  2. Click **Upload files** on the toolbar and select all `.pas` files in the example's folder at once.
-  3. The editor automatically selects the `program` file as root and loads the accompanying units (`uses`).
-  4. Click **Run**.
+**Multi-unit projects** (`dugster`, `flightleader`, `sweep`):
+1. Open [wasmpascal.com](https://wasmpascal.com/).
+2. Click **Upload files** and select all `.pas` files in the example folder at once.
+3. The editor automatically identifies the `program` file as root and loads the accompanying units (`uses`).
+4. Click **Run**.
 
 ### 2. Running Blog Post Demos Locally
 
-The [`blog_posts/`](blog_posts/) folder includes standalone HTML host pages that load WebAssembly modules. Because browsers restrict loading `.wasm` binaries over `file://`, start a local HTTP server:
+The [`blog_posts/`](blog_posts/) folder includes standalone HTML host pages that load WebAssembly modules. Because browsers restrict loading `.wasm` files over `file://`, you'll need a local HTTP server:
 
 ```bash
-# Run from repository root
+# Run from the repository root
 python3 -m http.server 8080
 ```
 
-Then visit `http://localhost:8080/blog_posts/wasm_pascal_add_numbers/` (or any other subfolder) in your browser.
+Then open `http://localhost:8080/blog_posts/wasm_pascal_add_numbers/` (or any other subfolder) in your browser.
 
 ### 3. Running the Games
 
-The projects in [`games/`](games/) are multi-unit builds like the ones above, with two differences worth knowing: their root file is a `library` rather than a `program`, and they import host modules the IDE does not supply. So they compile in the IDE but will not run there — each game's README covers its IDE build steps, and [Games](#games) below covers serving one locally.
-
-## Caution
-
-Not all of these examples are working. I am still fine-tuning the Pascal compiler and here and there some of the examples might not behave as expected. For example, wasmtools has some issue that I'm working on.
+The projects in [`games/`](games/) are multi-unit builds, with two key differences: their root file is a `library` rather than a `program`, and they import host modules the IDE does not supply. They will compile in the IDE but won't run there — each game's README covers its IDE build steps, and [Games](#games) below explains how to serve one locally.
 
 ## Documentation
 
 Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) and Learn overlays.
 
-### Pascal quick reference
+### Pascal Quick Reference
 
 | Doc | Description |
 |---|---|
@@ -94,7 +94,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 | [Editor shortcuts & toolbar](docs/reference/13-editor-shortcuts-toolbar.md) | Keyboard shortcuts and toolbar actions in the web IDE. |
 | [Acknowledgements & Credits](docs/reference/14-acknowledgements-credits.md) | Third-party components and credits. |
 
-### Learn Pascal tutorial
+### Learn Pascal Tutorial
 
 | Lesson | Description |
 |---|---|
@@ -116,130 +116,95 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 
 ## Examples
 
-Looking for something specific? Here are the 48 examples organized by focus area:
+Looking for something specific? Here are all 48 examples organized by focus area:
 
-- 🕹️ **Arcade Games & Interactive Demos**:<br>
-  [`breakout`](examples/breakout/)<br>
-  [`breakout_graphics`](examples/breakout_graphics/)<br>
-  [`dugster`](examples/dugster/)<br>
-  [`flightleader`](examples/flightleader/)<br>
-  [`floaty_car`](examples/floaty_car/)<br>
-  [`pascaloids`](examples/pascaloids/)<br>
-  [`pong`](examples/pong/)<br>
-  [`runner`](examples/runner/)<br>
-  [`sweep`](examples/sweep/)<br>
-  [`xonix`](examples/xonix/)<br>
-
-- 🎨 **HTML5 Canvas Graphics & Simulation**:<br>
-  [`basic_canvas`](examples/basic_canvas/)<br>
-  [`classic_dots`](examples/classic_dots/)<br>
-  [`colors`](examples/colors/)<br>
-  [`growable`](examples/growable/)<br>
-  [`pascaldom_probe`](examples/pascaldom_probe/)<br>
-  [`sparks`](examples/sparks/)<br>
-  [`transforms`](examples/transforms/)<br>
-
-- 🖥️ **Virtual Console & Turbo Pascal `Crt`**:<br>
-  [`crt_demo`](examples/crt_demo/)<br>
-  [`delay`](examples/delay/)<br>
-  [`enhanced_colours`](examples/enhanced_colours/)<br>
-  [`gotoxy`](examples/gotoxy/)<br>
-  [`guess`](examples/guess/)<br>
-  [`looped_fibonacci`](examples/looped_fibonacci/)<br>
-  [`read_demo`](examples/read_demo/)<br>
-  [`screen40`](examples/screen40/)<br>
-  [`shapes`](examples/shapes/)<br>
-
-- 🏛️ **Memory & Object-Oriented Programming**:<br>
-  [`alloc`](examples/alloc/)<br>
-  [`classes_demo`](examples/classes_demo/)<br>
-  [`heap_demo`](examples/heap_demo/)<br>
-  [`objects_demo`](examples/objects_demo/)<br>
-
-- 🧱 **Language Syntax & Data Structures**:<br>
-  [`case_ranges_demo`](examples/case_ranges_demo/)<br>
-  [`enums`](examples/enums/)<br>
-  [`fibonacci`](examples/fibonacci/)<br>
-  [`hello`](examples/hello/)<br>
-  [`hello_write`](examples/hello_write/)<br>
-  [`math`](examples/math/)<br>
-  [`multidim`](examples/multidim/)<br>
-  [`ordinals`](examples/ordinals/)<br>
-  [`pointers`](examples/pointers/)<br>
-  [`set_demo`](examples/set_demo/)<br>
-  [`strings`](examples/strings/)<br>
-  [`ternary`](examples/ternary/)<br>
-  [`typed_const_demo`](examples/typed_const_demo/)<br>
-  [`unicode`](examples/unicode/)<br>
-  [`var_params_demo`](examples/var_params_demo/)<br>
-  [`variants`](examples/variants/)<br>
-  [`with_demo`](examples/with_demo/)<br>
-
-- ⚠️ **Work in Progress**:<br>
-  [`wasmtools`](examples/wasmtools/)<br>
-
-### All Examples
+### 🕹️ Arcade Games & Interactive Demos
 
 | Example | Description |
 |---|---|
-| [alloc](examples/alloc/) | Demonstrates heap allocation with `New`/`Dispose` and `GetMem`/`FreeMem` by building, traversing, and freeing a singly linked list of records. |
-| [basic_canvas](examples/basic_canvas/) | Draws 2D graphics primitives like circles, lines, and animated scanlines directly on an HTML Canvas without JavaScript glue code. |
-| [breakout](examples/breakout/) | A full Breakout arcade game rendered in 80x25 text mode using the `Crt` unit, with paddle physics, score, lives, and win/loss states. |
-| [breakout_graphics](examples/breakout_graphics/) | The HTML5 Canvas version of Breakout with 60 fps batched rendering, synthesized Web Audio effects, and smooth ball and paddle physics. |
-| [case_ranges_demo](examples/case_ranges_demo/) | Shows range expressions (`lo..hi`) in `case` statements, compiling dense spans to `br_table` jump tables and sparse spans to branches. |
-| [classes_demo](examples/classes_demo/) | Demonstrates Delphi-style classes with fields, methods, `Create` constructors, single inheritance, overrides, and heap lifetime management. |
-| [classic_dots](examples/classic_dots/) | A DOS-era style screensaver updated for the web, using WasmPascal's Canvas extensions to animate graphics from Pascal. |
-| [colors](examples/colors/) | Renders color gradients on the HTML5 canvas while printing colored text via `TextColor`/`TextBackground`, showing dual console plus canvas output. |
-| [crt_demo](examples/crt_demo/) | Recreates the Turbo Pascal 7 `Crt` environment in the browser, exercising the 16 classic text colors, `ClrScr`, and `GotoXY` placement. |
-| [delay](examples/delay/) | Demonstrates non-blocking `Delay(ms)` pauses, which safely block the Web Worker thread without freezing the browser UI. |
-| [dugster](examples/dugster/) <br>*(multi-unit)* | A complete multi-unit Dig Dug / Boulder Dash style arcade game with procedural caverns, digging, rock gravity, and monster AI. |
-| [enhanced_colours](examples/enhanced_colours/) | Explores rich text-mode palettes with zigzagging color ramps and repeating colored banners on the virtual console. |
-| [enums](examples/enums/) | Demonstrates enumerations and subranges as array indices, loop bounds, and `case` targets, with ordinal conversions and set operations. |
-| [fibonacci](examples/fibonacci/) | A classic recursion and iteration benchmark that also highlights Delphi-style inline ternary expressions. |
-| [flightleader](examples/flightleader/) <br>*(multi-unit)* | A sophisticated 3D wireframe flight combat game built from modular units for vector math, batched rendering, particles, and flight physics. |
-| [floaty_car](examples/floaty_car/) | A top-down arcade racing game with a scrolling road grid, keyboard and touch steering, boost mechanics, and synthesized engine sounds. |
-| [gotoxy](examples/gotoxy/) | Demonstrates cursor positioning with `GotoXY` and screen clearing with `ClrScr` to draw borders and banners on the 80x25 terminal grid. |
-| [growable](examples/growable/) | Demonstrates a swap-remove particle pool where mouse-held spawns drift upward and fade, with constant-time removal and no heap churn. |
-| [guess](examples/guess/) | The classic number-guessing game using `readln`/`writeln` and a repeat-until loop, giving the player 7 tries to find the secret number. |
-| [heap_demo](examples/heap_demo/) | Shows heap growth inside a constrained `{$M 64K}` limit by allocating 10 blocks step by step, then freeing them all. |
-| [hello](examples/hello/) | A minimal Pascal `library` exporting `add` and `wasm_init` to the JavaScript host while also writing to standard output. |
-| [hello_write](examples/hello_write/) | Demonstrates `write`/`writeln` output for strings, integers, floats, and newline control through the WebAssembly host. |
-| [looped_fibonacci](examples/looped_fibonacci/) | Computes and formats Fibonacci numbers iteratively on an extended 80x50 text-mode screen. |
-| [math](examples/math/) | Exercises the built-in math functions (`Sin`, `Cos`, `ArcTan`, `Ln`, `Exp`, `Sqrt`, `Round`, `Trunc`, `Abs`) on WebAssembly. |
-| [multidim](examples/multidim/) | Demonstrates multi-dimensional arrays, including enum-indexed matrices, 3D cubes, nested traversal, and memory layout. |
-| [objects_demo](examples/objects_demo/) | Demonstrates Turbo Pascal 7 `object` types with constructors, virtual methods, inheritance via `inherited`, and stack plus heap semantics. |
-| [ordinals](examples/ordinals/) | Exercises the ordinal built-ins `Ord`, `Chr`, `Pred`, `Succ`, `Odd`, and `Halt` for characters and enums. |
-| [pascaldom_probe](examples/pascaldom_probe/) | A minimal diagnostic for the `pascaldom` DOM layer that acquires a canvas, paints it, and exports `pascaldom_main`. |
-| [pascaloids](examples/pascaloids/) | A full Asteroids-style shooter with inertial ship physics, fracturing asteroids, batched Canvas2D rendering, and synthesized audio. |
-| [pointers](examples/pointers/) | Demonstrates typed pointers (`^T`), `nil`, `SizeOf`, and pointer arithmetic with `Inc`/`Dec` across array elements. |
-| [pong](examples/pong/) | A complete real-time Pong game with a player paddle, tracking AI, angle-based deflection, Web Audio effects, and 60 fps canvas rendering. |
-| [read_demo](examples/read_demo/) | Demonstrates interactive `readln` input for integers and floats, routed through browser dialogs by the Web Worker runtime. |
-| [runner](examples/runner/) | An endless runner platformer with procedural platforms, variable jump physics, parallax backgrounds, day-night transitions, and synth sound effects. |
-| [screen40](examples/screen40/) | Demonstrates a compact 40x10 virtual console via the `{$Screen 40 10}` directive, with cursor placement and text wrapping. |
-| [set_demo](examples/set_demo/) | Explores `set of` types, covering constructors, union, difference, intersection, `in` membership, and subset and equality comparisons. |
-| [shapes](examples/shapes/) | Draws text-mode geometric patterns like triangles, diamonds, and bordered rectangles on an 80x40 console using only `write`/`writeln`. |
-| [sparks](examples/sparks/) | An interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
-| [strings](examples/strings/) | Demonstrates string concatenation, `Length`, `Copy`, `Pos`, `Str`/`Val` conversions, and fixed-length `String[n]` buffers. |
-| [sweep](examples/sweep/) <br>*(multi-unit)* | A complete multi-unit Minesweeper engine and UI with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
-| [ternary](examples/ternary/) | Demonstrates Delphi-style inline ternary expressions (`if cond then a else b`) in assignments and arguments, with type promotion. |
+| [breakout](examples/breakout/) | Full Breakout in 80×25 text mode using the `Crt` unit, with paddle physics, score, lives, and win/loss states. |
+| [breakout_graphics](examples/breakout_graphics/) | The HTML5 Canvas version of Breakout with 60 fps batched rendering, synthesized Web Audio effects, and smooth physics. |
+| [dugster](examples/dugster/) *(multi-unit)* | A complete multi-unit Dig Dug / Boulder Dash style game with procedural caverns, digging, rock gravity, and monster AI. |
+| [flightleader](examples/flightleader/) *(multi-unit)* | A 3D wireframe flight combat game with modular units for vector math, batched rendering, particles, and flight physics. |
+| [floaty_car](examples/floaty_car/) | Top-down arcade racer with a scrolling road grid, keyboard and touch steering, boost mechanics, and synthesized engine sounds. |
+| [pascaloids](examples/pascaloids/) | Asteroids-style shooter with inertial ship physics, fracturing asteroids, batched Canvas2D rendering, and synthesized audio. |
+| [pong](examples/pong/) | Complete real-time Pong with a player paddle, tracking AI, angle-based deflection, Web Audio effects, and 60 fps canvas rendering. |
+| [runner](examples/runner/) | Endless runner platformer with procedural platforms, variable jump physics, parallax backgrounds, day-night transitions, and synth SFX. |
+| [sweep](examples/sweep/) *(multi-unit)* | Complete multi-unit Minesweeper with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
+| [xonix](examples/xonix/) | Faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
+
+### 🎨 HTML5 Canvas Graphics & Simulation
+
+| Example | Description |
+|---|---|
+| [basic_canvas](examples/basic_canvas/) | Draws 2D graphics primitives (circles, lines, animated scanlines) directly on an HTML Canvas without JavaScript glue code. |
+| [classic_dots](examples/classic_dots/) | A DOS-era screensaver updated for the web, using WasmPascal's Canvas extensions to animate graphics from Pascal. |
+| [colors](examples/colors/) | Renders color gradients on the HTML5 canvas while printing colored text via `TextColor`/`TextBackground` — dual console plus canvas output. |
+| [growable](examples/growable/) | Swap-remove particle pool where mouse-held spawns drift upward and fade, with constant-time removal and no heap churn. |
+| [pascaldom_probe](examples/pascaldom_probe/) | Minimal diagnostic for the `pascaldom` DOM layer: acquires a canvas, paints it, and exports `pascaldom_main`. |
+| [sparks](examples/sparks/) | Interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
 | [transforms](examples/transforms/) | Showcases the Canvas 2D transform stack (`save`, `restore`, `translate`, `rotate`, `scale`) with gears, orbits, and pulsating waves. |
-| [typed_const_demo](examples/typed_const_demo/) | Demonstrates initialized typed constants for records and arrays, compiled into the WebAssembly data section. |
-| [unicode](examples/unicode/) | Demonstrates Unicode handling with raw UTF-8 literals, `#nn` and `#$hh` character codes, and adjacent literal concatenation. |
-| [var_params_demo](examples/var_params_demo/) | Demonstrates pass-by-reference with `var` parameters for in-place mutation of variables, record fields, and array elements. |
-| [variants](examples/variants/) | Demonstrates variant records (`case tag of`) as memory-efficient tagged unions, such as shape definitions. |
-| [wasmtools](examples/wasmtools/) <br>*(⚠️ WIP)* | ⚠️ *Work in progress (compiler investigation ongoing).* A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80x25 terminal UI. |
-| [with_demo](examples/with_demo/) | Demonstrates the `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
-| [xonix](examples/xonix/) | A faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
+
+### 🖥️ Virtual Console & Turbo Pascal `Crt`
+
+| Example | Description |
+|---|---|
+| [crt_demo](examples/crt_demo/) | Recreates the Turbo Pascal 7 `Crt` environment in the browser: 16 classic text colors, `ClrScr`, and `GotoXY` placement. |
+| [delay](examples/delay/) | Demonstrates non-blocking `Delay(ms)` pauses that safely block the Web Worker thread without freezing the browser UI. |
+| [enhanced_colours](examples/enhanced_colours/) | Explores rich text-mode palettes with zigzagging color ramps and repeating colored banners on the virtual console. |
+| [gotoxy](examples/gotoxy/) | Cursor positioning with `GotoXY` and screen clearing with `ClrScr` to draw borders and banners on the 80×25 terminal grid. |
+| [guess](examples/guess/) | Classic number-guessing game using `readln`/`writeln` and a repeat-until loop — 7 tries to find the secret number. |
+| [looped_fibonacci](examples/looped_fibonacci/) | Computes and formats Fibonacci numbers iteratively on an extended 80×50 text-mode screen. |
+| [read_demo](examples/read_demo/) | Demonstrates interactive `readln` input for integers and floats, routed through browser dialogs by the Web Worker runtime. |
+| [screen40](examples/screen40/) | Compact 40×10 virtual console via the `{$Screen 40 10}` directive, with cursor placement and text wrapping. |
+| [shapes](examples/shapes/) | Draws text-mode geometric patterns (triangles, diamonds, bordered rectangles) on an 80×40 console using only `write`/`writeln`. |
+
+### 🏛️ Memory & Object-Oriented Programming
+
+| Example | Description |
+|---|---|
+| [alloc](examples/alloc/) | Heap allocation with `New`/`Dispose` and `GetMem`/`FreeMem` by building, traversing, and freeing a singly linked list. |
+| [classes_demo](examples/classes_demo/) | Delphi-style classes with fields, methods, `Create` constructors, single inheritance, overrides, and heap lifetime management. |
+| [heap_demo](examples/heap_demo/) | Shows heap growth inside a `{$M 64K}` limit by allocating 10 blocks step by step, then freeing them all. |
+| [objects_demo](examples/objects_demo/) | Turbo Pascal 7 `object` types with constructors, virtual methods, inheritance via `inherited`, and stack plus heap semantics. |
+
+### 🧱 Language Syntax & Data Structures
+
+| Example | Description |
+|---|---|
+| [case_ranges_demo](examples/case_ranges_demo/) | Range expressions (`lo..hi`) in `case` statements, compiling dense spans to `br_table` jump tables and sparse spans to branches. |
+| [enums](examples/enums/) | Enumerations and subranges as array indices, loop bounds, and `case` targets, with ordinal conversions and set operations. |
+| [fibonacci](examples/fibonacci/) | Classic recursion and iteration benchmark, also highlighting Delphi-style inline ternary expressions. |
+| [hello](examples/hello/) | Minimal Pascal `library` exporting `add` and `wasm_init` to the JavaScript host while also writing to standard output. |
+| [hello_write](examples/hello_write/) | `write`/`writeln` output for strings, integers, floats, and newline control through the WebAssembly host. |
+| [math](examples/math/) | Exercises the built-in math functions (`Sin`, `Cos`, `ArcTan`, `Ln`, `Exp`, `Sqrt`, `Round`, `Trunc`, `Abs`) on WebAssembly. |
+| [multidim](examples/multidim/) | Multi-dimensional arrays including enum-indexed matrices, 3D cubes, nested traversal, and memory layout. |
+| [ordinals](examples/ordinals/) | Ordinal built-ins `Ord`, `Chr`, `Pred`, `Succ`, `Odd`, and `Halt` for characters and enums. |
+| [pointers](examples/pointers/) | Typed pointers (`^T`), `nil`, `SizeOf`, and pointer arithmetic with `Inc`/`Dec` across array elements. |
+| [set_demo](examples/set_demo/) | `set of` types: constructors, union, difference, intersection, `in` membership, and subset and equality comparisons. |
+| [strings](examples/strings/) | String concatenation, `Length`, `Copy`, `Pos`, `Str`/`Val` conversions, and fixed-length `String[n]` buffers. |
+| [ternary](examples/ternary/) | Delphi-style inline ternary expressions (`if cond then a else b`) in assignments and arguments, with type promotion. |
+| [typed_const_demo](examples/typed_const_demo/) | Initialized typed constants for records and arrays, compiled into the WebAssembly data section. |
+| [unicode](examples/unicode/) | Unicode handling with raw UTF-8 literals, `#nn` and `#$hh` character codes, and adjacent literal concatenation. |
+| [var_params_demo](examples/var_params_demo/) | Pass-by-reference with `var` parameters for in-place mutation of variables, record fields, and array elements. |
+| [variants](examples/variants/) | Variant records (`case tag of`) as memory-efficient tagged unions, such as shape definitions. |
+| [with_demo](examples/with_demo/) | The `with` statement for simplifying record field access, including chained scopes and shadowed-field resolution. |
+
+### ⚠️ Work in Progress
+
+| Example | Description |
+|---|---|
+| [wasmtools](examples/wasmtools/) | ⚠️ *Compiler investigation ongoing.* A PC Tools / Turbo Vision tribute with pulldown menus, dialog boxes, a directory browser, and an 80×25 terminal UI. |
 
 ## Games
 
-Beyond the single-folder examples, this repo carries complete games: each one is a full Pascal source tree that ships with its own hand-written browser host page and a compiled `.wasm` binary, so it can be served as a finished project rather than pasted into the IDE.
+Beyond the single-folder examples, this repo carries complete games: each is a full Pascal source tree that ships with its own hand-written browser host page and a compiled `.wasm` binary, ready to serve as a finished project rather than paste into the IDE.
 
 | Game | Description |
 |---|---|
 | [mypaddock](games/mypaddock/) | A complete sheep-farming game — buy sheep, keep them fed and watered, hire farm hands, sell wool, and pay an upkeep bill that never stops growing — with a live simulation economy, a pixel-buffer canvas renderer, synthesized sound, and saves that survive reloads. |
 
-### Running a game
+### Running a Game
 
 A game is three static files in one folder — `index.html`, `host.js`, and the compiled `.wasm` — with no build step and no server-side code. Serve the folder over HTTP and open it:
 
@@ -249,9 +214,9 @@ python3 -m http.server 8931
 # then open http://localhost:8931/
 ```
 
-Keep the three files together (the page fetches the `.wasm` from its own folder), and serve over HTTP(S) rather than `file://` — browsers refuse to load a `.wasm` binary from the filesystem. Any static host will do. Each game's README documents the build in the WasmPascal IDE, the host import surface it needs, and its save format.
+Keep the three files together (the page fetches the `.wasm` from its own folder), and serve over HTTP(S) rather than `file://` — browsers refuse to load `.wasm` binaries from the filesystem. Any static host will do. Each game's README documents the IDE build process, the host import surface it requires, and its save format.
 
-## Blog posts
+## Blog Posts
 
 Runnable code from the WasmPascal blog posts (full Pascal sources plus their HTML host pages).
 
