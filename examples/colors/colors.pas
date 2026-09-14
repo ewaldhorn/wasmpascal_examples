@@ -4,24 +4,26 @@ library colors;
 // page — the two output paths wasmpascal supports, side by side.
 // Draws a gradient to the canvas and prints a color table to the console
 // with write/writeln + field widths.
+//
+// The two paths come from two different places, which is the point of the
+// example: the canvas goes through the WEB unit's bridge (`uses WEB`), the
+// console text through `wasmpascal_env` — and BOTH run from the one body,
+// which under this ABI IS pascaldom_main. Migrated 2026-09-14: four
+// hand-declared `external`s and a separate pascaldom_main procedure + exports
+// clause became `uses WEB` and a body (the same shape sweep/paint/musicbox
+// have).
 
-function  dom_get_element_by_id(id: string): Integer;
-          external 'pascaldom_env' name 'dom_get_element_by_id';
-function  dom_canvas_create(parent: Integer; w, h: Integer): Integer;
-          external 'pascaldom_env' name 'dom_canvas_create';
-function  dom_canvas_get_context(cv: Integer): Integer;
-          external 'pascaldom_env' name 'dom_canvas_get_context';
-procedure dom_canvas_render(cv, ctx, pp, pl, w, h: Integer);
-          external 'pascaldom_env' name 'dom_canvas_render';
+uses
+  WEB;
 
 const
   W = 320;
   H = 200;
 
 var
+  web: TWeb;
+  app: Integer;
   pixels: array[0..W * H * 4 - 1] of Byte;
-  cv_h: Integer = 0;
-  ctx_h: Integer = 0;
 
 // Fill the pixel buffer with a horizontal rainbow gradient.
 procedure DrawGradient;
@@ -45,22 +47,20 @@ begin
   end;
 end;
 
-procedure pascaldom_main;
-var
-  app: Integer;
 begin
-  app := dom_get_element_by_id('stage');
-  cv_h := dom_canvas_create(app, W, H);
-  ctx_h := dom_canvas_get_context(cv_h);
+  web := TWeb.Create;
+  // The mount point is the HOST's business: the IDE runs examples under
+  // #stage, a standalone page may have neither id, and handle 0 is the
+  // bridge's reserved event slot rather than "no parent".
+  app := web.GetElementById('stage');
+  if app = 0 then app := web.GetElementById('app');
+  if app = 0 then app := web.Doc;
+  web.MakeCanvas(app, W, H);
   DrawGradient;
-  dom_canvas_render(cv_h, ctx_h, Integer(@pixels), W * H * 4, W, H);
-end;
+  web.RenderCanvas(Integer(@pixels), W * H * 4);
 
-exports
-  pascaldom_main name 'pascaldom_main';
-
-begin
-  // Console output with colors — runs after the canvas is drawn.
+  // Console output with colors — the other output path, and it works from the
+  // same body: the console sink is `wasmpascal_env`, not the canvas bridge.
   writeln('=== TextColor / TextBackground demo ===');
   writeln;
   TextColor(1);  write('red');
