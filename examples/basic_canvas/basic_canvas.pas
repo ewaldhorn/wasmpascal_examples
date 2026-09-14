@@ -24,7 +24,9 @@ var
   ballCount: Integer = 0;  ballHead:  Integer = 0;
   rngState: Cardinal = $DEADBEEF;
 
-procedure _haltproc(exitCode: Integer); external 'env' name '_haltproc';
+// (An `env._haltproc` external used to be declared here, for `Halt`. Nothing
+// calls it, and since dead-import elimination (2026-09-14) an external that is
+// never called is not imported — so this module now imports nothing at all.)
 
 // Pixel buffer base address — fixed offset past static data in WASM memory.
 // $20000 (128 KB) is safely past all data segments (~104 KB) with margin.
