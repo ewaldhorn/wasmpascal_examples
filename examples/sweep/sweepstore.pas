@@ -1,5 +1,7 @@
 unit sweepstore;
 
+{$mode fpc}
+
 interface
 
 uses
@@ -17,46 +19,50 @@ procedure SaveBestTime(d, secs: Integer);
 implementation
 
 
+// The storage calls take STRINGS now: the WEB unit marshals a string argument
+// itself, so the (ptr, len) pairs this file used to build by hand are gone —
+// `Str(v, s)` formats the value and the compiler does the rest.
+
 function LoadDifficulty: Integer;
 var
   n: Integer;
 begin
-  n := ls_get_item(StrAddr('sweepDifficulty'), StrLen('sweepDifficulty'), Integer(@scratch), 80);
+  n := dom_local_storage_get_item('sweepDifficulty', Integer(@scratch), 80);
   if n < 0 then LoadDifficulty := 0
   else LoadDifficulty := ParseInt(Integer(@scratch), n);
 end;
 
 procedure SaveDifficulty(d: Integer);
 var
-  n: Integer;
+  s: string;
 begin
-  n := IntToBuf(d, Integer(@text_buf));
-  ls_set_item(StrAddr('sweepDifficulty'), StrLen('sweepDifficulty'), Integer(@text_buf), n);
+  Str(d, s);
+  dom_local_storage_set_item('sweepDifficulty', s);
 end;
 
 procedure LoadBestTimes;
 var
   n: Integer;
 begin
-  n := ls_get_item(StrAddr('sweepBestEasy'), StrLen('sweepBestEasy'), Integer(@scratch), 80);
+  n := dom_local_storage_get_item('sweepBestEasy', Integer(@scratch), 80);
   if n >= 0 then best_times[0] := ParseInt(Integer(@scratch), n);
-  n := ls_get_item(StrAddr('sweepBestMedium'), StrLen('sweepBestMedium'), Integer(@scratch), 80);
+  n := dom_local_storage_get_item('sweepBestMedium', Integer(@scratch), 80);
   if n >= 0 then best_times[1] := ParseInt(Integer(@scratch), n);
-  n := ls_get_item(StrAddr('sweepBestHard'), StrLen('sweepBestHard'), Integer(@scratch), 80);
+  n := dom_local_storage_get_item('sweepBestHard', Integer(@scratch), 80);
   if n >= 0 then best_times[2] := ParseInt(Integer(@scratch), n);
 end;
 
 procedure SaveBestTime(d, secs: Integer);
 var
-  n: Integer;
+  s: string;
 begin
-  n := IntToBuf(secs, Integer(@text_buf));
+  Str(secs, s);
   if d = 0 then
-    ls_set_item(StrAddr('sweepBestEasy'), StrLen('sweepBestEasy'), Integer(@text_buf), n)
+    dom_local_storage_set_item('sweepBestEasy', s)
   else if d = 1 then
-    ls_set_item(StrAddr('sweepBestMedium'), StrLen('sweepBestMedium'), Integer(@text_buf), n)
+    dom_local_storage_set_item('sweepBestMedium', s)
   else
-    ls_set_item(StrAddr('sweepBestHard'), StrLen('sweepBestHard'), Integer(@text_buf), n);
+    dom_local_storage_set_item('sweepBestHard', s);
 end;
 
 begin
