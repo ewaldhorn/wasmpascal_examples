@@ -226,11 +226,11 @@ procedure dgPlaySound(id: Integer); external 'app_env' name 'play_sound';
 function dgGetBest: Integer; external 'app_env' name 'get_dugster_best';
 procedure dgSetBest(s: Integer); external 'app_env' name 'set_dugster_best';
 
-// Float math through a Double external with explicit casts: the Sin/Cos/...
-// builtins promote only Integer args to f64 — a Single arg is passed as f32
-// and produces invalid wasm (the odin_env import silently goes missing;
-// G4 cherry pulse hit exactly this). Same pascaloids pattern as fldefs mSin.
-function dgSin(x: Double): Double; external 'odin_env' name 'sin';
+// (Float math used to go through a `dgSin` Double external declared here,
+// because the Sin builtin promoted only Integer arguments to f64 — a Single
+// argument was passed as f32 and the import went missing silently; the G4
+// cherry pulse hit exactly that. Fixed 2026-09-14, docs/features.md §10.55:
+// call the builtin.)
 
 // ---- Batch wire writers (one buffer, one flush per frame) ----
 // Step time for a heading: horizontal and vertical paces differ, exactly
