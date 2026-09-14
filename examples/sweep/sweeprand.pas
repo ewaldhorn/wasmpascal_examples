@@ -1,5 +1,7 @@
 unit sweeprand;
 
+{$mode fpc}
+
 interface
 
 uses
