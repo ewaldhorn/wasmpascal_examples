@@ -6,18 +6,23 @@ library set_demo;
 // difference, intersection), `in` membership, = <> equality, <= >= subset,
 // and runtime elements.
 //
-// Sets need an address, so set variables must be GLOBALS (like arrays —
-// the compiler has no stack-slot addressing for multi-word values).
+// The working sets below are LOCALS, and they can be: an address-taken local
+// lives in the calling frame, so a multi-word value needs no global. (An
+// earlier version of this file kept them global, with a note that the compiler
+// had no stack-slot addressing for multi-word values. It does now — measured
+// 2026-09-14: locals of `set of Byte` and `set of Char` compile and answer
+// `in` / `+` / `*` correctly.)
 
 type
   TWeek = set of 0..6;   // single-word set (7 bits)
 
 var
-  letters: set of Char;  // 8-word set (256 bits)
+  letters: set of Char;  // 8-word set (256 bits) — a global, for contrast
   week: TWeek;
-  s, t, u: set of Byte;  // globals (set vars need an address)
 
 procedure Demo;
+var
+  s, t, u: set of Byte;  // 8-word sets in a FRAME, not in static data
 begin
   writeln('set demo');
   writeln('---------');
