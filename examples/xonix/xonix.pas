@@ -242,7 +242,7 @@ end;
 
 procedure AppendInt(var off: Integer; n: Integer);
 var
-  d, x, c, i: Integer;
+  d, x, i: Integer;
 begin
   x := n;
   d := 0;
@@ -669,7 +669,7 @@ end;
 procedure EnemyUpdate(ei: Integer; dt_ms: Double);
 var
   dt, cs, next_x, next_y, tmp: Double;
-  cx, cy, gx, gy, i: Integer;
+  cx, cy, i: Integer;
   dx, dy, dist, ox, oy, edx, edy, edist, nx2, ny2, relx, rely, dot: Double;
 begin
   if not enemies[ei].active then Exit;
