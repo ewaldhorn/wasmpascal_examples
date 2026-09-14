@@ -2,7 +2,7 @@
 
 > Lesson from the WasmPascal in-browser **Learn Pascal** tutorial. Source: `webpascal/index.html`.
 
-A program starts with a `program`/`library` header and ends with `end.` (the final dot). The `library` header is what the examples use; either works. The optional `uses` clause pulls in units registered with the host — more on that in lesson 12.
+A program starts with a `program`/`library` header and ends with `end.` (the final dot). The `library` header is what the examples use; either works. The optional `uses` clause pulls in units — your own project files, or the three the compiler carries itself (`Crt`, `Classes`, `WEB`). More on that in lesson 12.
 
 ```pascal
 library hello;
