@@ -1,5 +1,7 @@
 unit sweepdefs;
 
+{$mode fpc}
+
 interface
 
 const
@@ -42,32 +44,21 @@ var
   top_x, top_y, top_w, top_h: Integer;
 
 
-// ---- environment externals (pascaldom_env / odin_env) ----
-function  dom_get_global(nm: string): Integer; external 'pascaldom_env' name 'dom_get_global';
-function  dom_get_property(h: Integer; k: string): Integer; external 'pascaldom_env' name 'dom_get_property';
-function  dom_get_element_by_id(id: string): Integer; external 'pascaldom_env' name 'dom_get_element_by_id';
-procedure dom_set_inner_text(h: Integer; text: string); external 'pascaldom_env' name 'dom_set_inner_text';
-function  dom_get_property_str(h: Integer; k: string; buf: Integer; maxlen: Integer): Integer;
-          external 'pascaldom_env' name 'dom_get_property_str';
-procedure dom_call_method0(h: Integer; nm: string); external 'pascaldom_env' name 'dom_call_method0';
-function  dom_call_method_ret(h: Integer; nm: string): Integer;
-          external 'pascaldom_env' name 'dom_call_method_ret';
-procedure dom_add_event_listener(h: Integer; event: string; cb: Integer);
-          external 'pascaldom_env' name 'dom_add_event_listener';
-function  dom_canvas_create(parent: Integer; w, h: Integer): Integer;
-          external 'pascaldom_env' name 'dom_canvas_create';
-function  dom_canvas_get_context(cv: Integer): Integer;
-          external 'pascaldom_env' name 'dom_canvas_get_context';
-procedure dom_canvas_render(cv, ctx, pp, pl, w, h: Integer);
-          external 'pascaldom_env' name 'dom_canvas_render';
-procedure dom_start_animation_loop(cb: Integer); external 'pascaldom_env' name 'dom_start_animation_loop';
-function  dom_now: Double; external 'pascaldom_env' name 'dom_now';
-
-// localStorage (raw ptr/len signatures; pass StrAddr('...')/StrLen('...') literals)
-function  ls_get_item(kp: Integer; kl: Integer; buf: Integer; maxlen: Integer): Integer;
-          external 'pascaldom_env' name 'dom_local_storage_get_item';
-procedure ls_set_item(kp, kl, vp, vl: Integer);
-          external 'pascaldom_env' name 'dom_local_storage_set_item';
+// ---- the bridge ------------------------------------------------------------
+//
+// `uses WEB` (DOMPLAN.md D1/D2) brings the whole pascaldom bridge in from the
+// compiler binary: the `dom_*` entry points below used to be declared here as
+// `external 'odindom_env'` and are now the embedded unit's, under the same
+// names and with the same signatures — that is what makes the migration a
+// deletion rather than a rewrite. The unit also owns the callback entry points
+// (`pascaldom_invoke_callback` / `pascaldom_set_last_event`) and the dispatch
+// table, so the game no longer picks callback ids or writes a `case id of`
+// dispatcher (see sweephost.pas).
+//
+// The module name follows the unit: `pascaldom_env`, not `odindom_env` — the
+// host is `pascaldom.js` (see README.md § ABI and index.html).
+uses
+  WEB;
 
 // math
 function  mSqrt(x: Double): Double; external 'odin_env' name 'sqrt';
