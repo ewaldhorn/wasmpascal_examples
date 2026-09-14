@@ -701,8 +701,6 @@ begin
 end;
 
 procedure simKillPlayer;
-var
-  i: Integer;
 begin
   aPlaySound(SND_SHIP_DEATH);
   fxSpawnExplosion(Single(CW) * 0.5, Single(CH) * 0.5, 2.6, true);
@@ -829,7 +827,6 @@ end;
 procedure simUpdateBolts(dt: Single);
 var
   i: Integer;
-  spd: Single;
 begin
   for i := 0 to MAX_PBOLTS - 1 do
   begin
@@ -965,7 +962,6 @@ end;
 procedure simUpdate(dt: Single);
 var
   i: Integer;
-  fwd_x, fwd_y, fwd_z: Single;
 begin
   if msg_timer > 0 then msg_timer := msg_timer - dt;
 
