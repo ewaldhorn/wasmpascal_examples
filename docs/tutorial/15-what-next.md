@@ -14,6 +14,7 @@ You now know enough to read every example in the **Examples…** dropdown. Good 
 - **`ternary.pas`** — Delphi-13-style `if cond then a else b` expressions.
 - **`var_params_demo.pas`** — `var` parameters by address: `Swap` on locals, plus var string/record/array params and `@` on a local.
 - **`objects_demo.pas`**, **`classes_demo.pas`**, **`typed_const_demo.pas`** — objects (value-type, virtual, inheritance, `New`), classes (reference-type, polymorphism, two-level), and typed const aggregates + `Char` in string ops (new in 0.5.0).
+- **`web_dom.pas`** — the DOM from Pascal with `uses WEB`: a styled panel, an animating canvas and pointer handlers, with none of the bridge boilerplate.
 - **`basic_canvas.pas`** — the pixel-buffer canvas ABI.
 - **`pascalsweep`** and **`pascaloids.pas`** — full games on the pascaldom / batchiness ABIs.
 
