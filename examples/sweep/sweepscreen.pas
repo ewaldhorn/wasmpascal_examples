@@ -1,5 +1,7 @@
 unit sweepscreen;
 
+{$mode fpc}
+
 interface
 
 uses
