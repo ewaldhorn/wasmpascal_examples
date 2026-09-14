@@ -14,23 +14,6 @@ begin
 end.
 ```
 
-```pascal
-unit u_math;
-
-interface
-
-function Twice(x: Integer): Integer;
-
-implementation
-
-function Twice(x: Integer): Integer;
-begin
-  Twice := x * 2;
-end;
-
-end.
-```
-
-The example above is a two-file project: the root `use_math.pas` `uses u_math;` and calls `Twice(21)`, and `u_math.pas` is the unit file that provides it — both are loaded into the project so the file dropdown shows them. (Note: avoid naming your own routines `Double` — the compiler treats that as the 64-bit float type.) The `+ File` button inserts a starter skeleton automatically. Units register with the host at run time and are deduped depth-first, so transitive `uses` just work. The `sweep.pas` example (minesweeper, 7 units) shows a real multi-file game.
+The example above is a two-file project: the root `use_math.pas` `uses u_math;` and calls `Twice(21)`, and `u_math.pas` is the unit file that provides it — both are loaded into the project so the file dropdown shows them. (Note: avoid naming your own routines `Double` — the compiler treats that as the 64-bit float type.) The `+ File` button inserts a starter skeleton automatically. Your own units register with the host at run time and are deduped depth-first, so transitive `uses` just work. Three units ship **inside the compiler** and need no registration at all: `Crt` (the TP7 colour constants), `Classes` (the `TStringList` family) and `WEB` (the DOM/canvas bridge — lesson 13). The `sweep.pas` example (minesweeper, 7 units) shows a real multi-file game.
 
 *Try it: paste this into the [WasmPascal editor](https://wasmpascal.com/) and press Run.*
