@@ -230,6 +230,27 @@ end;
 // lives in the root (GlidePlayer, root-local anchors). TODO: minimize +
 // file against the compiler (suspect symbol binding in
 // merge_unit_into/rebuild_sym_maps).
+//
+// MEASURED 2026-09-14 (example audit against the compiler's history): the
+// staleness does NOT reproduce any more, so the TODO above is a design note,
+// not an open compiler bug. Two independent checks:
+//   - four minimal two-unit programs — a unit-only global mutated across that
+//     unit's procs, a root/unit SAME-NAME global, a root-written global read
+//     by the unit, and a root-driven unit proc carrying unit state for five
+//     calls — all behave correctly, compiled through the BROWSER driver
+//     (wasmpascal_add_unit + wasmpascal_compile), which is where this went
+//     wrong in 2026-09-04;
+//   - dugster itself: this proc's position was re-sourced from root-written
+//     GLOBALS instead of the by-value parameters, values unchanged, and
+//     dugster_test.js passed end to end (all eight directions with no
+//     cross-drift, hunter rendering, Space/P). A unit's read of a global the
+//     root wrote is live today.
+//
+// So the ferry is defensible as DESIGN — the root owns the glide and the sim's
+// accumulators, and handing the renderer a finished position keeps it
+// stateless — and no longer has to be read as a workaround. Removing it is a
+// safe follow-up (one ferry at a time, gated by dugster_test.js), not a fix
+// owed to a compiler bug.
 procedure rdDrawSprite(ox, oy: Single; pdir: Integer);
 var
   cx, cy: Single;
@@ -390,10 +411,10 @@ begin
   dgSetFill(StrAddr(COL_CHERRY), 7);
   dgBeginPath;
   // Cherry pulse (G4): centre slightly below centroid (y+4); radius breathes
-  // 8.5 ± 1.5 px at 5 rad/s. Uses the dgSin Double external with explicit
-  // casts — NEVER call the Sin builtin on a Single (emits f32 against f64
-  // import; the import goes missing silently).
-  dgArc(cx, cy + 4.0, 8.5 + Single(dgSin(Double(dgTime) * 5.0)) * 1.5, 0.0, TAU);
+  // 8.5 ± 1.5 px at 5 rad/s. `Sin` is the BUILTIN here: its Single argument
+  // promotes to f64 at the call site (docs/features.md §10.55), which is what
+  // this used to reach through a `dgSin` external.
+  dgArc(cx, cy + 4.0, 8.5 + Single(Sin(dgTime * 5.0)) * 1.5, 0.0, TAU);
   dgFill;
   dgSetFill(StrAddr(COL_STEM), 7);
   dgFillRect(cx - 1.0, cy - 12.0, 3.0, 12.0);
