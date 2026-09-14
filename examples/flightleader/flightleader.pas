@@ -276,7 +276,7 @@ end;
 
 function flEnemyRelX: Integer;
 var
-  rx, rz, ry, rx2, ry2, rz2: Single;
+  rx, rz, rx2, ry2, rz2: Single;
 begin
   if enemies[0].alive then
   begin
