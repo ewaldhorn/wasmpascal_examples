@@ -4,7 +4,6 @@ library pascaldom_probe;
 // once, and exports pascaldom_main so the host boots it via PascalDom.instantiate.
 // Exercises the pascaldom_env imports (canvas create/context/render) end to end.
 
-function  dom_get_global(nm: string): Integer; external 'pascaldom_env' name 'dom_get_global';
 function  dom_get_element_by_id(id: string): Integer; external 'pascaldom_env' name 'dom_get_element_by_id';
 function  dom_canvas_create(parent: Integer; w, h: Integer): Integer;
           external 'pascaldom_env' name 'dom_canvas_create';
