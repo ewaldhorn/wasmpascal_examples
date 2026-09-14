@@ -14,7 +14,7 @@
 
 `Exp`, `Ln`, `Log10`, `Log2`, `Power(b, e)`, `Hypot(x, y)` (Euclidean length).
 
-These math builtins are emitted as `odin_env` imports (JS `Math.*`); integer arguments are promoted to `f64`. See `../../examples/math.pas`.
+These math builtins are emitted as `odin_env` imports (JS `Math.*`); integer and `Single` arguments are promoted to `f64`. The native ops (`Sqrt`, `Abs`, `Trunc`…) follow their argument kind instead, so `Sqrt(singleVar)` stays f32 arithmetic. See `../../examples/math.pas`.
 
  **Memory & pointers**
 
@@ -36,4 +36,4 @@ String helpers: `StrAddr('lit')` → byte address, `StrLen('lit')` → byte coun
 
  **Strings**
 
-`Length(s)`, `Concat(a, b, ...)`, `Copy(s, i, n)`, `Pos(sub, s)` (1-based; 0 if absent), `Val(s, v, code)`, `Str(x, s)`, `StrToInt(s)` (parse an integer string), `StringOfChar(c, n)`, the `+` concatenation operator, and full string comparison (`= <> < > <= >=`, with prefix ordering). `UpCase(ch)` uppercases an ASCII char; `Flush(output)` is a console no-op (output is line-flushed). String constants (`const G = 'Hi'`) work. `Str`/`Val` v1 handle Integer targets only; a single-char literal is a `Char`, so use 2+ char literals in string contexts. See `../../examples/strings.pas`.
+`Length(s)`, `Concat(a, b, ...)`, `Copy(s, i, n)`, `Pos(sub, s)` (1-based; 0 if absent), `Val(s, v, code)`, `Str(x, s)`, `StrToInt(s)` (parse an integer string), `StringOfChar(c, n)`, the `+` concatenation operator, and full string comparison (`= <> < > <= >=`, with prefix ordering). `UpCase(ch)` uppercases an ASCII char; `Flush(output)` is a console no-op (output is line-flushed). String constants (`const G = 'Hi'`) work. `Val` parses integers and reals (sign, fraction, exponent, surrounding spaces); `Str` formats both, with a field width and a precision — `Str(x:w:p, s)` renders `p` decimals right-aligned in `w`, `Str(x:w, s)` gives a real 6 decimals with trailing zeros trimmed, and out-of-range magnitudes print in scientific form (`1E+19`). A single-char literal is a `Char`, so use 2+ char literals in string contexts. See `../../examples/strings.pas`.
