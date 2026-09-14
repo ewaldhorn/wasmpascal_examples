@@ -1,5 +1,28 @@
 unit sweephost;
 
+{$mode fpc}
+
+// The host layer, migrated to `uses WEB` (DOMPLAN.md D1/D2/D3) on 2026-09-14.
+//
+// What this file used to be: 15 `external 'odindom_env'` declarations in
+// sweepdefs.pas, four handle globals (`doc_h`/`cv_h`/`ctx_h`/`win_h`), a
+// `last_event` global fed by an exported `odindom_set_last_event`, eight
+// `CB_*` callback-id constants and a 60-line `case id of` dispatcher exported
+// as `odindom_invoke_callback`.
+//
+// What it is now: the embedded `WEB` unit declares the same bridge under the
+// same `dom_*` names (so call sites below are unchanged), owns the two callback
+// entry points, assigns the ids, and keeps the dispatch table. The handles live
+// on the `TWeb` instance (`Doc`, `Cv`, `Ctx`, the canvas size, the cached
+// `defaultView`), and handlers are registered BY NAME:
+//
+//     web.On(web.Doc, 'click', OnClick);
+//     web.OnTick(OnTick);
+//
+// The ids are therefore no longer this program's business — see `_test.js`,
+// which reads them back out of `dom_add_event_listener` / the animation loop
+// instead of assuming CB_* constants.
+
 interface
 
 uses
@@ -9,11 +32,7 @@ uses
   sweepstore;
 
 var
-  cv_h: Integer = 0;
-  ctx_h: Integer = 0;
-  doc_h: Integer = 0;
-  win_h: Integer = 0;
-  last_event: Integer = 0;
+  web: TWeb;
   rect_left: Double = 0.0;
   rect_top: Double = 0.0;
   rect_scale_x: Double = 1.0;
@@ -27,11 +46,7 @@ procedure CanvasCoords;
 
 procedure Tick;
 
-procedure SweepMain;  // exported as pascaldom_main
-
-procedure SetLastEvent(h: Integer);  // exported as pascaldom_set_last_event
-
-procedure InvokeCallback(id: Integer);  // exported as pascaldom_invoke_callback
+procedure SweepMain;  // the program body calls it; becomes pascaldom_main
 
 implementation
 
@@ -39,28 +54,20 @@ implementation
 procedure RefreshCanvasRect;
 var
   rect: Integer;
-  n: Integer;
 begin
-  rect := dom_call_method_ret(cv_h, 'getBoundingClientRect');
-  n := dom_get_property_str(rect, 'left', Integer(@scratch), 80);
-  rect_left := ParseF64(Integer(@scratch), n);
-  n := dom_get_property_str(rect, 'top', Integer(@scratch), 80);
-  rect_top := ParseF64(Integer(@scratch), n);
-  n := dom_get_property_str(rect, 'width', Integer(@scratch), 80);
-  rect_scale_x := Double(CANVAS_W) / ParseF64(Integer(@scratch), n);
-  n := dom_get_property_str(rect, 'height', Integer(@scratch), 80);
-  rect_scale_y := Double(CANVAS_H) / ParseF64(Integer(@scratch), n);
+  rect := web.CallMethodRet(web.CanvasHandle, 'getBoundingClientRect');
+  rect_left := web.GetPropertyF64(rect, 'left');
+  rect_top := web.GetPropertyF64(rect, 'top');
+  rect_scale_x := Double(CANVAS_W) / web.GetPropertyF64(rect, 'width');
+  rect_scale_y := Double(CANVAS_H) / web.GetPropertyF64(rect, 'height');
 end;
 
 procedure CanvasCoords;
 var
-  n: Integer;
   cx, cy: Double;
 begin
-  n := dom_get_property_str(last_event, 'clientX', Integer(@scratch), 80);
-  cx := ParseF64(Integer(@scratch), n);
-  n := dom_get_property_str(last_event, 'clientY', Integer(@scratch), 80);
-  cy := ParseF64(Integer(@scratch), n);
+  cx := web.GetPropertyF64(web.LastEvent, 'clientX');
+  cy := web.GetPropertyF64(web.LastEvent, 'clientY');
   cw_x := Integer((cx - rect_left) * rect_scale_x);
   cw_y := Integer((cy - rect_top) * rect_scale_y);
 end;
@@ -74,20 +81,85 @@ begin
   end;
   GameUpdate;
   DrawFrame;
-  dom_canvas_render(cv_h, ctx_h, Integer(@pixels), PIXEL_COUNT, CANVAS_W, CANVAS_H);
+  web.RenderCanvas(Integer(@pixels), PIXEL_COUNT);
 end;
 
-procedure SweepMain;  // exported as pascaldom_main
+// ---- handlers -------------------------------------------------------------
+// Each takes the callback id the WEB unit assigned and ignores it: the id is
+// the unit's bookkeeping, and the event itself arrives via `web.LastEvent`.
+
+procedure OnClick(id: Integer);
+begin
+  CanvasCoords;
+  HandleLeftClick(cw_x, cw_y);
+end;
+
+procedure OnContextMenu(id: Integer);
+begin
+  dom_call_method0(web.LastEvent, 'preventDefault');
+  CanvasCoords;
+  HandleRightClick(cw_x, cw_y);
+end;
+
+procedure OnMouseMove(id: Integer);
+begin
+  CanvasCoords;
+  HandleMouseMove(cw_x, cw_y);
+end;
+
+procedure OnMouseDown(id: Integer);
+var
+  button: Integer;
+begin
+  CanvasCoords;
+  button := web.GetPropertyInt(web.LastEvent, 'button');
+  if button = 2 then button := MB_RIGHT else button := MB_LEFT;
+  HandleMouseDown(cw_x, cw_y, button);
+end;
+
+procedure OnMouseUp(id: Integer);
+begin
+  CanvasCoords;
+  HandleMouseUp(cw_x, cw_y);
+end;
+
+procedure OnKeyDown(id: Integer);
+var
+  n: Integer;
+begin
+  n := dom_get_property_str(web.LastEvent, 'key', Integer(@scratch), 80);
+  HandleKeyDown(Integer(@scratch), n);
+end;
+
+procedure OnTickCb(id: Integer);
+begin
+  Tick;
+end;
+
+procedure OnResize(id: Integer);
+begin
+  RefreshCanvasRect;
+end;
+
+procedure SweepMain;
 var
   app, ver: Integer;
 begin
-  doc_h := dom_get_global('document');
-  app := dom_get_element_by_id('stage');
-  cv_h := dom_canvas_create(app, CANVAS_W, CANVAS_H);
-  ctx_h := dom_canvas_get_context(cv_h);
+  web := TWeb.Create;                       // wraps `document`
+
+  // The container depends on the host, and this source is shipped to TWO: the
+  // game's own page mounts at #app, and the browser IDE runs its examples under
+  // #stage (webpascal/examples/sweep.pas is a symlink to this file). A page with
+  // neither gets the document — a canvas on <body> beats a nil parent, because
+  // dom_canvas_create does `jsValues[parent].appendChild(canvas)` and handle 0
+  // is the bridge's RESERVED event slot, so passing it throws.
+  app := web.GetElementById('app');
+  if app = 0 then app := web.GetElementById('stage');
+  if app = 0 then app := web.Doc;
+  web.MakeCanvas(app, CANVAS_W, CANVAS_H);  // creates it and remembers cv/ctx/size
 
   // game init
-  rng_state := (Cardinal((dom_now - Trunc(dom_now)) * 1000000.0) xor $5A5A5A5A) or 1;
+  rng_state := (Cardinal(web.NowMs) xor $5A5A5A5A) or 1;
   difficulty := LoadDifficulty;
   SyncLevel;
   LoadBestTimes;
@@ -95,74 +167,20 @@ begin
 
   RefreshCanvasRect;
 
-  ver := dom_get_element_by_id('version');
-  if ver <> 0 then dom_set_inner_text(ver, '1.0.0');
+  ver := web.GetElementById('version');
+  if ver <> 0 then web.SetInnerText(ver, '1.0.0');
 
-  dom_add_event_listener(doc_h, 'click', CB_CLICK);
-  dom_add_event_listener(doc_h, 'contextmenu', CB_CONTEXTMENU);
-  dom_add_event_listener(doc_h, 'mousemove', CB_MOUSEMOVE);
-  dom_add_event_listener(doc_h, 'mousedown', CB_MOUSEDOWN);
-  dom_add_event_listener(doc_h, 'mouseup', CB_MOUSEUP);
-  dom_add_event_listener(doc_h, 'keydown', CB_KEYDOWN);
+  web.On(web.Doc, 'click', OnClick);
+  web.On(web.Doc, 'contextmenu', OnContextMenu);
+  web.On(web.Doc, 'mousemove', OnMouseMove);
+  web.On(web.Doc, 'mousedown', OnMouseDown);
+  web.On(web.Doc, 'mouseup', OnMouseUp);
+  web.On(web.Doc, 'keydown', OnKeyDown);
 
-  win_h := dom_get_property(doc_h, 'defaultView');
-  dom_add_event_listener(win_h, 'resize', CB_RESIZE);
-  dom_add_event_listener(win_h, 'orientationchange', CB_RESIZE);
+  web.On(web.WindowHandle, 'resize', OnResize);
+  web.On(web.WindowHandle, 'orientationchange', OnResize);
 
-  dom_start_animation_loop(CB_TICK);
-end;
-
-procedure SetLastEvent(h: Integer);  // exported as pascaldom_set_last_event
-begin
-  last_event := h;
-end;
-
-procedure InvokeCallback(id: Integer);  // exported as pascaldom_invoke_callback
-var
-  n: Integer;
-  button: Integer;
-begin
-  case id of
-    CB_CLICK:
-      begin
-        CanvasCoords;
-        HandleLeftClick(cw_x, cw_y);
-      end;
-    CB_CONTEXTMENU:
-      begin
-        dom_call_method0(last_event, 'preventDefault');
-        CanvasCoords;
-        HandleRightClick(cw_x, cw_y);
-      end;
-    CB_MOUSEMOVE:
-      begin
-        CanvasCoords;
-        HandleMouseMove(cw_x, cw_y);
-      end;
-    CB_MOUSEDOWN:
-      begin
-        CanvasCoords;
-        n := dom_get_property_str(last_event, 'button', Integer(@scratch), 80);
-        button := ParseInt(Integer(@scratch), n);
-        if button = 2 then button := MB_RIGHT else button := MB_LEFT;
-        HandleMouseDown(cw_x, cw_y, button);
-      end;
-    CB_MOUSEUP:
-      begin
-        CanvasCoords;
-        HandleMouseUp(cw_x, cw_y);
-      end;
-    CB_TICK:
-      Tick;
-    CB_RESIZE:
-      RefreshCanvasRect;
-    CB_KEYDOWN:
-      begin
-        n := dom_get_property_str(last_event, 'key', Integer(@scratch), 80);
-        HandleKeyDown(Integer(@scratch), n);
-      end;
-    else begin end;
-  end;
+  web.OnTick(OnTickCb);
 end;
 
 begin
