@@ -105,10 +105,6 @@ function  bGetPropStr(h: Integer; k: string; buf: Integer; maxlen: Integer): Int
           external 'batch_env' name 'batch_get_property_str';
 function  bCallMethodRet(h: Integer; nm: string): Integer; external 'batch_env' name 'batch_call_method_ret';
 
-function  mSin(x: Double): Double; external 'odin_env' name 'sin';
-function  mCos(x: Double): Double; external 'odin_env' name 'cos';
-function  mSqrt(x: Double): Double; external 'odin_env' name 'sqrt';
-
 // ---- Batch wire writers ----
 procedure BufReset;
 begin
@@ -352,8 +348,8 @@ begin
   for i := 0 to sides - 1 do
   begin
     a := TAU / Single(sides) * Single(i);
-    poly[base + i * 2] := Single(mCos(a)) * r;
-    poly[base + i * 2 + 1] := Single(mSin(a)) * r;
+    poly[base + i * 2] := Single(Cos(a)) * r;
+    poly[base + i * 2 + 1] := Single(Sin(a)) * r;
   end;
 end;
 
@@ -428,7 +424,7 @@ begin
   for i := 0 to 8 do
   begin
     x := 80.0 + Single(i) * 80.0;
-    pulse := 1.0 + Single(mSin(t * 3.0 + Single(i) * 0.6)) * 0.5;
+    pulse := 1.0 + Single(Sin(t * 3.0 + Single(i) * 0.6)) * 0.5;
     bSave;
     bTranslate(x, H - 90.0);
     bRotate(0.0 - TAU / 4.0);
@@ -477,7 +473,11 @@ begin
   bStroke;
 
   // Pointer's distance from the centre, formatted as HUD text.
-  dist := Trunc(mSqrt(Double((px - cx) * (px - cx) + (py - cy) * (py - cy))));
+  // The Double(...) is load-bearing, not a leftover: `Sqrt` is a NATIVE wasm op
+  // that follows its argument's kind, so a Single argument would take the
+  // square root at f32 precision. Widening first keeps this f64 arithmetic (it
+  // used to reach an f64 `odin_env` sqrt through an external).
+  dist := Trunc(Sqrt(Double((px - cx) * (px - cx) + (py - cy) * (py - cy))));
   bSetFill(StrAddr('#7a8699'), 7);
   bSetFont(StrAddr('16px monospace'), 14);
   bSetTextAlign(StrAddr('left'), 4);
