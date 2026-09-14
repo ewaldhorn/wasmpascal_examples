@@ -84,10 +84,6 @@ function  bGetPropStr(h: Integer; k: string; buf: Integer; maxlen: Integer): Int
           external 'batch_env' name 'batch_get_property_str';
 function  bCallMethodRet(h: Integer; nm: string): Integer; external 'batch_env' name 'batch_call_method_ret';
 
-function  mSin(x: Double): Double; external 'odin_env' name 'sin';
-function  mCos(x: Double): Double; external 'odin_env' name 'cos';
-function  mAtan2(y, x: Double): Double; external 'odin_env' name 'atan2';
-
 // ---- RNG (xorshift, same as pascaloids) ----
 function NextRand: Cardinal;
 begin
@@ -306,7 +302,7 @@ begin
   if liveCount >= MAX then Exit;
   base_x := W / 2.0;
   base_y := H - 140.0;
-  ang := mAtan2(Double(ty - base_y), Double(tx - base_x)) + RandRangeF32(-0.35, 0.35);
+  ang := ArcTan2(ty - base_y, tx - base_x) + RandRangeF32(-0.35, 0.35);
   spd := RandRangeF32(240.0, 470.0);
 
   idx := freeStack[freeCount - 1];
@@ -314,8 +310,8 @@ begin
 
   particles[idx].x := base_x;
   particles[idx].y := base_y;
-  particles[idx].vx := Single(mCos(ang)) * spd;
-  particles[idx].vy := Single(mSin(ang)) * spd;
+  particles[idx].vx := Single(Cos(ang)) * spd;
+  particles[idx].vy := Single(Sin(ang)) * spd;
   particles[idx].life := RandRangeF32(0.5, 1.1);
   particles[idx].hue := RandF32;
 
