@@ -149,9 +149,6 @@ function  aGetBest: Integer; external 'app_env' name 'get_best_score';
 procedure aSetBest(s: Integer); external 'app_env' name 'set_best_score';
 procedure aSetFps(f: Single); external 'app_env' name 'set_fps';
 
-function  mSin(x: Double): Double; external 'odin_env' name 'sin';
-function  mCos(x: Double): Double; external 'odin_env' name 'cos';
-
 // ---- RNG (xorshift) ----
 function NextRand: Cardinal;
 begin
@@ -755,8 +752,8 @@ begin
 
   // moon / sun drift with distance (Skoll ch.8 day-night)
   t := scroll * 0.00055;
-  sunX := 620.0 + Single(mCos(t)) * 44.0;
-  sunY := 72.0 + Single(mSin(t * 0.7)) * 10.0;
+  sunX := 620.0 + Single(Cos(t)) * 44.0;
+  sunY := 72.0 + Single(Sin(t * 0.7)) * 10.0;
   bSetFill(StrAddr('#ffe9a8'), 7);
   bBeginPath; bArc(sunX, sunY, 18.0, 0.0, TAU); bFill;
   bSetFill(StrAddr('#ffefc6'), 7);
@@ -767,7 +764,7 @@ begin
   for i := 0 to 27 do
   begin
     bBeginPath;
-    bArc(23.0 + Single(i * 29 mod 760) + Single(mSin(scroll * 0.0003 + Double(i))) * 6.0,
+    bArc(23.0 + Single(i * 29 mod 760) + Single(Sin(scroll * 0.0003 + Double(i))) * 6.0,
          18.0 + Single((i * 37) mod 92), 1.1, 0.0, TAU); bFill;
   end;
 end;
@@ -888,7 +885,7 @@ begin
     if not runes[i].alive or runes[i].taken then Continue;
     sx := runes[i].x - scroll;
     if (sx < -16.0) or (sx > W + 16.0) then Continue;
-    bob := Single(mSin(runes[i].phase)) * 3.5;
+    bob := Single(Sin(runes[i].phase)) * 3.5;
     sy := runes[i].y + bob;
     // glow
     bSetFill(StrAddr('#ffef8a'), 7);
@@ -916,11 +913,11 @@ begin
   y := py;
   if shake > 0.0 then
   begin
-    x := x + Single(mSin(scroll * 0.12)) * shake * 0.18;
-    y := y + Single(mCos(scroll * 0.09)) * shake * 0.12;
+    x := x + Single(Sin(scroll * 0.12)) * shake * 0.18;
+    y := y + Single(Cos(scroll * 0.09)) * shake * 0.12;
   end;
   bob := 0.0;
-  if onGround then bob := Single(mSin(runPhase * 1.4)) * 1.2;
+  if onGround then bob := Single(Sin(runPhase * 1.4)) * 1.2;
 
   // shadow under feet — subtle, not an opaque black disc
   if onGround then
@@ -938,8 +935,8 @@ begin
   bFillRect(x + 1.0, y + 8.0 + bob, 3.0, 3.0);
 
   // back legs / front legs — two-tone run cycle
-  legA := Single(mSin(runPhase)) * 4.2;
-  legB := Single(mSin(runPhase + 3.14)) * 4.2;
+  legA := Single(Sin(runPhase)) * 4.2;
+  legB := Single(Sin(runPhase + 3.14)) * 4.2;
   if not onGround then begin legA := -2.0; legB := 2.0; end;
 
   // legs are short rects under the body
@@ -1020,7 +1017,7 @@ end;
 
 procedure DrawHUD;
 var
-  n, o: Integer;
+  n: Integer;
 begin
   // top bar
   bSetFill(StrAddr('#0a0f1a'), 7);
