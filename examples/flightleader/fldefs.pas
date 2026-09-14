@@ -326,14 +326,12 @@ procedure aSetFps(f: Single); external 'app_env' name 'set_fps';
 procedure aPlaySound(id: Integer); external 'app_env' name 'play_sound';
 procedure aSetThrust(on: Integer); external 'app_env' name 'set_thrust';
 
-// Math imports (Double signature). NOTE: the compiler's math BUILTINS
-// (Sin/Cos/...) promote only Integer args to f64 — a Single arg is passed
-// as f32 and produces invalid wasm — so the game routes all float math
-// through these Double externals with explicit casts (pascaloids pattern).
-function mSin(x: Double): Double; external 'odin_env' name 'sin';
-function mCos(x: Double): Double; external 'odin_env' name 'cos';
-function mAtan2(y, x: Double): Double; external 'odin_env' name 'atan2';
-function mPow(b, e: Double): Double; external 'odin_env' name 'pow';
+// (Math used to live here as four Double-signature `odin_env` externals —
+// mSin/mCos/mAtan2/mPow — because the compiler's math BUILTINS promoted only
+// Integer arguments to f64, so a Single argument was passed as f32 and produced
+// invalid wasm. Fixed 2026-09-14, docs/features.md §10.55; the four
+// declarations are gone and `flmath`'s wrappers call `Sin`/`Cos`/`ArcTan2`/
+// `Power` directly.)
 
 implementation
 
