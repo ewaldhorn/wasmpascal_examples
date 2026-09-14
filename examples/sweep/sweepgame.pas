@@ -1,5 +1,7 @@
 unit sweepgame;
 
+{$mode fpc}
+
 interface
 
 uses
