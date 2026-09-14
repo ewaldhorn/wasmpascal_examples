@@ -33,7 +33,7 @@ I want to make the examples in WasmPascal more accessible, and I also don't want
 
 | Folder | Contents |
 |---|---|
-| [`examples/`](examples/) | 48 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics. |
+| [`examples/`](examples/) | 51 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics. |
 | [`games/`](games/) | Complete multi-file games — full Pascal source trees, hand-written browser host pages, and compiled `.wasm` binaries ready to serve. |
 | [`docs/reference/`](docs/reference/) | 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins. |
 | [`docs/tutorial/`](docs/tutorial/) | 15-part "Learn Pascal" tutorial, from your first `writeln` to multi-file OOP architectures. |
@@ -116,7 +116,7 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 
 ## Examples
 
-Looking for something specific? Here are all 48 examples organized by focus area:
+Looking for something specific? Here are all 51 examples organized by focus area:
 
 ### 🕹️ Arcade Games & Interactive Demos
 
@@ -133,7 +133,7 @@ Looking for something specific? Here are all 48 examples organized by focus area
 | [sweep](examples/sweep/) *(multi-unit)* | Complete multi-unit Minesweeper with seeded mine placement, flood-fill clearing, canvas rendering, and persistent high scores. |
 | [xonix](examples/xonix/) | Faithful Xonix territory-capture port with trail carving, flood-fill capture logic, multi-level difficulty, and batched canvas rendering. |
 
-### 🎨 HTML5 Canvas Graphics & Simulation
+### 🎨 HTML5 Canvas, DOM & Simulation
 
 | Example | Description |
 |---|---|
@@ -141,9 +141,12 @@ Looking for something specific? Here are all 48 examples organized by focus area
 | [classic_dots](examples/classic_dots/) | A DOS-era screensaver updated for the web, using WasmPascal's Canvas extensions to animate graphics from Pascal. |
 | [colors](examples/colors/) | Renders color gradients on the HTML5 canvas while printing colored text via `TextColor`/`TextBackground` — dual console plus canvas output. |
 | [growable](examples/growable/) | Swap-remove particle pool where mouse-held spawns drift upward and fade, with constant-time removal and no heap churn. |
+| [musicbox](examples/musicbox/) | A music player whose visualiser is built entirely from DOM elements — no canvas, no pixel buffer — with four tunes synthesised live through the Web Audio API. |
+| [paint](examples/paint/) | A paint program whose whole interface is built from the DOM in Pascal: toolbar, colour swatches, undo, and a retained RGBA framebuffer for the canvas. |
 | [pascaldom_probe](examples/pascaldom_probe/) | Minimal diagnostic for the `pascaldom` DOM layer: acquires a canvas, paints it, and exports `pascaldom_main`. |
 | [sparks](examples/sparks/) | Interactive mouse-aimed particle fountain with gravity and a fixed free-list pool for zero per-frame heap allocation. |
 | [transforms](examples/transforms/) | Showcases the Canvas 2D transform stack (`save`, `restore`, `translate`, `rotate`, `scale`) with gears, orbits, and pulsating waves. |
+| [web_dom](examples/web_dom/) | The guided tour of `uses WEB`: builds a styled panel, animates a canvas, and handles pointer events with no `external` blocks, callback ids, or dispatcher. |
 
 ### 🖥️ Virtual Console & Turbo Pascal `Crt`
 
@@ -155,7 +158,7 @@ Looking for something specific? Here are all 48 examples organized by focus area
 | [gotoxy](examples/gotoxy/) | Cursor positioning with `GotoXY` and screen clearing with `ClrScr` to draw borders and banners on the 80×25 terminal grid. |
 | [guess](examples/guess/) | Classic number-guessing game using `readln`/`writeln` and a repeat-until loop — 7 tries to find the secret number. |
 | [looped_fibonacci](examples/looped_fibonacci/) | Computes and formats Fibonacci numbers iteratively on an extended 80×50 text-mode screen. |
-| [read_demo](examples/read_demo/) | Demonstrates interactive `readln` input for integers and floats, routed through browser dialogs by the Web Worker runtime. |
+| [read_demo](examples/read_demo/) | Demonstrates interactive `readln` input for integers, floats, and strings, answered at the console's inline input line. |
 | [screen40](examples/screen40/) | Compact 40×10 virtual console via the `{$Screen 40 10}` directive, with cursor placement and text wrapping. |
 | [shapes](examples/shapes/) | Draws text-mode geometric patterns (triangles, diamonds, bordered rectangles) on an 80×40 console using only `write`/`writeln`. |
 
