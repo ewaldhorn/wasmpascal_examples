@@ -1,11 +1,20 @@
 library guess;
 
 // Classic "guess the number" game — the first program everyone writes.
-// Uses readln for input (prompt() dialogs in the browser), write/writeln for
+// Uses readln for input (the inline input line — prompt() dialogs only on the
+// no-SharedArrayBuffer fallback), write/writeln for
 // output, if/else if for feedback, and a repeat-until loop for the game flow.
 // You get 7 tries (binary search always wins 1..128 in 7), so the game
 // always terminates — even a scripted wrong answer just plays out all tries.
 
+// The ONE bridge entry this file declares, and it has to be declared by hand:
+// `uses WEB` would select the pascaldom ABI (the body would become
+// `pascaldom_main` and `wasmpascal_init` would be suppressed), which is a real
+// change for a CONSOLE program -- the host would boot it as a canvas program
+// instead of running it in the console worker. Measured 2026-09-14: the same
+// file with `uses WEB` added exports pascaldom_main/invoke_callback/
+// set_last_event and no wasmpascal_init. A console program that wants the clock
+// keeps the raw external.
 function dom_now: Double; external 'pascaldom_env' name 'dom_now';
 
 const
