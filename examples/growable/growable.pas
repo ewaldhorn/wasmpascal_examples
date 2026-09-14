@@ -350,7 +350,7 @@ end;
 // ---- Bridge: exports ----
 procedure GrowableMain;
 var
-  app, canvas, i: Integer;
+  app, canvas: Integer;
 begin
   app := bGetElement(StrAddr('stage'), 5);
   canvas := bCanvasCreate(app, W, H);
