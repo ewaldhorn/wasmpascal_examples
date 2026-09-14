@@ -1,5 +1,7 @@
 library sweep;
 
+{$mode fpc}
+
 uses
   sweephost;
 
@@ -42,10 +44,12 @@ begin
 end;
 
 
+// pascalsweep's root. The ABI entry points are no longer named here: with
+// `uses WEB` (through sweephost → sweepdefs) the program BODY is
+// `pascaldom_main`, and the WEB unit owns `pascaldom_invoke_callback` /
+// `pascaldom_set_last_event` and auto-exports them (DOMPLAN.md D2/D3). The
+// `sweep_*` probes stay — they are this suite's test surface, not ABI.
 exports
-  SweepMain name 'pascaldom_main',
-  InvokeCallback name 'pascaldom_invoke_callback',
-  SetLastEvent name 'pascaldom_set_last_event',
   sweep_state name 'sweep_state',
   sweep_flags name 'sweep_flags',
   sweep_get_cell name 'sweep_get_cell',
@@ -57,4 +61,5 @@ exports
   sweep_timer name 'sweep_timer';
 
 begin
+  SweepMain;
 end.
