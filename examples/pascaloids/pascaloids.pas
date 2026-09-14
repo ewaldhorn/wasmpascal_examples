@@ -203,10 +203,6 @@ procedure aSetThrust(on: Integer); external 'app_env' name 'set_thrust';
 function  aGetBest: Integer; external 'app_env' name 'get_best_score';
 procedure aSetBest(s: Integer); external 'app_env' name 'set_best_score';
 
-function  mSin(x: Double): Double; external 'odin_env' name 'sin';
-function  mCos(x: Double): Double; external 'odin_env' name 'cos';
-function  mPow(b, e: Double): Double; external 'odin_env' name 'pow';
-
 // ---- RNG ----
 function NextRand: Cardinal;
 begin
@@ -412,9 +408,13 @@ begin
   else Clamp01 := v;
 end;
 
+// Single-typed convenience over the Power builtin. It used to wrap a
+// Double-signature `mPow` external with explicit casts, because the builtin
+// promoted only Integer arguments to f64 — a Single argument was passed as f32
+// and produced invalid wasm (docs/features.md §10.55, fixed 2026-09-14).
 function PowF32(ba, ex: Single): Single;
 begin
-  PowF32 := Single(mPow(Double(ba), Double(ex)));
+  PowF32 := Single(Power(ba, ex));
 end;
 
 // ---- String helpers for HUD (no heap, fixed scratch) ----
@@ -509,8 +509,8 @@ begin
     else asteroids[i].radius := AST_R_SMALL;
     spd := RandRangeF32(24.0, 60.0) * (1.0 + Single(3 - size) * 0.35);
     dir := RandRangeF32(0.0, TAU);
-    asteroids[i].vx := mCos(dir) * spd;
-    asteroids[i].vy := mSin(dir) * spd;
+    asteroids[i].vx := Cos(dir) * spd;
+    asteroids[i].vy := Sin(dir) * spd;
     asteroids[i].angle := RandRangeF32(0.0, TAU);
     asteroids[i].spin := RandRangeF32(-1.6, 1.6);
     for k := 0 to SHAPE_N - 1 do
@@ -522,7 +522,7 @@ end;
 procedure NextLevel;
 var
   count, i: Integer;
-  px, py, r: Single;
+  px, py: Single;
 begin
   level := level + 1;
   if level > 1 then aPlaySound(SND_LEVEL);
@@ -542,8 +542,6 @@ begin
 end;
 
 procedure ResetGame;
-var
-  i: Integer;
 begin
   score := 0;
   lives := 3;
@@ -561,7 +559,6 @@ end;
 procedure InitGame;
 var
   i: Integer;
-  fx, fy: Single;
 begin
   // seed the xorshift RNG (unseeded 0 stays 0 -> all randomness collapses)
   rng_state := $9E3779B9;
@@ -595,8 +592,8 @@ begin
     particles[i].py := py;
     dir := RandRangeF32(0.0, TAU);
     spd := RandRangeF32(30.0, spread);
-    particles[i].vx := mCos(dir) * spd;
-    particles[i].vy := mSin(dir) * spd;
+    particles[i].vx := Cos(dir) * spd;
+    particles[i].vy := Sin(dir) * spd;
     particles[i].max_life := RandRangeF32(0.4, 1.0);
     particles[i].life := particles[i].max_life;
     made := made + 1;
@@ -618,8 +615,8 @@ begin
     debris[i].py := py;
     dir := RandRangeF32(0.0, TAU);
     spd := RandRangeF32(20.0, spread);
-    debris[i].vx := mCos(dir) * spd;
-    debris[i].vy := mSin(dir) * spd;
+    debris[i].vx := Cos(dir) * spd;
+    debris[i].vy := Sin(dir) * spd;
     debris[i].angle := RandRangeF32(0.0, TAU);
     debris[i].spin := RandRangeF32(-6.0, 6.0);
     debris[i].len := RandRangeF32(3.0, 7.0) * size_scale;
@@ -664,8 +661,8 @@ begin
   begin
     if bullets[i].active then continue;
     bullets[i].active := true;
-    dirx := mCos(ship.angle);
-    diry := mSin(ship.angle);
+    dirx := Cos(ship.angle);
+    diry := Sin(ship.angle);
     bullets[i].px := ship.px + dirx * SHIP_RADIUS;
     bullets[i].py := ship.py + diry * SHIP_RADIUS;
     bullets[i].vx := ship.vx + dirx * BULLET_SPEED;
@@ -879,13 +876,13 @@ begin
   ship.thrust := keys[KEY_THRUST];
   if ship.thrust then
   begin
-    ship.vx := ship.vx + mCos(ship.angle) * SHIP_THRUST * dt;
-    ship.vy := ship.vy + mSin(ship.angle) * SHIP_THRUST * dt;
+    ship.vx := ship.vx + Cos(ship.angle) * SHIP_THRUST * dt;
+    ship.vy := ship.vy + Sin(ship.angle) * SHIP_THRUST * dt;
     thrust_particle_timer := thrust_particle_timer - dt;
     if thrust_particle_timer <= 0 then
     begin
-      backx := ship.px - mCos(ship.angle) * SHIP_RADIUS;
-      backy := ship.py - mSin(ship.angle) * SHIP_RADIUS;
+      backx := ship.px - Cos(ship.angle) * SHIP_RADIUS;
+      backy := ship.py - Sin(ship.angle) * SHIP_RADIUS;
       SpawnParticles(backx, backy, 2, 40.0);
       thrust_particle_timer := 0.03;
     end;
@@ -1111,7 +1108,7 @@ var
 begin
   for i := 0 to STAR_COUNT - 1 do
   begin
-    tw := 0.55 + 0.45 * mSin(anim_time * 2.0 + stars[i].twinkle);
+    tw := 0.55 + 0.45 * Sin(anim_time * 2.0 + stars[i].twinkle);
     a := stars[i].brightness * tw;
     bSetFill(StrAddr('#ffffff'), 7);
     bSetGlobalAlpha(a);
@@ -1151,8 +1148,8 @@ begin
     if not debris[i].active then continue;
     a := debris[i].life / debris[i].max_life;
     bSetGlobalAlpha(a);
-    c := mCos(debris[i].angle);
-    s := mSin(debris[i].angle);
+    c := Cos(debris[i].angle);
+    s := Sin(debris[i].angle);
     hx := c * debris[i].len * 0.5;
     hy := s * debris[i].len * 0.5;
     bBeginPath;
@@ -1197,8 +1194,8 @@ begin
     begin
       ang := asteroids[i].angle + TAU * Single(k) / Single(SHAPE_N);
       r := asteroids[i].radius * asteroids[i].shape[k];
-      x := asteroids[i].px + mCos(ang) * r;
-      y := asteroids[i].py + mSin(ang) * r;
+      x := asteroids[i].px + Cos(ang) * r;
+      y := asteroids[i].py + Sin(ang) * r;
       if k = 0 then bMoveTo(x, y) else bLineTo(x, y);
     end;
     bClosePath;
@@ -1250,8 +1247,8 @@ begin
     if (Integer(ship.invuln * 12.0) mod 2) = 0 then blink := true;
   if blink then exit;
 
-  c := mCos(ship.angle);
-  s := mSin(ship.angle);
+  c := Cos(ship.angle);
+  s := Sin(ship.angle);
   nx := ship.px + (16.0 * c);
   ny := ship.py + (16.0 * s);
   tlx := ship.px + (-10.0 * c - (-9.0) * s);
