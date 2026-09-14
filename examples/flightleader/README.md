@@ -10,3 +10,5 @@ Demonstrates an advanced modular Pascal codebase:
 - `flsim.pas`: Flight dynamics, pitch/roll/yaw physics, and adversary targeting.
 - `flrender.pas`: Conformant-array 3D polygon projection and canvas rendering.
 - `flightleader.pas`: Root program, input orchestration, and combat loop.
+
+Announced in [Flight! We have Flight!](https://nofuss.co.za/blog/flight_we_have_flight/) — see [blog_posts/flight_we_have_flight/](../../blog_posts/flight_we_have_flight/).
