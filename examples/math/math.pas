@@ -13,7 +13,7 @@ end;
 
 procedure Demo;
 var
-  a, b: Double;
+  a: Double;
 begin
   writeln('wasmpascal math builtins');
   writeln('------------------------');
