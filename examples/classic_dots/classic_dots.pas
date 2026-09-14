@@ -54,12 +54,13 @@ var
   // True while a pointer (mouse button or touch) is held down on the canvas.
   dragging: Boolean = False;
 
-procedure _haltproc(exitCode: Integer); external 'env' name '_haltproc';
+// (An `env._haltproc` external used to be declared here, for `Halt`. Nothing
+// calls it, and since dead-import elimination (2026-09-14) an external that is
+// never called is not imported.)
 
-// Trig comes from the host's odin_env Math.* imports (transforms.pas
-// pattern); Sqrt stays a native wasm op via the Sqrt builtin.
-function mSin(x: Double): Double; external 'odin_env' name 'sin';
-function mCos(x: Double): Double; external 'odin_env' name 'cos';
+// (Trig came from two `odin_env` externals declared here, because the math
+// BUILTINS did not promote a Single argument to f64 — docs/features.md §10.55,
+// fixed 2026-09-14. `Sin`/`Cos` below are the builtins now.)
 
 // Pixel buffer base address — fixed offset past static data in WASM memory.
 // $30000 (192 KB) is safely past all data segments (~116 KB here: five
@@ -157,8 +158,8 @@ begin
     dot_x[i] := WIDTH / 2.0;
     dot_y[i] := HEIGHT / 2.0;
     angle := RngFloat * TAU;
-    dot_vx[i] := Single(mCos(angle)) * DOT_SPEED;
-    dot_vy[i] := Single(mSin(angle)) * DOT_SPEED;
+    dot_vx[i] := Single(Cos(angle)) * DOT_SPEED;
+    dot_vy[i] := Single(Sin(angle)) * DOT_SPEED;
     dot_boost[i] := 1.0;
     dot_r[i] := pal_r[RngNext mod NUM_COLOURS];
     dot_g[i] := pal_g[RngNext mod NUM_COLOURS];
@@ -442,4 +443,3 @@ exports
 
 begin
 end.
-
