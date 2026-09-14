@@ -35,6 +35,10 @@ procedure simPauseButton;
 // sim's copies stay live (tunnels/score/catches prove it), so the root
 // ferries these by value each frame instead of letting dugrender read
 // the globals. See rdDrawPlayer.
+//
+// (Measured 2026-09-14: that staleness no longer reproduces — a unit read of a
+// root-written global is live today. The ferry stands as design, not as a
+// workaround; see the NOTE in dugrender.pas.)
 function simPX: Integer;
 function simPY: Integer;
 function simPDir: Integer;
