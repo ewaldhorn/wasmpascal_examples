@@ -331,6 +331,10 @@ begin
       // anchors ride in root locals. See rdDrawSprite. Hunters ride the
       // same ferry: dugrender's monster-cell/accumulator reads freeze
       // their sprites at spawn while live hunters catch real kills.
+      //
+      // (The staleness above was measured 2026-09-14 and does NOT reproduce
+      // any more — the ferry is design, not a workaround. Details in the NOTE
+      // in dugrender.pas.)
       GlidePlayer(ox, oy);
       frTick := frTick + 1;
       shT := simShakeT;
