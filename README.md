@@ -217,7 +217,7 @@ python3 -m http.server 8931
 # then open http://localhost:8931/
 ```
 
-Keep the three files together (the page fetches the `.wasm` from its own folder), and serve over HTTP(S) rather than `file://` — browsers refuse to load `.wasm` binaries from the filesystem. Any static host will do. Each game's README documents the IDE build process, the host import surface it requires, and its save format.
+Keep the three files together (the page fetches the `.wasm` from its own folder), and serve over HTTP(S) rather than `file://` — browsers refuse to load `.wasm` binaries from the filesystem. Any basic static host will do. Each game's README documents the IDE build process, the host import surface it requires, and its save format.
 
 ## Blog Posts
 
