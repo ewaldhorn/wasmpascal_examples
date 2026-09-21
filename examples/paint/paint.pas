@@ -20,7 +20,7 @@
 // Undo is a ring of three snapshots; the canvas repaints only when something
 // changed, so an idle paint program costs nothing.
 //
-// Written against the host contract in docs/porting_odin_to_pascal.md.
+// Written against the host contract in documentation/reference/12-host-abis-wasmpascal-specific.md.
 // (Three entries this list used to carry are gone: `Break` inside an `if` and
 //  indexing a by-value `string` param were compiler defects, now fixed — and
 //  the StrAddr/StrLen rule stopped applying when this file moved to `uses WEB`,
@@ -135,7 +135,7 @@ var
 // because a property read came back as RAW BYTES in a caller-owned buffer,
 // which is exactly what the unit's getters take off your hands:
 // web.GetPropertyF64 / GetPropertyInt parse with the compiler's own `Val` (and
-// take the value's leading numeric run, docs/features.md §10.49), and a boolean
+// take the value's leading numeric run — see `Val` in documentation/reference/08-builtins.md), and a boolean
 // reads as the string the DOM has always given for it — `= 'true'`.
 
 // ---------------------------------------------------------------------------
@@ -527,7 +527,7 @@ end;
 // for a stylesheet and is the shape this file has always used. (The old
 // reason — this compiler clamped a concatenated string to 255 bytes, TP7's
 // String capacity, so a 1.2 KB stylesheet was silently truncated to its first
-// rule — has not been true since docs/features.md §10.41: a `+` chain is
+// rule — has not been true for a while (see documentation/reference/08-builtins.md): a `+` chain is
 // unbounded now. Only a `String[n]` DESTINATION still truncates.)
 procedure InjectStyles;
 begin
