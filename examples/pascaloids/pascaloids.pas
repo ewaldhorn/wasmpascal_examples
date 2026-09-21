@@ -411,7 +411,7 @@ end;
 // Single-typed convenience over the Power builtin. It used to wrap a
 // Double-signature `mPow` external with explicit casts, because the builtin
 // promoted only Integer arguments to f64 — a Single argument was passed as f32
-// and produced invalid wasm (docs/features.md §10.55, fixed 2026-09-14).
+// and produced invalid wasm (documentation/reference/08-builtins.md, fixed 2026-09-14).
 function PowF32(ba, ex: Single): Single;
 begin
   PowF32 := Single(Power(ba, ex));
