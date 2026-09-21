@@ -12,8 +12,8 @@ library read_demo;
 // host implementation for as long as the feature existed — every shipping host
 // (IDE main thread, IDE worker, both standalone runtimes) was missing
 // `console_read_str`, so `readln(name)` compiled and then failed to start.
-// Nothing caught it because no example read a string (docs/features.md
-// §10.54); this file does now, and standalone_test.js drives it on both the
+// Nothing caught it because no example read a string (see documentation/reference/09-console-i-o.md);
+// this file does now, and standalone_test.js drives it on both the
 // worker and the prompt paths.
 
 var
@@ -33,7 +33,7 @@ begin
   readln(f);
   // f * 2.0:0:2 is the TP7 write form — width 0 means "no padding", 2 means
   // two decimals — and it is the one import every host was missing too
-  // (`console_float`, docs/features.md §10.54). One line, three hosts, all of
+  // (`console_float`, see documentation/reference/09-console-i-o.md). One line, three hosts, all of
   // them silent.
   writeln('f * 2 = ', f * 2.0:0:2);
   write('Enter your name: ');
