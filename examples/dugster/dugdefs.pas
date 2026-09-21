@@ -229,7 +229,7 @@ procedure dgSetBest(s: Integer); external 'app_env' name 'set_dugster_best';
 // (Float math used to go through a `dgSin` Double external declared here,
 // because the Sin builtin promoted only Integer arguments to f64 — a Single
 // argument was passed as f32 and the import went missing silently; the G4
-// cherry pulse hit exactly that. Fixed 2026-09-14, docs/features.md §10.55:
+// cherry pulse hit exactly that. Fixed 2026-09-14, documentation/reference/08-builtins.md:
 // call the builtin.)
 
 // ---- Batch wire writers (one buffer, one flush per frame) ----

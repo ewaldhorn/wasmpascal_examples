@@ -412,7 +412,7 @@ begin
   dgBeginPath;
   // Cherry pulse (G4): centre slightly below centroid (y+4); radius breathes
   // 8.5 ± 1.5 px at 5 rad/s. `Sin` is the BUILTIN here: its Single argument
-  // promotes to f64 at the call site (docs/features.md §10.55), which is what
+  // promotes to f64 at the call site (documentation/reference/08-builtins.md), which is what
   // this used to reach through a `dgSin` external.
   dgArc(cx, cy + 4.0, 8.5 + Single(Sin(dgTime * 5.0)) * 1.5, 0.0, TAU);
   dgFill;
