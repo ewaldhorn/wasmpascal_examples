@@ -22,11 +22,11 @@
 // last-event/scratch-buffer dance (`EventClientX/Y`), and passes string
 // EXPRESSIONS to the bridge, not just literals.
 //
-// THE RULES THIS FILE FOLLOWS (docs/porting_odin_to_pascal.md §2-3):
+// THE RULES THIS FILE FOLLOWS (documentation/reference/12-host-abis-wasmpascal-specific.md):
 //   - Pascal folds case, so no global and function here share a name;
 //   - everything else the guide once warned about is fixed: a handler may be
-//     NESTED (a captured frame is retained — docs/features.md §10.36) and may
-//     share a name with a `TWeb` method (§10.34 — that was never shadowing,
+//     NESTED (a captured frame is retained) and may
+//     share a name with a `TWeb` method (that was never shadowing,
 //     unit merging was dropping the method). This file keeps its handlers
 //     top-level only because its state is globals; a handler that needs
 //     captured state should live where that state is.
