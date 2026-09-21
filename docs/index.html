@@ -1,0 +1,952 @@
+<!doctype html><html lang=en translate=no><meta charset=utf-8><link rel=preload as=script href="cm6.bundle.js?v=1.1.4"><meta name=viewport content="width=device-width,initial-scale=1"><meta name=google content="notranslate"><meta name=robots content="index, follow"><meta name=theme-color content="#101418"><title>wasmpascal — Online Pascal to WebAssembly Compiler (Run in Browser)</title><meta name=description content="Compile and run Pascal to WebAssembly instantly in your browser. No install, no server — just paste your code and hit Run. Try the live editor now!"><link rel=canonical href=https://wasmpascal.com/><meta property="og:type" content="website"><meta property="og:site_name" content="wasmpascal.com"><meta property="og:title" content="wasmpascal — Online Pascal to WebAssembly Compiler (Run in Browser)"><meta property="og:description" content="Compile Pascal source to WebAssembly entirely in your browser and run it on the same page. No install, no server-side toolchain."><meta property="og:url" content="https://wasmpascal.com/"><meta name=twitter:card content="summary_large_image"><meta name=twitter:title content="wasmpascal — Online Pascal to WebAssembly Compiler (Run in Browser)"><meta name=twitter:description content="Compile Pascal source to WebAssembly entirely in your browser and run it on the same page. No install, no server-side toolchain."><meta property="og:image" content="https://wasmpascal.com/og-image.png"><meta name=twitter:image content="https://wasmpascal.com/og-image.png"><script type=application/ld+json>{"@context":"https://schema.org","@type":"WebApplication","name":"wasmpascal","url":"https://wasmpascal.com/","description":"Compile and run Pascal to WebAssembly instantly in your browser. No install, no server — just paste your code and hit Run. Try the live editor now!","applicationCategory":"DeveloperApplication","operatingSystem":"Any (WebAssembly)","browserRequirements":"Requires a browser with WebAssembly support","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"featureList":["Pascal to WebAssembly compilation in the browser","Run compiled wasm on the same page","Multi-file projects with uses units","Console output with TextColor / TextBackground","Canvas and game host ABIs (pascaldom, batchiness, basic_canvas)","Editor themes (Default, Turbo Pascal 7, Borland Pascal, FreePascal)","Download the compiled .wasm"]}</script><script type=application/ld+json>{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Does my Pascal code leave my browser?","acceptedAnswer":{"@type":"Answer","text":"No. wasmpascal compiles Pascal to WebAssembly entirely in your browser. Source is copied into the compiler's WebAssembly memory and compiled there — nothing is uploaded to a server."}},{"@type":"Question","name":"What Pascal dialect does wasmpascal support?","acceptedAnswer":{"@type":"Answer","text":"A Turbo Pascal 7 compatible dialect with FreePascal and Delphi extensions: Integer, Real, String, records, arrays, pointers, sets, enumerations, objects and classes with virtual dispatch and inheritance, units, and builtins like write/writeln, TextColor, Random and math functions."}},{"@type":"Question","name":"Can I learn Pascal with wasmpascal?","acceptedAnswer":{"@type":"Answer","text":"Yes. The built-in Learn Pascal tutorial covers program structure, types, control flow, procedures, records, sets and classes with runnable examples you can load into the editor and run immediately — no install required."}},{"@type":"Question","name":"Can I build games that compile to WebAssembly?","acceptedAnswer":{"@type":"Answer","text":"Yes. wasmpascal supports canvas host ABIs: basic_canvas for pixel buffers, pascaldom for DOM/canvas, and batchiness for batched-canvas games with Web Audio. Examples include Pong, Breakout, Pascaloids, FLIGHT LEADER and Xonix."}},{"@type":"Question","name":"Where can I find more example programs?","acceptedAnswer":{"@type":"Answer","text":"Beyond the built-in Examples dropdown, the wasmpascal_examples repository on GitHub (https://github.com/ewaldhorn/wasmpascal_examples) collects extra Pascal programs you can copy into the editor and run."}},{"@type":"Question","name":"How do I host a program I compiled?","acceptedAnswer":{"@type":"Answer","text":"Use Download → Standalone app. The .zip is a ready-to-host folder (index.html + runtime + your .wasm) for any static server; the single .html is self-contained and opens from disk with no server."}},{"@type":"Question","name":"How big is the Pascal to WebAssembly compiler?","acceptedAnswer":{"@type":"Answer","text":"The compiler is a single WebAssembly module (~500 KB) written in Odin and compiled to js_wasm32. It runs the full pipeline — preprocess, lex, parse, semantic analysis, code generation and WebAssembly emission — inside a Worker, returning MVP-only WebAssembly."}}]}</script><style>*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--bg-main:#05070d;--bg-editor:#070b13;--bg-panel:#0a0e17;--text-normal:#cdd7ea;--text-bright:#eaf6ff;--text-dim:#7f8ba6;--accent:#4ecdc4;--accent-soft:#7fe0a0;--border:#1b2436;--border-sub:#131b2b;--btn-bg:#10192b;--font-mono:ui-monospace, "SF Mono", Menlo, Consolas, monospace;--font-ui:"Segoe UI", system-ui, sans-serif;--editor-font-size:15px;--run-color:#cdead6}html,body{min-height:100%;background:var(--bg-main);color:var(--text-normal);font-family:var(--font-ui);font-size:14px;overflow-y:auto;overflow-x:hidden}#app{display:flex;flex-direction:column;height:100vh;padding:8px;gap:8px;box-sizing:border-box;overflow:hidden}#toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:6px;padding:4px 8px;background:var(--bg-panel);border:1px solid var(--border);border-radius:6px;flex-shrink:0}#toolbar-brand{display:inline;font-size:13px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-right:8px}#version{font-size:11px;color:#5c6884;font-weight:400;letter-spacing:0;margin-left:5px;padding:1px 5px;background:#0b111c;border-radius:4px;border:1px solid #162236}#toolbar button,#examples,#file-select,#download-select,#help-select,#files-select{font-family:var(--font-ui);font-size:13px;letter-spacing:.04em;padding:3px 12px;background:var(--btn-bg);color:var(--text-normal);border:1px solid var(--border);border-radius:6px;cursor:pointer}#toolbar button:hover,#examples:hover,#file-select:hover,#download-select:hover,#help-select:hover,#files-select:hover{border-color:#3a4a68}#toolbar button:active{transform:translateY(1px)}.toolbar-sep{width:1px;height:20px;background:var(--border);margin:0 2px}#toolbar #run-btn{background:#14351f;border-color:#3f8f5b;color:var(--run-color);font-weight:600;min-width:84px}#toolbar #run-btn:hover{border-color:#63c489;color:#eafff2}#toolbar #run-btn:disabled{opacity:.5;cursor:not-allowed}#toolbar #run-btn.running{background:#5a1d24;border-color:#b5525f;color:#ffd7dc}#toolbar button.active{background:var(--accent);border-color:var(--accent);color:#fff}#toolbar #stop-btn{background:#5a1d24;border-color:#b5525f;color:#ffd7dc}#toolbar #stop-btn:hover{border-color:#ff8a8a}#toolbar #new-btn{background:#1a2740;border-color:#4a7aaa;color:#c8dff5}#toolbar #new-btn:hover{border-color:#80b8ef}#main-area{flex:1;display:flex;flex-direction:row;min-height:0}#editor-col{flex:0 0 38%;display:flex;flex-direction:column;min-width:0;min-height:0}#divider{flex:0 0 6px;cursor:col-resize;background:var(--border);border-radius:3px;margin:0 4px;min-height:0;touch-action:none}#divider:hover,#divider.dragging{background:var(--accent)}#output-col{flex:1 1 62%;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}#stage{flex:auto;max-height:82%;min-height:360px;display:flex;align-items:center;justify-content:center;padding:10px;background:#05070d;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;overflow:auto}#stage:empty{display:none;margin-bottom:0}#stage canvas{width:100%;height:auto;max-width:100%;max-height:78vh;image-rendering:auto;object-fit:contain}.panel-label{display:flex;justify-content:space-between;align-items:center;background:var(--bg-panel);color:var(--text-dim);padding:2px 8px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--border);border-radius:6px 6px 0 0;flex-shrink:0}.panel-clear{font-family:var(--font-ui);font-size:11px;letter-spacing:.05em;padding:0 6px;background:0 0;color:var(--text-dim);border:none;border-radius:4px;cursor:pointer}.panel-clear:hover{color:var(--text-normal);background:rgba(255,255,255,6%)}#editor-wrap{flex:1;display:flex;border:1px solid var(--border);border-radius:0 0 6px 6px;overflow:hidden;min-height:0;background:var(--bg-editor)}#editor-mount{flex:1;width:100%;height:100%;min-width:0;min-height:0;position:relative}.cm-editor{height:100%!important;outline:none!important}body.wp-locked #editor-mount{opacity:.45;filter:saturate(.5);pointer-events:none}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}#noscript{display:none;padding:24px;max-width:720px;margin:0 auto;font-family:var(--font-ui);color:var(--text-normal);line-height:1.6}.noscript-link{position:fixed;top:8px;right:8px;z-index:200;background:#238636;color:#fff;padding:6px 12px;border-radius:6px;text-decoration:none;font-family:var(--font-ui);font-size:13px}#noscript h1{font-size:24px;letter-spacing:0;margin-bottom:12px}#noscript h2{font-size:16px;margin:18px 0 6px;color:var(--text-bright)}#noscript p{margin:6px 0}#noscript code{font-family:var(--font-mono);font-size:13px;color:#6fb2ff}#noscript ul{margin:6px 0 6px 20px}#noscript li{margin:2px 0}#noscript a{color:var(--accent)}#noscript:target{display:block}#noscript:target~#app{display:none}#about{box-sizing:border-box;max-width:720px;margin:0 auto;padding:40px 20px 80px;line-height:1.7}#about h1{font-size:24px;color:var(--text-bright);letter-spacing:0;margin:0 0 16px}#about h2{font-size:16px;color:var(--accent);margin:36px 0 10px;letter-spacing:.04em}#about p{margin:0 0 14px;color:var(--text-normal)}#about a{color:var(--accent)}#about a:hover{text-decoration:none}#about code{font-family:var(--font-mono);font-size:13px;color:#6fb2ff}#about ul{margin:0 0 14px 20px}#about li{margin:4px 0}#about .links{display:flex;gap:18px;flex-wrap:wrap;font-weight:700}#output{flex:auto;background:var(--bg-editor);border:1px solid var(--border);border-radius:0 0 6px 6px;padding:8px;font-family:var(--font-mono);font-size:15px;line-height:1;overflow-y:auto;white-space:pre-wrap;min-height:0}#output .screen{display:inline-block;box-sizing:content-box;border:1px solid var(--border);border-radius:6px;padding:4px 8px;margin-bottom:8px;background:#000;font-size:14px;line-height:1.15;white-space:pre}#output .screen>div{min-height:1.15em}#output .error{color:#ff8a8a}#output .error-link{cursor:pointer;color:#6fb2ff;text-decoration:underline;text-decoration-style:dotted}#output .error-link:hover{text-decoration-style:solid}#output .ok{color:#7fe0a0}#output .warn,#output .warning{color:#ffd479}#output .note{color:#9fd7ff}#output .diag-link{cursor:pointer;color:#6fb2ff;text-decoration:underline;text-decoration-style:dotted}#output .diag-link:hover{text-decoration-style:solid}#output .diag-src{color:#8f9bb3;font-family:var(--font-mono);white-space:pre;padding-left:8px}#output .diag-summary{color:#7f8a9e;font-size:.92em}@keyframes input-blink{0%,49%{opacity:1}50%,100%{opacity:0}}#screen .input-line{display:inline;white-space:pre;font-family:inherit;font-size:inherit;line-height:inherit;color:inherit}#screen .input-line .cursor::after{content:"█";display:inline;animation:input-blink .75s step-end infinite;color:var(--accent)}#output>.input-line{display:flex;align-items:baseline;flex-wrap:wrap;white-space:normal;font-family:var(--font-mono);font-size:15px;line-height:1.5;color:var(--text-bright)}#output>.input-line .cursor::after{content:"█";display:inline;animation:input-blink .75s step-end infinite;color:var(--accent)}#typed-text{white-space:pre}#status{flex-shrink:0;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:2px 8px;color:var(--text-dim);font-size:12px}#cursor-pos{font-family:var(--font-mono);color:var(--text-dim);margin-left:auto}#compile-progress{display:inline-block;width:120px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}#compile-progress[hidden]{display:none}#compile-progress>span{display:block;width:40%;height:100%;background:var(--accent);border-radius:2px;animation:compile-slide 1s linear infinite}@keyframes compile-slide{from{transform:translateX(-100%)}to{transform:translateX(300%)}}@media(prefers-reduced-motion:reduce){#compile-progress>span{animation:none;width:100%}}.status-link{cursor:pointer;color:var(--text-dim);user-select:none;transition:color .15s ease;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;font-family:var(--font-ui)}.status-link:hover,.status-link:focus-visible{color:var(--accent);text-decoration-style:solid;outline:none}#mem-pos{font-family:var(--font-mono);color:#7fb0e0}#fps-pos{font-family:var(--font-mono);color:#7fe0a0}#help-overlay,#eula-overlay{position:fixed;inset:0;background:rgba(3,5,10,.72);backdrop-filter:blur(2px);display:flex;align-items:center;justify-content:center;padding:24px;z-index:100}#help-overlay[hidden],#eula-overlay[hidden]{display:none}#eula-panel{width:min(760px,100%);max-height:90%;display:flex;flex-direction:column;background:var(--bg-panel);border:1px solid #26324a;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.6);overflow:hidden}#eula-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border)}#eula-head h2{font-size:16px;letter-spacing:.06em;color:var(--accent)}#eula-close{width:30px;height:30px;padding:0;font-size:20px;line-height:1;background:#10192b;color:var(--text-normal);border:1px solid var(--border);border-radius:6px;cursor:pointer}#eula-close:hover{border-color:#b5525f;color:#ffd7dc}#eula-body{flex:auto;min-height:0;overflow-y:auto;padding:8px 24px 24px}#eula-body section{padding:14px 0;border-bottom:1px solid #131b2b}#eula-body section:last-child{border-bottom:none}#eula-body h3{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:8px}#eula-body p{font-size:13.5px;color:var(--text-normal);line-height:1.65;margin-bottom:6px}#eula-body ul{margin:6px 0 6px 20px}#eula-body li{font-size:13.5px;color:var(--text-normal);line-height:1.65;margin:3px 0}#eula-body strong{color:var(--text-bright)}#eula-body em{color:var(--accent-soft);font-style:normal}body.overlay-open{overflow:hidden}#help-panel{width:min(1180px,100%);max-height:100%;display:flex;flex-direction:column;background:var(--bg-panel);border:1px solid #26324a;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.6);overflow:hidden}#help-head{display:flex;align-items:center;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border)}#help-head h2{font-size:16px;letter-spacing:.06em;color:var(--accent);white-space:nowrap}#help-search{flex:1;max-width:420px;padding:5px 12px;font-family:var(--font-ui);font-size:13.5px;color:var(--text-normal);background:var(--bg-editor);border:1px solid #1c283d;border-radius:6px;outline:none;transition:border-color .15s ease}#help-search:focus{border-color:var(--accent)}#help-search::placeholder{color:var(--text-dim)}#help-close{width:30px;height:30px;padding:0;font-size:20px;line-height:1;background:#10192b;color:var(--text-normal);border:1px solid var(--border);border-radius:6px;cursor:pointer}#help-close:hover{border-color:#b5525f;color:#ffd7dc}#help-nav{display:flex;flex-wrap:wrap;gap:6px;padding:10px 18px;border-bottom:1px solid var(--border);background:#080d18}#help-nav[hidden]{display:none}#help-nav a{font-size:12.5px;color:var(--text-dim);text-decoration:none;padding:3px 10px;border:1px solid #1c283d;border-radius:999px;transition:border-color .15s ease,color .15s ease}#help-nav a:hover{color:var(--accent);border-color:var(--accent)}#help-body{flex:auto;min-height:0;overflow-y:auto;padding:8px 18px 20px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 28px}#help-body section{padding:12px 0;border-bottom:1px solid #131b2b;min-width:0}#help-body section.wide{grid-column:1/-1}#help-body section[hidden]{display:none}#help-body .help-group{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:16px 0 2px}#help-body .help-group:first-child{margin-top:0}#help-body .help-group span{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);white-space:nowrap}#help-body .help-group::after{content:"";flex:1;height:1px;background:#1b2436}#help-body h3{font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin:0 0 8px}#help-body p{font-size:14px;color:#aeb9d0;margin:4px 0 0;line-height:1.55}#help-body pre{font-family:var(--font-mono);font-size:13.5px;line-height:1.5;background:#070b13;border:1px solid #131b2b;border-radius:6px;padding:10px 12px;overflow-x:auto;margin:0 0 8px;color:var(--text-normal)}#help-body code{font-family:var(--font-mono);font-size:13px;color:#7fe0a0}#help-body p code{background:#10192b;border-radius:4px;padding:0 4px;color:var(--text-normal)}#help-body .c{color:var(--text-dim);font-style:italic}#help-body .kw{color:#c58bff}#help-body .st{color:#7fe0a0}#help-body ul{margin:4px 0 0;padding-left:18px;font-size:14px;line-height:1.6;color:#aeb9d0}#help-body li{margin:3px 0}#help-body .cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 24px}#help-body .cols b{display:block;margin:10px 0 2px;font-size:13px;color:#c58bff}@media(max-width:900px){#help-body{grid-template-columns:1fr}#help-body .cols{grid-template-columns:1fr}}.tut-overlay{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(3,5,10,.78);backdrop-filter:blur(2px)}.tut-overlay[hidden]{display:none}.tut-panel{width:min(1120px,100%);height:100%;display:flex;flex-direction:column;background:var(--bg-panel);border:1px solid #26324a;border-radius:12px;box-shadow:0 24px 80px rgba(0,0,0,.6);overflow:hidden}.tut-head{display:flex;align-items:baseline;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border)}.tut-head h2{margin:0;font-size:15px;letter-spacing:.06em;color:var(--accent)}.tut-head .sub{font-size:12px;color:var(--text-dim)}.tut-head .spacer{flex:1}.tut-close{width:30px;height:30px;padding:0;font-size:20px;line-height:1;color:var(--text-normal);background:#10192b;border:1px solid #2a3a58;border-radius:6px;cursor:pointer;font-family:var(--font-ui)}.tut-close:hover{border-color:#b5525f;color:#ffd7dc}.tut-main{flex:1;min-height:0;display:grid;grid-template-columns:232px minmax(0,1fr)}.tut-toc{overflow:auto;padding:12px 8px 24px;border-right:1px solid #131b2b;background:#080c14}.tut-toc button{display:block;width:100%;text-align:left;border:0;border-radius:6px;background:0 0;color:#9aa6c0;padding:6px 10px;font-size:12.5px;line-height:1.35;cursor:pointer;font-family:var(--font-ui)}.tut-toc button:hover{background:#121a2c;color:#eaf6ff}.tut-toc button.active{background:#171033;color:#d9c2ff}.tut-toc button .n{color:#5c6884;margin-right:6px}.tut-body{overflow:auto;padding:8px 28px 64px;scroll-behavior:smooth}.tut-body section{padding:20px 0 8px;border-bottom:1px solid #101828;max-width:760px}.tut-body section:last-child{border-bottom:0}.tut-body h3{margin:0 0 10px;font-size:17px;letter-spacing:.02em;color:#eaf6ff}.tut-body h3 .n{color:var(--accent);margin-right:10px;font-weight:700}.tut-body h4{margin:18px 0 6px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim)}.tut-body p{margin:8px 0;font-size:13.5px;line-height:1.65;color:#b9c4dc}.tut-body ul{margin:8px 0;padding-left:20px}.tut-body li{font-size:13.5px;line-height:1.6;color:#b9c4dc;margin:3px 0}.tut-body code{color:#7fe0a0}.tut-body p code,.tut-body li code{background:#10192b;border-radius:4px;padding:0 4px;color:var(--text-normal)}.tut-body pre{margin:10px 0;padding:12px 14px;background:#070b13;border:1px solid #131b2b;border-radius:8px;overflow-x:auto;font:13px/1.55 ui-monospace,sf mono,Menlo,Consolas,monospace;color:#cdd7ea;tab-size:4}.tut-body pre .c{color:#5c6884;font-style:italic}.tut-body pre .k{color:#c58bff}.tut-body pre .s{color:#7fe0a0}.tut-body pre .m{color:#f7e08a}.tut-body .callout{margin:12px 0;padding:10px 14px;border-left:3px solid var(--accent);background:#0f1020;border-radius:0 8px 8px 0;font-size:13px;line-height:1.6;color:#c9bfe6}.tut-body .callout b{color:#e4d6ff}.tut-ex{margin:12px 0 4px}.tut-load{padding:5px 12px;font-size:12px;color:var(--run-color);background:#14351f;border:1px solid #3f8f5b;border-radius:6px;cursor:pointer;font-family:var(--font-ui)}.tut-load:hover{border-color:#63c489;color:#eafff2}@media(max-width:820px){.tut-main{grid-template-columns:1fr}.tut-toc{display:none}}</style><h1 class=sr-only>wasmpascal — compile Pascal to WebAssembly in your browser</h1><p class=sr-only>wasmpascal compiles Pascal source to WebAssembly entirely in the browser and runs the freshly compiled wasm on the same page. No install, no server-side toolchain: the compiler itself is a WebAssembly module written in Odin. It supports write/writeln and read/readln console I/O, TextColor and TextBackground, multi-file projects with uses units, heap allocation, and canvas host ABIs for games.<div id=noscript><h1>wasmpascal — compile Pascal to WebAssembly in your browser</h1><p>wasmpascal compiles <strong>Pascal</strong> source to
+<strong>WebAssembly entirely inside your browser</strong>, then runs the
+freshly compiled wasm on the same page. No file system, no native binary,
+no server-side toolchain — the compiler itself is a WebAssembly module
+written in Odin.<p>This page needs JavaScript to run the compiler. If you have JavaScript
+enabled, the interactive editor and compiler are available above.<h2>What you can do here</h2><ul><li>Type or paste Pascal source and compile it to WebAssembly in your browser.<li>Run the compiled wasm on the same page — console output, canvas graphics, or games.<li>Work with multi-file projects: a root program plus <code>uses</code> units.<li>Use Turbo-Pascal-style console I/O: <code>write</code>, <code>writeln</code>, <code>read</code>, <code>readln</code>, <code>GotoXY</code>, <code>ClrScr</code>, <code>TextColor</code>, <code>TextBackground</code>.<li>Allocate memory with <code>New</code>/<code>Dispose</code> and <code>GetMem</code>/<code>FreeMem</code>.<li>Download the compiled <code>.wasm</code>, the project source <code>.zip</code>, or a <strong>standalone web app</strong> — a ready-to-host folder (<code>.zip</code>: runner <code>index.html</code> + runtime <code>js</code> + the compiled <code>wasm</code>) or a single self-contained <code>.html</code> (opens straight from disk) for putting a program on any static web server.<li>Export the whole project — every source file — as a <code>.zip</code> archive.<li>Upload <code>.pas</code> files from your computer as a project.</ul><h2>Example programs</h2><ul><li><code>hello.pas</code> — the classic hello world.<li><code>hello_write.pas</code> — console output via <code>write</code>/<code>writeln</code>.<li><code>colors.pas</code> — <code>TextColor</code>/<code>TextBackground</code> plus a canvas gradient.<li><code>fibonacci.pas</code> — recursion and loops.<li><code>guess.pas</code> — a number-guessing game with <code>readln</code>.<li><code>web_dom.pas</code> — the DOM from Pascal with <code>uses WEB</code>: a styled panel, an animating canvas and pointer handlers, with no <code>external</code> block and no dispatcher.<li><code>sweep.pas</code> — a minesweeper game (pascaldom ABI via <code>uses WEB</code>, 7 units).<li><code>pascaloids.pas</code>, <code>pong.pas</code>, <code>breakout_graphics.pas</code>, <code>sparks.pas</code>, <code>floaty_car.pas</code> — games using the batchiness canvas ABI.<li><code>flightleader.pas</code> — FLIGHT LEADER, an arcade space-combat-style game (batchiness ABI, 6 units).<li><code>xonix.pas</code> — Xonix (ported from odinix): draw lines across the water to claim land — the fill floods from the balls, so it can never cover one (batchiness ABI).<li><code>dugster.pas</code> — DUGSTER, a Digger-style dig-em-up: dig tunnels, collect emeralds, dodge the nobbin (batchiness ABI, 5 units).<li><code>paint.pas</code> — PAINT: a paint program whose whole interface (panel, toolbar, colour swatches, status line) is built from the DOM by Pascal (pascaldom ABI, <code>uses WEB</code>).<li><code>musicbox.pas</code> — MUSIC BOX: a chiptune player that synthesises its four tracks with Web Audio and visualises them with DOM elements only — a piano-roll grid, VU meters and a spinning record; no canvas, no pixel buffer (pascaldom ABI, <code>uses WEB</code>).<li><code>basic_canvas.pas</code> — pixel-buffer canvas rendering.</ul></div><div id=app><div id=toolbar><span id=toolbar-brand>wasmpascal<span id=version></span></span>
+<button id=run-btn>Run</button>
+<button id=stop-btn>Stop</button>
+<button id=new-btn title="Start a new Pascal project (loads the Hello example)">New</button>
+<select id=download-select title="Download the compiled .wasm, the whole project as a .zip, a standalone app folder (.zip), or a single-file standalone app (.html)"><option value>Download…<option value=wasm>Compiled .wasm<option value=zip>Project .zip<option value=standalone>Standalone app (.zip)<option value=single>Standalone app (.html)</select>
+<button id=upload-btn title="Open .pas files from your computer as a project">Upload files</button>
+<button id=font-cycle-btn title="Cycle editor font size">A</button>
+<select id=help-select title="Pascal quick reference, lessons, and license"><option value>Help…<option value=ref>Quick reference<option value=learn>Lessons<option value=eula>License / EULA</select>
+<select id=examples><option value>Examples…</select>
+<span id=proj-sep class=toolbar-sep></span>
+<button id=proj-rename-btn title="Rename project">Rename project</button>
+<select id=file-select><option value>Root file</select>
+<select id=files-select title="Project file actions"><option value>Files…<option value=add id=files-add-opt>+ File<option value=rename id=files-rename-opt>Rename file<option value=root id=files-root-opt>Set as root<option value=del id=files-del-opt>− File</select></div><div id=main-area><div id=editor-col><div class=panel-label>Pascal source</div><div id=editor-wrap><div id=editor-mount></div><textarea id=editor spellcheck=false autocomplete=off autocapitalize=none autocorrect=off wrap=off aria-hidden=true style=display:none></textarea></div></div><div id=divider title="Drag to resize"></div><div id=output-col><div class=panel-label>Output / diagnostics<button id=clear-btn class=panel-clear title="Clear the console output">Clear</button></div><div id=stage></div><div id=output tabindex=-1></div></div></div><div id=status><span id=status-text>Loading…</span><span id=compile-progress hidden><span></span></span><span id=fps-pos></span><span id=cursor-pos></span><span id=theme-btn class=status-link role=button tabindex=0 title="Click to cycle editor theme">Theme: Default</span><span id=mem-pos></span></div></div><main><article id=about><h1>wasmpascal: a Pascal compiler that runs entirely in your browser</h1><p>wasmpascal compiles <strong>Pascal</strong> source to
+<strong>WebAssembly</strong> entirely inside your browser, then runs the
+freshly compiled wasm on the same page. There is no file system, no native
+binary, and no server-side toolchain: the compiler itself is a WebAssembly
+module, written in the <a href=https://odin-lang.org/ rel="noopener noreferrer" target=_blank>Odin programming language</a> and compiled to <code>js_wasm32</code>. Type Pascal in the editor above, press <strong>Run</strong>, and the compiled program executes right there — console output, canvas graphics, or a full game.<h2>What you can do</h2><ul><li><strong>Compile in the browser</strong> — the editor, compiler, and runtime are all on this page; nothing is uploaded anywhere.<li><strong>Multi-file projects</strong> — a root program plus <code>uses</code> units, with a file dropdown, add/rename/remove, and autosave to <code>localStorage</code>.<li><strong>Turbo-Pascal-style console I/O</strong> — <code>write</code>, <code>writeln</code>, <code>read</code>, <code>readln</code>, <code>GotoXY</code>, <code>ClrScr</code>, <code>TextColor</code>, and <code>TextBackground</code> render into a fixed character screen.<li><strong>Object-oriented Pascal</strong> — value-type <code>object</code> with <code>constructor</code>, <code>virtual</code> + VMT dispatch, <code>object(Parent)</code> inheritance + <code>inherited</code>/<code>override</code> and <code>New(p, Init)</code>; reference-type <code>class</code> with <code>Create</code>/<code>Free</code>, <code>class(Parent)</code> two-level inheritance and polymorphism (see <code>objects_demo.pas</code> / <code>classes_demo.pas</code>).<li><strong>Heap allocation</strong> — <code>New</code>/<code>Dispose</code> and <code>GetMem</code>/<code>FreeMem</code> back a bump allocator with a free list, so linked lists and dynamic records work.<li><strong>Typed const aggregates</strong> — <code>Origin: TPoint = (x: 10; y: 20)</code>, <code>array[0..2] of Integer = (1,2,3)</code>, and <code>s + c</code> where <code>c: Char</code> (see <code>typed_const_demo.pas</code>).<li><strong>Canvas and game ABIs</strong> — programs can drive a pixel-buffer canvas (<code>basic_canvas</code>), self-wire a canvas and event loop (<code>pascaldom</code> — reach it with <code>uses WEB</code>, which brings the whole DOM bridge in without a single <code>external</code> declaration, callback id or dispatcher), or use the batched-canvas game bridge (<code>batchiness</code>) with Web Audio sound effects.<li><strong>Editor themes</strong> — Default modern dark theme plus classic Turbo Pascal 7 (DOS blue), Borland Pascal (navy), and FreePascal (royal blue) with live hot-swapping.<li><strong>Download</strong> — the <code>Download…</code> toolbar menu saves the compiled <code>.wasm</code> as a standalone module, the whole project (root + every <code>uses</code> unit) as a <code>.zip</code> archive, or a ready-to-host <strong>standalone web app</strong> — as a folder (<code>.zip</code>: runner <code>index.html</code> + runtime <code>js</code> + bridges + compiled <code>wasm</code>, upload it to any static web server) or as a single self-contained <code>.html</code> (everything inlined; opens straight from disk).<li><strong>Upload <code>.pas</code> files</strong> — pick any number of files from your computer and rebuild a project from them; the file declaring <code>program</code> becomes the root.</ul><h2>How it works</h2><p>When you press <strong>Run</strong>, the page spawns a fresh compile Worker that loads the compiler WebAssembly module and feeds it your Pascal source through a shared memory buffer. The compiler runs the full <strong>Pascal to WebAssembly</strong> pipeline — preprocess, lex, parse, semantic analysis, code generation, and WebAssembly module emission — and returns compiled wasm bytes. Those bytes are instantiated on the main thread, and the host detects the program's ABI from its exports: console-only programs run in a Worker with an inline input line, while canvas and game programs boot straight into the page.<p>The compiler itself is the <code>wasmpascal</code> Pascal-to-wasm32 compiler, written in the Odin programming language and recompiled to <code>js_wasm32</code> with its CLI driver replaced by a memory-buffer browser driver. It shares its lineage with <a href=https://nofuss.co.za/zigbasic/ rel="noopener noreferrer" target=_blank>zigbasic</a>, which runs a QBASIC interpreter in the browser the same way. The whole toolchain is client-side — there is no build server.<h2>Compile Pascal to WebAssembly in the browser — no server, no install</h2><p>Most <strong>online Pascal compilers</strong> send your source to a server, compile it with Free Pascal there, and stream the output back. <strong>wasmpascal does the opposite: it compiles Pascal to WebAssembly entirely in your browser.</strong> Your source never leaves the tab — it is copied into the compiler's linear memory at <code>wasmpascal_source_ptr()</code>, compiled by <code>wasmpascal_compile()</code> running as WebAssembly, and the resulting <code>.wasm</code> bytes are instantiated right on the same page.<p>The compiler is a single WebAssembly module (about 500&nbsp;KB) that implements the complete pipeline. It parses Turbo Pascal 7 syntax, resolves <code>uses</code> units from an in-memory store, type-checks with range and set checks, and emits <strong>MVP-only WebAssembly</strong> — no WASI, no Emscripten shims, no hidden JavaScript runtime. That compiled WebAssembly runs in any modern browser, and you can download it as a standalone <code>.wasm</code> file or bundle it into a <strong>standalone web app</strong> (<code>.zip</code> folder for any static host, or a single self-contained <code>.html</code> that even opens from <code>file://</code>).<p>Because the compiler is WebAssembly, <strong>privacy and speed are built in</strong>: offline after the first load, deterministic builds, and no account or server queue. It is an <strong>in-browser Pascal to Wasm compiler</strong> you can use to learn, prototype, or ship — the same way you would run <code>fpc</code> locally, but with zero install.<h2>What Pascal you can write</h2><p>wasmpascal targets a practical <strong>Turbo Pascal 7 dialect</strong> plus FreePascal and Delphi extensions — enough to write real console programs, data structures, and games that compile to WebAssembly.<ul><li><strong>Types</strong> — <code>Integer</code>, <code>Cardinal</code>, <code>Byte</code>, <code>ShortInt</code>, <code>SmallInt</code>, <code>Word</code>, <code>Real</code>/<code>Single</code>/<code>Double</code>, <code>Boolean</code>, <code>Char</code>, <code>Pointer</code>/<code>^T</code>, fixed strings <code>String[n]</code> and dynamic <code>String</code>, static arrays (including <code>array[1..3, 1..4] of T</code> with <code>a[i,j]</code>), records with variants, <code>set of</code> bitmasks, enumerations and subranges, and typed const aggregates.<li><strong>Object-oriented Pascal</strong> — value-type <code>object</code> and reference-type <code>class</code>, with <code>constructor</code>/<code>destructor</code>, <code>virtual</code> + VMT dispatch, <code>override</code>, <code>inherited</code>, <code>object(Parent)</code> / <code>class(Parent)</code> inheritance, and polymorphism via <code>New(p, Init)</code> or <code>TAnimal.Create</code>/<code>Free</code>.<li><strong>Control flow</strong> — <code>if</code>/<code>case</code> (with <code>lo..hi</code> ranges), <code>for to/downto</code>, <code>while</code>, <code>repeat until</code>, <code>break</code>/<code>continue</code>/<code>exit</code>, Delphi-style ternary <code>if cond then a else b</code>, <code>with</code>, and <code>goto/label</code>.<li><strong>Procedures and functions</strong> — <code>var</code> parameters by address (including locals via a per-call frame), procedural parameters and <code>external</code> imports for host ABIs.<li><strong>Builtins</strong> — string helpers (<code>Length</code>, <code>Copy</code>, <code>Pos</code>, <code>Concat</code>, <code>Val</code>, <code>Str</code>), math (<code>Sin</code>, <code>Cos</code>, <code>ArcTan</code>, <code>Ln</code>, <code>Exp</code>, <code>Power</code>, <code>Sqrt</code>, <code>Hypot</code> …), memory (<code>FillChar</code>, <code>Move</code>, <code>SizeOf</code>), <code>Random</code>/<code>Randomize</code>, <code>Inc</code>/<code>Dec</code>, <code>Ord</code>/<code>Chr</code>/<code>UpCase</code>, and more — see the quick reference (<code>?</code> / <code>F1</code>).<li><strong>Console and screen</strong> — <code>write</code>/<code>writeln</code>/<code>read</code>/<code>readln</code> with field widths, <code>GotoXY</code>/<code>ClrScr</code>, <code>TextColor</code>/<code>TextBackground</code> (palette indices, <code>RRGGBBAA</code> hex, or <code>TextColorRGB</code>), <code>Delay</code>, and <code>ReadKey</code>/<code>KeyPressed</code>.<li><strong>Units and modules</strong> — <code>program</code>/<code>library</code>/<code>unit</code> headers, <code>uses</code> with depth-first transitive loading, <code>interface</code>/<code>implementation</code>, and three units built into the compiler that need no registration: <code>Crt</code>, <code>Classes</code> and <code>WEB</code> (the DOM/canvas bridge).</ul><p>Directives like <code>{$mode fpc}</code>, <code>{$M 32M}</code> (heap size), <code>{$Screen 80 25}</code>, and <code>{$R+}/{$R-}</code> range checks are supported; unknown <code>{$...}</code> directives are ignored. The <strong>Learn Pascal</strong> tutorial (Help → Lessons) walks through every feature above with runnable examples.<h2>An online Pascal IDE — editor, projects, and hosting</h2><p>wasmpascal is a full <strong>online Pascal IDE</strong> and <strong>Pascal playground</strong>: the editor, compiler, and runtime all live on this page. The editor is <a href=https://codemirror.net/ rel="noopener noreferrer" target=_blank>CodeMirror 6</a> with Pascal syntax highlighting, bracket matching, and four themes — Default dark plus authentic <strong>Turbo Pascal 7</strong> (DOS blue), Borland Pascal, and FreePascal — hot-swapped without losing undo history.<p>Work in <strong>multi-file projects</strong>: a named set of <code>.pas</code> files with one root program and any number of <code>uses</code> units, a file dropdown to switch files, and <code>Files…</code> actions to add/rename/remove or promote a new root. Projects autosave to <code>localStorage</code>, and you can upload any number of <code>.pas</code> files from disk or export the whole project as a <code>.zip</code>. The <code>?</code> quick reference and the <strong>Learn Pascal</strong> lessons are built in.<p>When your program compiles, <code>Download…</code> gives you the compiled <code>.wasm</code>, the project <code>.zip</code>, or a <strong>ready-to-host standalone web app</strong>: a <code>.zip</code> folder (<code>index.html</code> + runtime <code>js</code> + bridges + your <code>.wasm</code>) that runs on any static host, or a single self-contained <code>.html</code> with everything inlined that opens straight from disk. That is how you go from Pascal source to a WebAssembly app you can share.<h2>Example programs</h2><p>Load any of these from the <strong>Examples…</strong> dropdown in the toolbar:<ul><li><code>hello.pas</code> — the classic hello world.<li><code>hello_write.pas</code> — console output via <code>write</code>/<code>writeln</code>.<li><code>colors.pas</code> — <code>TextColor</code>/<code>TextBackground</code> plus a canvas gradient.<li><code>fibonacci.pas</code> — recursion and loops.<li><code>guess.pas</code> — a number-guessing game with <code>readln</code>.<li><code>objects_demo.pas</code> — <code>object</code> value types: static methods, <code>virtual</code> + VMT, <code>object(Parent)</code> + <code>inherited</code>/<code>override</code>, <code>New(p, Init)</code> (new in 0.5.0).<li><code>classes_demo.pas</code> — <code>class</code> reference types: <code>Create</code>/<code>Free</code>, <code>class(Parent)</code> inheritance (two-level <code>TLabrador</code>), polymorphism (new in 0.5.0).<li><code>typed_const_demo.pas</code> — aggregate typed consts, <code>s + c</code> with <code>Char</code> var, <code>s[i]</code> indexing (new in 0.5.0).<li><code>web_dom.pas</code> — the DOM from Pascal with <code>uses WEB</code>: a styled panel, an animating canvas and pointer handlers, with no <code>external</code> block and no dispatcher.<li><code>sweep.pas</code> — a minesweeper game (pascaldom ABI via <code>uses WEB</code>, seven units).<li><code>pascaloids.pas</code>, <code>pong.pas</code>, <code>breakout_graphics.pas</code>, <code>sparks.pas</code>, <code>growable.pas</code>, <code>floaty_car.pas</code> — games using the batchiness canvas ABI.<li><code>flightleader.pas</code> — FLIGHT LEADER, an arcade space-combat-style game (batchiness ABI, six units).<li><code>xonix.pas</code> — Xonix (ported from odinix): draw lines across the water to claim land — the fill floods from the balls, so it can never cover one (batchiness ABI).<li><code>dugster.pas</code> — DUGSTER, a Digger-style dig-em-up: dig tunnels, collect emeralds, dodge the nobbin (batchiness ABI, five units).<li><code>paint.pas</code> — PAINT: a paint program whose whole interface (panel, toolbar, colour swatches, status line) is built from the DOM by Pascal (pascaldom ABI, <code>uses WEB</code>).<li><code>musicbox.pas</code> — MUSIC BOX: a chiptune player that synthesises its four tracks with Web Audio and visualises them with DOM elements only — a piano-roll grid, VU meters and a spinning record; no canvas, no pixel buffer (pascaldom ABI, <code>uses WEB</code>).<li><code>basic_canvas.pas</code> — pixel-buffer canvas rendering.</ul><h2>FAQ — Pascal to WebAssembly, online compiler, and hosting</h2><p><strong>Does my Pascal code leave my browser?</strong> No. wasmpascal is a true <strong>in-browser Pascal compiler</strong> — source is copied into the compiler's WebAssembly memory and compiled there. Nothing is uploaded, there is no account, and the page works offline after the first load.<p><strong>What Pascal dialect does it support?</strong> A practical <strong>Turbo Pascal 7</strong> dialect plus FreePascal/Delphi extensions: typed consts, <code>set of</code>, conformant arrays, Delphi-style ternary <code>if cond then a else b</code>, and <code>object</code>/<code>class</code> OOP with virtual dispatch. Unknown <code>{$...}</code> directives are silently ignored for compatibility.<p><strong>Can I learn Pascal here?</strong> Yes. The <strong>Learn Pascal</strong> tutorial (Help → Lessons) teaches the language lesson by lesson with runnable examples you load into the editor. The <code>?</code> quick reference is the lookup companion.<p><strong>Can I build games that compile to WebAssembly?</strong> Yes. Use the canvas host ABIs: <code>basic_canvas</code> for raw pixel buffers, <code>pascaldom</code> for DOM/canvas (add <code>uses WEB</code> and the whole DOM bridge is in scope — see <code>web_dom.pas</code>), and <code>batchiness</code> for batched-canvas games with Web Audio SFX. Every game example on this page was written in Pascal and compiled to WebAssembly the same way your code is.<p><strong>Where can I find more example programs?</strong> Beyond the built-in <strong>Examples…</strong> dropdown, the <a href=https://github.com/ewaldhorn/wasmpascal_examples rel="noopener noreferrer" target=_blank>wasmpascal_examples</a> repository on GitHub collects extra Pascal programs you can copy into the editor and run.<p><strong>How do I host a program I compiled to WebAssembly?</strong> Click <code>Download…</code> → <code>Standalone app</code>. The <code>.zip</code> is a folder (<code>index.html</code> + runtime <code>js</code> + your <code>.wasm</code>) you upload to any static host. The single <code>.html</code> is self-contained — CSS, runtime, and your compiled WebAssembly are inlined as base64, so it opens from disk with no server.<p><strong>How big is the Pascal to WebAssembly compiler?</strong> About 500&nbsp;KB of WebAssembly. The same Odin source also builds the native <code>wasmpascal</code> CLI. In the browser it runs in a fresh Worker per Run (<code>wasmpascal_compile</code> resets global state) and emits MVP-only WebAssembly validated by <code>wasm-validate</code>.<h2>About the developer</h2><p>I'm Ewald Horn, a software developer: I build all kinds of things, not just compilers. wasmpascal is one example from a personal collection of small browser projects used to explore systems programming, WebAssembly, and simulation from first principles. I might be available for freelance development work.<p class=links><a href=https://github.com/ewaldhorn rel="noopener noreferrer" target=_blank>GitHub</a>
+<a href=https://nofuss.co.za/toys/ rel="noopener noreferrer" target=_blank>More projects</a><h2>Acknowledgements</h2><p>wasmpascal is built with gratitude on the following open-source projects and tools:<ul><li><a href=https://codemirror.net/ rel="noopener noreferrer" target=_blank><strong>CodeMirror 6</strong></a> (by Marijn Haverbeke and contributors, MIT License) — powers the in-browser code editor with virtualized DOM rendering, Pascal syntax stream parsing, bracket matching, code folding, active-line highlighting, and search & replace.<li><a href=https://odin-lang.org/ rel="noopener noreferrer" target=_blank><strong>Odin Programming Language</strong></a> — powers the core Pascal-to-WebAssembly compiler engine.</ul></article></main><div id=help-overlay hidden><div id=help-panel role=dialog aria-modal=true aria-label="Pascal quick reference"><div id=help-head><h2>Pascal quick reference</h2><input id=help-search placeholder="Filter (e.g. for, write, TextColor, unit, exports)…" autocomplete=off>
+<button id=help-close title="Close (Esc)">&#215;</button></div><nav id=help-nav aria-label="Reference sections"><a href=#help-body data-scroll="Projects & files">Projects & files</a>
+<a href=#help-body data-scroll="Program structure">Program structure</a>
+<a href=#help-body data-scroll=Types>Types</a>
+<a href=#help-body data-scroll="Objects & classes">Objects & classes</a>
+<a href=#help-body data-scroll=Declarations>Declarations</a>
+<a href=#help-body data-scroll="Control flow">Control flow</a>
+<a href=#help-body data-scroll=Operators>Operators</a>
+<a href=#help-body data-scroll=Builtins>Builtins</a>
+<a href=#help-body data-scroll="Console I/O">Console I/O</a>
+<a href=#help-body data-scroll=Colours>Colours</a>
+<a href=#help-body data-scroll=Directives>Directives</a>
+<a href=#help-body data-scroll="Host ABIs">Host ABIs</a>
+<a href=#help-body data-scroll="Editor shortcuts">Editor shortcuts</a>
+<a href=#help-body data-scroll=Acknowledgements>Acknowledgements</a></nav><div id=help-body><div class=help-group><span>Language</span></div><section data-help="project files root unit uses dropdown rename add file remove"><h3>Projects & files</h3><p>A <strong>project</strong> is a named set of Pascal files with one
+<strong>root</strong> file (the one compiled). Every other file is
+registered as a <code>uses</code> unit at run time.<ul><li><strong>File dropdown</strong> (right of the Examples… menu) switches between the project's files; the root is marked <code>(root)</code>.<li><strong>Files…</strong> menu (next to the file dropdown): <strong>+ File</strong> adds a new unit file with a starter skeleton; <strong>Rename file</strong> renames the selected file (updating <code>uses</code> references); <strong>Set as root</strong> promotes it to the project's root; <strong>− File</strong> removes it. The per-file options are disabled while the root file is selected.<li><strong>Rename project</strong> renames the project (shown in the Download .wasm and .zip filenames).<li><strong>Upload files</strong> opens any number of <code>.pas</code> files from your computer and replaces the current project with them (confirming if you have unsaved changes). The file whose first Pascal keyword is <code>program</code> becomes the root; if none — or several — do, <code>main.pas</code> wins, then alphabetical order.<li>Projects autosave to <code>localStorage</code> (<code>wasmpascal:project</code>).</ul></section><section data-help="program structure unit library uses exports external name begin end web crt classes embedded"><h3>Program structure</h3><pre><code><span class=kw>program</span> Hello;
+<span class=kw>uses</span> u_math;              <span class=c>// your units are project files; Crt/Classes/WEB are built in</span>
+<span class=kw>var</span> x: Integer;
+<span class=kw>begin</span>
+  ...
+<span class=kw>end</span>.</code></pre><p><code>program</code>, <code>library</code>, and <code>unit</code>
+headers are supported. A unit has <code>interface</code> /
+<code>implementation</code> sections and an optional
+<code>begin..end.</code> init body that runs in the module start
+function.<p><code>uses</code> pulls in a unit's consts/globals/functions
+(deduped by name, loaded depth-first, transitive deps first). Your own
+units are project files (or bundled in <code>UNIT_LIBRARY</code>);
+three <b>embedded</b> units come from the compiler itself and need no
+registration — <code>Crt</code> (the 16 TP7 colour constants),
+<code>Classes</code> (the <code>TStringList</code> family) and
+<code>WEB</code> (the DOM/canvas bridge; <code>uses WEB</code> is how a
+canvas program reaches the host — see <b>Host ABIs</b>).<p><code>exports foo name 'foo'</code> clauses live only in the root
+<code>program</code>/<code>library</code>.<p>Foreign functions: <code>external 'mod' name 'fn'</code> (FPC form)
+— name the module, because that is exactly where the import lands. A
+bare <code>external name 'fn'</code> compiles, but its import goes to
+wasm module <code>""</code>, which nothing provides: it fails at
+instantiate, not at compile time
+(<code>Import #0 "": module is not an object or function</code>). The
+math <em>builtins</em> (<code>Sin</code>, <code>Cos</code>,
+<code>Power</code>…) import from <code>odin_env</code> (JS
+<code>Math.*</code>); a hand-written math external names
+<code>odin_env</code> itself, as <code>sweepdefs.pas</code> does.</section><section data-help="types integer cardinal single double real boolean char record array pointer string set shortint smallint byte word longword stringn"><h3>Types</h3><ul><li><code>Integer</code>/<code>LongInt</code> — 32-bit signed (<code>i32</code>); <code>Cardinal</code>/<code>Card</code>/<code>LongWord</code> — unsigned.<li><code>ShortInt</code> — <code>i8</code>; <code>SmallInt</code>/<code>Word</code> — <code>i16</code>; <code>Byte</code> — <code>u8</code>.<li><code>Single</code> → <code>f32</code>; <code>Double</code>/<code>Real</code> → <code>f64</code>.<li><code>Boolean</code> — normalized to 0/1; <code>Char</code> — one byte.<li><code>Pointer</code> — untyped 32-bit pointer; <code>^T</code> typed pointers.<li>Records, static arrays, pointers (<code>^</code>, <code>@</code>, typed indexing <code>p[i]</code>). Multi-dim arrays use the TP sugar: <code>array[1..3, 1..4] of T</code> with <code>a[i, j]</code> indexing (desugars to nested arrays). Record variants work:
+<code>case tag: Byte of 0: (r: Single); 1: (w, h: Single); else (x: Single); end</code>
+(arms union at the tag's offset; an <code>else</code> arm is the default).<li><strong>Conformant array parameters</strong> — ISO
+<code>procedure P(a: array[lo..hi: Integer] of T)</code>: the
+caller passes an array of the same element type, and the bounds
+<code>lo</code>/<code>hi</code> become implicit value parameters.
+<code>packed</code> anywhere is a no-op (wasm memory is flat).
+See <code>examples/flrender.pas</code> (FLIGHT LEADER's polygon
+renderer).<li>Float literals accept scientific notation
+(<code>1e10</code>, <code>5e-3</code>, <code>87.35E+8</code>).<li><code>set of &lt;ordinal></code> — bitmask sets: <code>set of 0..6</code> = one <code>i32</code>, <code>set of Byte</code> = 8 words. Ops <code>+ - * in = &lt;> &lt;= >=</code>, constructors <code>[1, 3..5]</code> / <code>[]</code>. Variables must be globals. See <code>examples/set_demo.pas</code>.<li>String literals are static <code>[len:byte][bytes]</code>; foreign <code>string</code> params pass <code>(ptr,len)</code>. <code>String[n]</code> declares a fixed-length buffer (<code>n</code> ≤ 255) that truncates on store — globals are inline buffers; local <code>String[n]</code> vars behave as dynamic (addr,len) pairs (full short-string semantics are roadmap). <code>s[i]</code> indexes into a string (read or write).<li><code>object</code> / <code>class</code> — TP7 OOP (see <strong>Objects & classes</strong> below).</ul></section><section class=wide data-help="object class virtual override inherited constructor destructor create free new dispose polymorphism vmt with"><h3>Objects & classes</h3><p>TP7-style OOP is fully supported — value-type <code>object</code> and reference-type <code>class</code>, with virtual dispatch, inheritance, and polymorphism.<div class=cols><div><b><code>object</code> (value type)</b><p><code>type TPoint = object x, y: Integer; constructor Init(ax, ay: Integer); procedure Move(dx, dy: Integer); function Tag: Integer; virtual; end;</code> — instances live where the variable lives (globals, locals, arrays, record fields). No heap unless you ask for it.<p><code>constructor</code> is a normal method that runs on an existing instance; for virtual-bearing objects it stores the VMT first. Call it as <code>p.Init(3,4)</code> on a value var, or <code>New(p, Init(3,4))</code> to heap-allocate and construct in one go (<code>Dispose(p)</code> frees).<p>Methods are functions with a hidden <code>self</code> address — fields are <code>self + field_off</code>, and bare method names inside a method resolve to that object's methods. <code>with obj do</code> and <code>p^.Method</code> work as expected, and <code>a := b</code> copies the whole object (including its VMT word).<p><code>SizeOf(TPoint)</code> includes the hidden VMT pointer when the type has a virtual method (e.g. 12 = 4 + 2×Integer).<p>See <code>examples/objects_demo.pas</code>.</div><div><b>Inheritance & virtual dispatch</b><p><code>TPoint3D = object(TPoint) z: Integer; function Tag: Integer; override; end;</code> — fields are a superset (parent first), VMT is a superset (parent slots first). <code>override</code> replaces the parent's slot; a child stored in a parent-typed variable still dispatches the child's override (value copy carries the child's VMT word).<p><code>inherited</code> calls the parent's method: <code>inherited Init(ax, ay)</code> (explicit) or bare <code>inherited;</code> (forwards current method's params). For virtual methods this is a direct call to the parent's slot, not a re-dispatch.<p><code>New(p3, Init(1,2,3))</code> on a child correctly keeps the child's VMT (the parent constructor's VMT store is skipped via the hidden VMT-skip flag).</div><div><b><code>class</code> (reference type)</b><p><code>type TAnimal = class x, y: Integer; constructor Create(ax, ay: Integer); function Speak: Integer; virtual; end;</code> — variables hold heap references (4 bytes). <code>TAnimal.Create(1,2)</code> allocates, constructs, and returns the reference; <code>a.Free</code> destroys + disposes, <code>a.Destroy</code> is the destructor method alone.<p>Fields and methods auto-deref the reference: <code>d.x</code>, <code>d.Move(4,5)</code>, <code>d.Speak</code> all go through the heap object. Virtual dispatch is identical to objects, but via the heap instance's VMT.<p><code>TDog = class(TAnimal) z: Integer; function Speak: Integer; override; end;</code> — <strong>class inheritance works too</strong> (two-level chains like <code>TLabrador = class(TDog)</code>). <code>a := d</code> (child → parent) is a reference assignment; <code>a.Speak</code> dispatches the child's override (true polymorphism). <code>SizeOf(TAnimal) = 4</code> (the reference).<p>Built-in <code>TObject</code>/<code>TStrings</code>/<code>TStringList</code> are just classes on this same machinery (the embedded <code>classes</code> unit is always merged).<p>See <code>examples/classes_demo.pas</code>. Typed const aggregates like <code>Origin: TPoint = (x: 10; y: 20)</code> and <code>Scores: array[0..2] of Integer = (10,20,30)</code> (see <code>examples/typed_const_demo.pas</code>) and <code>s + c</code> where <code>c: Char</code> also landed in 0.5.0.</div></div></section><section data-help="const var type declaration function procedure var param record array pointer external"><h3>Declarations</h3><pre><code><span class=kw>const</span> RANGE: Cardinal = 100;
+<span class=kw>var</span> a, b: Integer;
+<span class=kw>function</span> Add(x, y: Integer): Integer;
+<span class=kw>procedure</span> Swap(<span class=kw>var</span> a, b: Integer);  <span class=c>// by-address</span>
+<span class=kw>type</span>
+  TPoint = <span class=kw>record</span> x, y: Integer; <span class=kw>end</span>;
+  TGrid = <span class=kw>array</span> [0..9] of Integer;</code></pre><p><code>var</code> params are passed by address and work with globals, fields,
+indexed elements, pointer derefs, and <b>locals</b> — every function with an
+address-taken local gets a per-call stack frame in linear memory
+(<code>__frame_ptr</code>), so <code>Swap(a, b)</code> with local
+<code>a</code>/<code>b</code> just works. Locals of any type
+(scalars, and multi-word strings/arrays/records/sets) are
+frame-resident when their address is taken. Args must be
+type-identical lvalues
+(no <code>P(1+2)</code>). See <code>examples/var_params_demo.pas</code>.<p><code>type</code> sections support records, static arrays,
+<b><code>set of &lt;ordinal></code></b> (bitmask sets: <code>set of
+0..6</code> = one <code>i32</code>, <code>set of Byte</code> = 8 words;
+ops <code>+ - * in = &lt;> &lt;= >=</code> and constructors
+<code>[1, 3..5]</code>/<code>[]</code>), and named aliases. Pointers:
+<code>^T</code> declares, <code>@x</code> takes an address,
+<code>p^</code> dereferences. Set variables must be <b>globals</b>
+(they need an address, like arrays). See
+<code>examples/set_demo.pas</code>.<p><b>Procedural / functional parameters</b> — a routine can take
+another routine as a value:
+<code>procedure Apply(p: procedure(x: Integer); v: Integer)</code>
+or <code>function Call(f: function(a, b: Integer): Integer; ...)</code>,
+with proc-typed globals, locals, record fields, aliases, arrays of
+proc values, and even proc-typed function results (via the wasm
+indirect-call table). See <code>examples/flrender.pas</code>.<p>Foreign functions use <code>external</code> (see Program structure).</section><section data-help="if case for while repeat break continue exit loop with record ternary"><h3>Control flow</h3><pre><code><span class=kw>if</span> x &gt; 0 <span class=kw>then</span> ... <span class=kw>else</span> ...;
+<span class=kw>case</span> n <span class=kw>of</span> 0..4: ...; 11, 15..20: ... <span class=kw>else</span> ... <span class=kw>end</span>;
+<span class=kw>if</span> cond <span class=kw>then</span> a <span class=kw>else</span> b;   <span class=c>// ternary: value of a or b (Delphi 13 style)</span>
+<span class=kw>for</span> i := 1 <span class=kw>to</span> 10 <span class=kw>do</span> ...;
+<span class=kw>while</span> cond <span class=kw>do</span> ...;
+<span class=kw>repeat</span> ... <span class=kw>until</span> cond;
+<span class=kw>break</span>; <span class=kw>continue</span>; <span class=kw>exit</span>;
+<span class=kw>with</span> rect <span class=kw>do</span> s := x + y;   <span class=c>// bare field names</span></code></pre><p><code>for</code> loops run the step at the top (counter starts at
+<code>from-1</code>, or <code>from+1</code> for <code>downto</code>) so
+<code>continue</code> still advances.<p><code>exit</code> leaves the current function (optionally returning a
+value: <code>exit(42)</code>). <code>break</code>/<code>continue</code>
+apply to the innermost loop. <code>case</code> arms accept
+comma-separated value lists, <b>lo..hi ranges</b> (<code>0..4</code>,
+<code>11, 15..20</code>), and an <code>else</code> arm. Dense ranges
+dispatch via <code>br_table</code>; very wide or sparse spans fall back
+to an if-chain. Numeric <code>label</code>/<code>goto</code>
+(<code>label 10;</code> … <code>goto 10;</code>) work within a
+routine.<p><strong>Ternary expressions</strong> (Delphi 13 style, 2026-08-26):
+<code>if cond then a else b</code> used where an expression is expected
+(an assignment, a call argument, inside a larger expression). The
+condition must be Boolean and the two branches must be the same type —
+numeric kinds promote (so <code>if c then 1 else 2.5</code> is Real),
+and <strong>strings work too</strong> (an <code>(addr,len)</code> pair
+via a scratch-pair if/else; a String[n] and dynamic String mix
+resolves to dynamic). Sets, records and arrays are not allowed. Only
+the taken branch runs (short-circuit), so a divide-by-zero or nil-deref
+in the untaken branch never executes. Nested ternaries are
+dangling-else safe: the inner <code>if</code> binds its own
+<code>else</code>. See <code>examples/ternary.pas</code>.<p><code>with &lt;record> do</code> opens a member scope: a bare
+identifier matching the record's fields resolves to that field
+(locals/params still shadow; the innermost <code>with</code> wins for
+comma chains like <code>with a, b do</code>, and a <code>with</code>
+scope shadows a same-named global). See
+<code>examples/with_demo.pas</code>.</section><section data-help="operator precedence and or not mod div shr shl in set"><h3>Operators & precedence</h3><ul><li><code>not</code>, unary <code>-</code><li><code>*</code> <code>/</code> <code>div</code> <code>mod</code> <code>and</code><li><code>+</code> <code>-</code> <code>or</code> <code>xor</code><li><code>=</code> <code>&lt;></code> <code>&lt;</code> <code>></code> <code>&lt;=</code> <code>>=</code> <code>in</code></ul><p>Unsigned <code>div</code>/<code>mod</code> need <em>both</em> operands unsigned —
+a <code>Cardinal mod &lt;literal></code> promotes to signed and can go negative.
+Use a power-of-two mask (<code>seed and (RANGE-1)</code>) instead.<p>Set operators (both operands <code>set of</code>): <code>+</code>
+union, <code>-</code> difference, <code>*</code> intersection;
+<code>=</code> <code>&lt;></code> equality; <code>&lt;=</code>
+<code>>=</code> subset/superset; <code>x in s</code> membership.</section><section class=wide data-help="builtins inc dec sqrt trunc round abs frac int pi sin cos tan arctan arcsin arccos arctan2 sinh cosh tanh ln exp power log10 log2 sqr hypot fillchar move delay gotoxy clrscr textcolor textbackground straddr strlen f32bits pointer pbyte pword pcardinal random randomize readkey keypressed ord chr pred succ odd halt length concat copy pos val str stringofchar string"><h3>Builtins</h3><div class=cols><div><b>Arithmetic</b><p><code>Inc</code>/<code>Dec</code> (with optional delta),
+<code>Sqrt</code>, <code>Sqr</code>, <code>Trunc</code>,
+<code>Round</code>, <code>Abs</code>, <code>Frac</code>,
+<code>Int</code>, <code>Pi</code> (a bare <code>Pi</code> is a
+pre-defined <code>Double</code> constant; <code>Pi()</code> works
+too — both are the same value). Integer literals are
+decimal, <code>$FF</code> hex, or <code>%1010</code> binary.</div><div><b>Trigonometry (radians)</b><p><code>Sin</code>, <code>Cos</code>, <code>Tan</code>,
+<code>ArcTan</code>, <code>ArcSin</code>, <code>ArcCos</code>,
+<code>ArcTan2(y, x)</code>, plus the hyperbolic
+<code>Sinh</code>/<code>Cosh</code>/<code>Tanh</code>.</div><div><b>Exponential & logs</b><p><code>Exp</code>, <code>Ln</code>, <code>Log10</code>,
+<code>Log2</code>, <code>Power(b, e)</code>,
+<code>Hypot(x, y)</code> (Euclidean length).<p>These math builtins are emitted as <code>odin_env</code>
+imports (JS <code>Math.*</code>); integer and <code>Single</code> arguments
+are promoted to <code>f64</code>. The native ops
+(<code>Sqrt</code>, <code>Abs</code>, <code>Trunc</code>…) follow
+their argument kind instead, so <code>Sqrt(singleVar)</code> stays
+f32 arithmetic. See <code>examples/math.pas</code>.</div><div><b>Memory & pointers</b><p><code>FillChar</code>, <code>Move(src, dst, count)</code> (copies bytes),
+<code>pointer()</code>/<code>PByte()</code>/<code>PWord()</code>/
+<code>PCardinal()</code>/<code>PLongInt()</code>/<code>PInteger()</code>
+casts, <code>nil</code> (the null pointer constant, for
+assignment and <code>=</code>/<code>&lt;></code> checks —
+<code>p &lt;> 0</code> also works), and
+<code>Inc(p)</code>/<code>Dec(p, n)</code> on typed pointers
+(the step is scaled by element size).
+<code>SizeOf(T)</code>/<code>SizeOf(var)</code> is a compile-time
+constant — note <code>SizeOf(String)</code> = 8 (the (addr,len)
+pair model) and <code>SizeOf(String[n])</code> = n+1.<p>String helpers: <code>StrAddr('lit')</code> → byte address,
+<code>StrLen('lit')</code> → byte count. <code>F32Bits(f)</code>
+reinterprets an <code>f32</code> as <code>i32</code> (bit pattern).</div><div><b>Console & timing</b><p><code>Delay(ms)</code> (pause; console programs sleep in a
+worker), <code>GotoXY(x, y)</code> (position the console cursor,
+1-based), <code>ClrScr</code> (clear the console),
+<code>TextColor</code>, <code>TextBackground</code>.<p><b>Random numbers:</b> <code>Random</code> (no args) is a
+<code>Real</code> in [0, 1); <code>Random(n)</code> is an
+<code>Integer</code> in [0, n-1] (n ≤ 0 gives 0). A xorshift
+PRNG is compiled into the program; unseeded runs are
+deterministic (same sequence every run, TP behavior).
+<code>Randomize</code> reseeds it from host entropy
+(<code>crypto.getRandomValues</code>).<p><b>Keys:</b> <code>KeyPressed</code> (non-blocking poll) and
+<code>ReadKey</code> (blocking pop) read the host's key buffer
+while a console program runs. Arrow keys arrive TP-style as
+the extended pair <code>#0</code> + scan code (left
+<code>#75</code>, right <code>#77</code>); other single-char
+keys pass their char code. See
+<code>examples/breakout.pas</code>.</div><div><b>Ordinals & characters</b><p><code>Ord(x)</code> (ordinal of an enum/char/bool),
+<code>Chr(n)</code>, <code>Pred</code>/<code>Succ</code> (±1,
+no range check — TP <code>{$R-}</code> semantics),
+<code>Odd(n)</code> → <code>Boolean</code>,
+<code>UpCase(ch)</code>, <code>Pack(a, i, z)</code> /
+<code>Unpack(z, a, i)</code> (ISO array packing,
+<code>packed</code> is a no-op), <code>MaxInt</code> (the
+standard <code>2147483647</code> constant), and
+<code>Halt</code> (terminate the
+program from anywhere). Enumerated types
+(<code>type Color = (Red, Green, Blue)</code>) and named
+subranges (<code>type Index = 1..10</code>) write as their
+ordinals.</div><div><b>Strings</b><p><code>Length(s)</code>, <code>Concat(a, b, ...)</code>,
+<code>Copy(s, i, n)</code>, <code>Pos(sub, s)</code> (1-based;
+0 if absent), <code>Val(s, v, code)</code>,
+<code>Str(x, s)</code>, <code>StrToInt(s)</code> (parse an
+integer string), <code>StringOfChar(c, n)</code>, the
+<code>+</code> concatenation operator, and full string
+comparison (<code>= &lt;> &lt; > &lt;= >=</code>, with
+prefix ordering). <code>UpCase(ch)</code> uppercases an ASCII
+char; <code>Flush(output)</code> is a console no-op (output is
+line-flushed). String constants (<code>const G = 'Hi'</code>)
+work. <code>Val</code> parses integers and reals (sign,
+fraction, exponent, surrounding spaces); <code>Str</code> formats
+both, with a field width and a precision —
+<code>Str(x:w:p, s)</code> renders <code>p</code> decimals
+right-aligned in <code>w</code>, <code>Str(x:w, s)</code> gives a
+real 6 decimals with trailing zeros trimmed, and out-of-range
+magnitudes print in scientific form (<code>1E+19</code>). A
+single-char literal is a <code>Char</code>, so use 2+ char
+literals in string contexts. See
+<code>examples/strings.pas</code>.</div></div></section><div class=help-group><span>Console & output</span></div><section class=wide data-help="write writeln read readln console field width escape unicode string gotoxy clrscr textcolor textbackground color palette readkey keypressed key input arrow"><h3>Console I/O</h3><pre><code><span class=kw>write</span>(x:5);            <span class=c>// field width, right-aligned</span>
+<span class=kw>write</span>(f:8:2);           <span class=c>// 2 decimals, width 8</span>
+<span class=kw>writeln</span>(<span class=st>'hi'</span>, x);       <span class=c>// newline</span>
+<span class=kw>readln</span>(n);            <span class=c>// prompts in the browser</span>
+<span class=kw>readln</span>(name);         <span class=c>// a whole line into a string</span>
+<span class=kw>GotoXY</span>(10, 5);         <span class=c>// position the cursor (1-based)</span>
+<span class=kw>ClrScr</span>;               <span class=c>// clear the screen</span>
+<span class=kw>if</span> <span class=kw>KeyPressed</span> <span class=kw>then</span> ch := <span class=kw>ReadKey</span>;  <span class=c>// poll keys</span></code></pre><p><code>write</code>/<code>writeln</code> accept strings, integers,
+floats, <code>x:N</code> field widths (negative width left-aligns) and
+<code>x:N:M</code> to fix the decimals (<code>M = 0</code> omits the
+point). A single-char literal (<code>write(' ')</code>,
+<code>Write('#')</code>) prints the character itself, not its ASCII
+code (TP7: <code>'Y'</code> is a <code>Char</code>). <code>read</code>/<code>readln</code> prompt once per
+argument — integers, floats <em>and</em> strings
+(<code>readln(name)</code> reads a line into it) — via the browser's
+inline input line (or a dialog in fallback mode when the page isn't
+cross-origin-isolated).<p><strong>Keys (ReadKey / KeyPressed)</strong> — while a console
+program runs, key presses are forwarded to it through the same input
+bridge as <code>read</code>/<code>readln</code>. <code>KeyPressed</code>
+is a non-blocking poll (safe in a game loop); <code>ReadKey</code>
+pops the next key and blocks when none are pending. Arrow keys
+arrive Turbo-Pascal-style as the extended pair <code>#0</code> + scan
+code (left <code>#75</code>, right <code>#77</code>, up
+<code>#72</code>, down <code>#80</code>), so check
+<code>if ch = #0 then ch := ReadKey;</code> — <code>'ArrowLeft'</code>
+alone is not a single code. Other single-char keys pass their char
+code, so <code>'a'</code>/<code>'A'</code>/<code>'d'</code>/<code>'D'</code>
+work as alternates. Escape is reserved for the host (Stop). See
+<code>examples/breakout.pas</code>, the first game built on this
+(its canvas twin is <code>examples/breakout_graphics.pas</code>, which
+moves the same game onto the batchiness canvas ABI with self-wired
+<code>keydown</code> listeners instead of the console key buffer).<p><code>GotoXY(x, y)</code> moves the cursor to column
+<code>x</code> and row <code>y</code> (1-based, clamped to the
+screen size);
+<code>ClrScr</code> clears the screen and homes the cursor. All
+console output renders as a fixed character screen (Turbo Pascal
+style): 80&#215;25 by default, or the size set by
+<code>{$Screen cols rows}</code> (e.g. <code>{$Screen 80 40}</code>).
+When output scrolls past the last row the top rows are discarded (no
+scrollback), and <code>GotoXY(1,1)</code> addresses the current top
+row. See <code>examples/gotoxy.pas</code>.<p>Strings are TP7-style: <code>'...'</code> or <code>"..."</code>
+(styles may mix between adjacent elements), doubled quotes
+(<code>''</code>/<code>""</code>) are an escaped quote, backslash is a
+LITERAL character (no C-style <code>\n</code> escapes), and char codes
+<code>#nn</code> (decimal) / <code>#$hh</code> (hex) concatenate with
+adjacent elements: <code>'Hello'#13#10'World'</code>,
+<code>#65#66#67</code>. Char codes are byte values 0..255 — a code
+past 255 is a compile error (no silent truncation). A lone
+<code>#0</code> is a Char (TP7, used
+for the extended ReadKey pair). Raw UTF-8 passes through.</section><section class=wide data-help="textcolor textbackground color palette console color fg bg foreground background 16 hex rgba alpha rrggbbaa crt uses constants black white red green blue"><h3>Colours (TextColor / TextBackground)</h3><pre><code><span class=kw>TextColor</span>(4);          <span class=c>// blue foreground (palette index)</span>
+<span class=kw>TextBackground</span>(1);    <span class=c>// red background (palette index)</span>
+<span class=kw>TextColor</span>(<span class=st>'ff0000ff'</span>);  <span class=c>// opaque red (RRGGBBAA)</span>
+<span class=kw>TextBackground</span>(<span class=st>'0000ff80'</span>); <span class=c>// blue bg, 50% alpha</span>
+<span class=kw>TextColorRGB</span>(255, 0, 0); <span class=c>// opaque red (r,g,b)</span>
+<span class=kw>BackgroundRGB</span>(0, 0, 255); <span class=c>// blue background (r,g,b)</span>
+<span class=kw>writeln</span>(<span class=st>'hi'</span>);       <span class=c>// rendered with the current colours</span></code></pre><p>Set the colour for subsequent console output; it applies until
+changed (there is no reset call — set both back to defaults).<p><strong>Palette indices</strong> (0..15, TP's TextColor numbers):<ul><li><code>0</code> black &nbsp; <code>1</code> red &nbsp; <code>2</code> green &nbsp; <code>3</code> yellow/brown<li><code>4</code> blue &nbsp; <code>5</code> magenta &nbsp; <code>6</code> cyan &nbsp; <code>7</code> light gray (default fg)<li><code>8</code> dark gray &nbsp; <code>9</code> light red &nbsp; <code>10</code> light green &nbsp; <code>11</code> light yellow<li><code>12</code> light blue &nbsp; <code>13</code> light magenta &nbsp; <code>14</code> light cyan &nbsp; <code>15</code> white</ul><p><strong><code>uses Crt</code></strong> — the built-in <code>Crt</code>
+unit provides the 16 TP7 colour constants
+(<code>Black</code>, <code>Blue</code>, <code>Red</code>,
+<code>LightGreen</code>, <code>White</code>, …) so you can write
+<code>TextColor(Red)</code> instead of <code>TextColor(4)</code>.
+<code>ClrScr</code>/<code>TextColor</code>/<code>TextBackground</code>/
+<code>GotoXY</code>/<code>Delay</code>/<code>ReadKey</code>/
+<code>UpCase</code>/<code>KeyPressed</code> are compiler builtins, so
+the unit only brings the names into scope.<p><strong>Hex strings</strong> — an 8-digit <code>RRGGBBAA</code>
+string gives an arbitrary colour with alpha (CSS order, alpha last):
+<code>TextColor('ff0000ff')</code> is opaque red,
+<code>'0000ff80'</code> is blue at 50% alpha. The value must be exactly
+​8 hex digits; anything else is a compile error.<p><strong>RGB components</strong> — <code>TextColorRGB(r, g, b)</code>
+and <code>BackgroundRGB(r, g, b)</code> (alias
+<code>TextBackgroundRGB</code>) take runtime
+<code>0..255</code> components (opaque, alpha 255), so a colour can
+be computed in a loop: <code>TextColorRGB(i * 5, 0, 0)</code> ramps
+red. See <code>examples/enhanced_colours.pas</code>.<p>Colour runs render into the output panel as
+<code>&lt;span style="color:..;background:.."></code> and coexist
+with a graphics canvas on the same page. See <code>examples/colors.pas</code>.</section><div class=help-group><span>Host & configuration</span></div><section data-help="directive mode fpc if fatal endif warn comment inline preprocessor memory m ram"><h3>Directives</h3><p><code>{$mode fpc}</code>, <code>{$inline on}</code>,
+<code>{$WARN n off}</code>, <code>{$R+}</code> / <code>{$R-}</code>
+range-checking switches, <code>{$Q/$B/$H}</code> switches, and
+<code>//</code> line comments are accepted.
+<code>{$R+}</code> is the default: subrange/enum values, array
+indices, set members, and conformant-array bounds are checked at
+runtime (an out-of-range value traps TP7 runtime error 201), and
+per-function <code>{$R-}</code> disables the checks.
+<code>{$IF expr}</code> / <code>{$FATAL msg}</code> / <code>{$ENDIF}</code>
+are evaluated by a mini preprocessor: <code>{$IF}</code> supports
+integer consts (from a prescanned <code>const</code> section), dec/hex
+literals, and <code>+ - * div mod and or xor ( ) &lt; > &lt;> &lt;= >= = shl shr not</code>.<p><code>{$M n}</code> sets the program's linear memory size:
+<code>{$M 32M}</code> (MiB), <code>{$M 512K}</code> (KiB), or
+<code>{$M 1048576}</code> (bytes). Default is 16 MiB; clamped to
+64 KiB..4 GiB. The status bar's <code>RAM</code> readout shows the
+available total vs the static data used (globals + string literals),
+plus <code>· heap</code> when the program allocates.
+<code>GetMem</code>/<code>FreeMem</code>/<code>New</code>/
+<code>Dispose</code> allocate from a heap after the static data
+(bump allocator with a free list; no coalescing). A bare
+<code>readln;</code> pauses until Enter is pressed.
+<code>{$Screen cols rows}</code> sets the text screen size (default
+80&#215;25), e.g. <code>{$Screen 80 40}</code>. Unknown
+<code>{$...}</code> directives are silently ignored.</section><section class=wide data-help="abi pascaldom batchiness basic canvas console host exports odin_env wasmpascal_env web tweb dom facade on ontick off event"><h3>Host ABIs (wasmpascal-specific)</h3><ul><li><strong>pascaldom</strong> — exports <code>pascaldom_main</code>; self-wires its canvas + event loop via the <code>pascaldom_env</code> DOM/canvas imports. Reach it with <strong><code>uses WEB</code></strong>: the embedded unit declares the whole bridge, so your program writes no <code>external</code> block, picks no <code>CB_*</code> ids, keeps no <code>case id of</code> dispatcher and needs no <code>exports</code> clause — the program body <i>is</i> <code>pascaldom_main</code> — and handlers register by name with <code>web.On(h, 'mousedown', HandleDown)</code> / <code>web.OnTick(HandleTick)</code> (<code>web.Off(id)</code> retires one). Examples: <code>web_dom.pas</code> (the guided tour), <code>sweep.pas</code>, <code>paint.pas</code>, <code>musicbox.pas</code>, <code>colors.pas</code>. The raw bridge still works — declare your own <code>external</code>s and export the entry points yourself; <code>pascaldom_probe.pas</code> is the same job written both ways, for comparison.<li><strong>batchiness</strong> — exports <code>batchiness_main</code>; batched-canvas game + Web Audio SFX via <code>app_env</code>. Examples: <code>pascaloids.pas</code>, <code>pong.pas</code>, <code>transforms.pas</code>, <code>sparks.pas</code>, <code>growable.pas</code>, <code>flightleader.pas</code> (FLIGHT LEADER — a 6-unit arcade space-combat-style game), <code>xonix.pas</code> (Xonix — the fill floods from the balls, so it can never cover one), <code>floaty_car.pas</code> (Floaty Car — stay on the winding road; it only gets faster), <code>dugster.pas</code> (DUGSTER — a Digger-style dig-em-up in 5 units).<li><strong>basic_canvas</strong> — exports <code>wasm_init</code>/<code>wasm_update</code>/<code>wasm_click</code>/<code>wasm_get_pixels</code>/<code>wasm_get_width</code>/<code>wasm_get_height</code>, plus optional <code>wasm_pointer_down</code>/<code>wasm_pointer_move</code>/<code>wasm_pointer_up</code> for press-and-drag (mouse or touch); the host drives a fixed-step animation loop and blits the RGBA buffer. Examples: <code>basic_canvas.pas</code>, <code>classic_dots.pas</code>.<li><strong>console-only</strong> — no entry export; <code>write</code>/<code>writeln</code>/<code>read</code>/<code>readln</code>/<code>TextColor</code> programs via <code>wasmpascal_env</code> imports. Example: <code>hello_write.pas</code>.</ul><p>The ABI is chosen automatically by peeking the compiled program's
+exports (<code>pascaldom_main</code> first, then
+<code>batchiness_main</code>, then the
+<code>wasm_init</code>/<code>wasm_update</code>/<code>wasm_get_pixels</code>
+trio, else console). Because that order would otherwise pick between
+two programs by accident, a <code>uses WEB</code> program that also
+exports another ABI's entry point is a <b>compile error</b> — drop the
+export, or drop <code>uses WEB</code>. <code>odin_env</code> provides
+the runtime hooks (write, trap, abort, <code>Math.*</code>,
+<code>rand_bytes</code>); <code>wasmpascal_env</code> is emitted only
+when the program uses console I/O.<p><strong><code>uses WEB</code></strong> is an <b>embedded unit</b> —
+resolved from the compiler binary like <code>Crt</code> and
+<code>Classes</code>, with no <code>WEB.pas</code> on disk and nothing
+to register. It owns the <code>TWeb</code> facade, the callback
+dispatch table and the <code>pascaldom_invoke_callback</code> /
+<code>pascaldom_set_last_event</code> entry points. Reachability decides
+the imports, so a program that makes four bridge calls imports four
+entry points, not forty. String reads come in two shapes:
+<code>web.GetPropertyStr</code> / <code>StorageGetItem</code> /
+<code>EventKey</code> return a <code>String[255]</code> (one host call,
+no heap) and the <code>…Long</code> variants measure into a dynamic
+string of the exact length, so a long value is never silently cut.<p><strong>The <code>WEB</code> facade, in short:</strong>
+<code>web.GetPropertyF64</code> / <code>GetPropertyInt</code> parse a
+numeric DOM property (<code>'100px'</code> → 100, clamped before
+<code>Trunc</code>); <code>EventClientX</code> / <code>EventClientY</code> /
+<code>EventKey</code> / <code>EventButton</code> / <code>EventTarget</code>
+read the current event; <code>MakeCanvas</code> / <code>RenderCanvas</code>
+keep the canvas and its context in <code>TWeb</code> fields (no
+<code>cv_h</code>/<code>ctx_h</code> globals); <code>WindowHandle</code>
+hands you <code>defaultView</code>; and string arguments anywhere in the
+bridge may be string <i>expressions</i>, not just literals — so
+<code>web.SetInnerText(h, 'score ' + n)</code> works directly.<p><strong>batchiness keyboard</strong> — games self-wire their own
+keyboard via <code>batch_add_event_listener</code> on
+<code>document</code> (the bridge forwards the raw event and sets
+<code>batchiness_set_last_event</code> before the callback), then
+read <code>evt.key</code> / <code>evt.code</code> with
+<code>batch_get_property_str</code>. There is no host key mapping, so
+a game can use any key it wants. See <code>pong.pas</code> (and
+<code>pascaloids.pas</code>, <code>transforms.pas</code>) for the
+pattern: export <code>SetLastEvent name 'batchiness_set_last_event'</code>,
+wire <code>keydown</code>/<code>keyup</code> on
+<code>bGetGlobal('document')</code>, and in the callback map
+<code>evt.key</code> to your own key slots.</section><div class=help-group><span>Editor</span></div><section data-help="shortcuts tab indent ctrl enter run comment font size clear rename project file dropdown cut undo redo highlight syntax gutter export download standalone zip html"><h3>Editor shortcuts & toolbar</h3><ul><li><strong>Syntax highlighting</strong> — keywords, numbers, strings, comments, and operators are colored live as you type; unterminated strings/comments get a wavy red underline. A line-number gutter marks the current error line.<li><code>Tab</code> — indent / smart-indent; <code>Shift+Tab</code> — un-indent.<li><code>Ctrl/Cmd+Enter</code> — Run.<li><code>Ctrl/Cmd+X</code> — cut the current line (no selection) or the selection.<li><code>Ctrl/Cmd+Z</code> — undo; <code>Ctrl/Cmd+Shift+Z</code> (or <code>Ctrl/Cmd+Y</code>) — redo. Tab, auto-close, comment toggle, and cut-line are all undoable.<li><code>Enter</code> — auto-indent to the current line's indent.<li><code>(</code> <code>[</code> <code>{</code> <code>'</code> <code>"</code> — auto-close.<li><code>Ctrl+/</code> — toggle a <code>(* ... *)</code> comment.<li><code>A</code> — cycle editor font size; <code>Clear Console</code> (output panel) — clear the console output.<li><code>Help…</code> menu / <code>F1</code> — this reference; <code>Esc</code> — close.<li>Toolbar: <code>Run</code>, <code>Stop</code>, <code>Download…</code> (compiled <code>.wasm</code> / project <code>.zip</code> / standalone app <code>.zip</code> or <code>.html</code>), <code>Upload files</code>, <code>A</code> (cycle editor font size), <code>Help…</code> (quick reference / lessons), <code>Examples…</code>, <code>Rename project</code>, file dropdown, <code>Files…</code> (<code>+ File</code>/<code>Rename file</code>/<code>Set as root</code>/<code>− File</code>).<li><strong>Standalone apps</strong> — the <code>Download…</code> standalone <code>.zip</code> is a ready-to-host folder: its runner page loads the compiled <code>.wasm</code> file, so host the folder over HTTP (opening <code>index.html</code> from <code>file://</code> shows a "serve this folder over HTTP" error). The single-file <code>.html</code> has everything inlined and opens straight from disk.</ul></section><div class=help-group><span>About</span></div><section class=wide data-help="acknowledgements credits codemirror odin license open source editor"><h3>Acknowledgements & Credits</h3><p>wasmpascal is built on open-source foundations:<ul><li><a href=https://codemirror.net/ rel="noopener noreferrer" target=_blank><strong>CodeMirror 6</strong></a> (by Marijn Haverbeke and contributors, MIT License) — powers the IDE code editor with virtualized DOM rendering, Pascal syntax stream parsing, bracket matching, code folding, active-line highlighting, and search & replace.<li><a href=https://odin-lang.org/ rel="noopener noreferrer" target=_blank><strong>Odin Programming Language</strong></a> — powers the core Pascal-to-WebAssembly compiler engine.</ul></section></div></div></div><div id=eula-overlay hidden><div id=eula-panel role=dialog aria-modal=true aria-label="wasmpascal License / EULA"><div id=eula-head><h2>License & Terms of Use</h2><button id=eula-close title="Close (Esc)">&#215;</button></div><div id=eula-body><section><h3>wasmpascal — End-User License Agreement</h3><p><strong>Effective date:</strong> 2026-09-06<p>This End-User License Agreement (&ldquo;EULA&rdquo;) is a legal agreement
+between you (&ldquo;User&rdquo;) and the wasmpascal authors
+(&ldquo;Authors&rdquo;) governing your use of the wasmpascal web
+application, compiler, runtime bridges, examples, and all associated
+files (collectively, the &ldquo;Software&rdquo;).</section><section><h3>1 — Grant of Use</h3><p>The Software is provided <strong>free of charge</strong>. You are
+granted a non-exclusive, non-transferable, revocable license to use the
+Software for any lawful purpose, including personal, educational, and
+commercial projects.</section><section><h3>2 — Restrictions</h3><ul><li>You may not misrepresent the origin of the Software or claim
+authorship of the wasmpascal compiler or IDE.<li>You may not use the Software to distribute malware or otherwise
+harmful content.</ul></section><section><h3>3 — Disclaimer of Warranties</h3><p>THE SOFTWARE IS PROVIDED <strong>&ldquo;AS IS&rdquo;</strong>,
+WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE, AND NON-INFRINGEMENT.<p>The Authors make no representation or warranty that the Software
+will be error-free, uninterrupted, secure, or suitable for any
+particular use. Any reliance you place on the Software is strictly at
+your own risk.</section><section><h3>4 — Limitation of Liability</h3><p>IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.</section><section><h3>5 — Third-Party Components</h3><p>The Software incorporates third-party open-source components:<ul><li><strong>CodeMirror 6</strong> — MIT License, &copy; Marijn Haverbeke and contributors.<li><strong>Odin Programming Language</strong> toolchain — BSD-style license, &copy; the Odin contributors.</ul><p>These components are subject to their own respective licenses, which
+are not altered by this EULA.</section><section><h3>6 — Privacy</h3><p>wasmpascal compiles and runs Pascal entirely inside your browser.
+Your source code is <strong>never uploaded to any server</strong>.
+No telemetry, tracking, or user data collection takes place.</section><section><h3>7 — Changes to This Agreement</h3><p>The Authors reserve the right to update this EULA at any time. The
+current version is always accessible via the <em>Help &#8250; License /
+EULA</em> menu. Continued use of the Software after a change constitutes
+acceptance of the revised terms.</section><section><h3>8 — Governing Law</h3><p>This EULA is governed by and construed in accordance with applicable
+law. Any dispute arising from this EULA shall be subject to the
+exclusive jurisdiction of the courts of competent jurisdiction.</section></div></div></div><div class=tut-overlay id=tut-overlay hidden><div class=tut-panel role=dialog aria-modal=true aria-label="Pascal tutorial"><div class=tut-head><h2>Learn Pascal</h2><span class=sub>a lesson-by-lesson tour of the language and the playground</span>
+<span class=spacer></span>
+<button id=tut-close class=tut-close title="Close (Esc)">&#215;</button></div><div class=tut-main><nav class=tut-toc id=tut-toc></nav><div class=tut-body id=tut-body><section id=tut-1><h3><span class=n>1</span>Start here</h3><p>wasmpascal compiles <b>Pascal</b> source to <b>WebAssembly</b>
+entirely inside your browser, then runs the freshly compiled wasm on
+the same page. You write a program on the <b>left</b>, press
+<b>Run</b>, and its output appears on the <b>right</b>: console text
+in the output panel, and a canvas for the graphics host ABIs.
+Edit and press Run again to see the change — nothing to install,
+nothing to rebuild.<p>This tutorial teaches the whole language from nothing. The
+<code>?</code> button beside <b>Learn</b> is the quick reference for
+when you already know your way around and just want to look up a
+builtin.<div class=callout>Every runnable example below has a <b>Load
+this into the editor</b> button. It replaces the editor's contents
+(you will be asked first if there is unsaved work), closes this
+window, and drops you back at the code so you can press Run and poke
+at it.</div></section><section id=tut-2><h3><span class=n>2</span>Program structure</h3><p>A program starts with a <code>program</code>/<code>library</code>
+header and ends with <code>end.</code> (the final dot). The
+<code>library</code> header is what the examples use; either works.
+The optional <code>uses</code> clause pulls in units — your own
+project files, or the three the compiler carries itself
+(<code>Crt</code>, <code>Classes</code>, <code>WEB</code>). More on
+that in lesson 12.<div class=tut-ex><pre><span class=k>library</span> hello;
+
+<span class=k>procedure</span> Main;
+<span class=k>begin</span>
+  <span class=k>writeln</span>(<span class=s>'Hello from wasmpascal!'</span>);
+<span class=k>end</span>;
+
+<span class=k>begin</span>
+  Main;
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p>Statements live in <code>begin .. end</code> blocks. A
+<code>writeln(...)</code> prints a line of text, which is how this
+program talks to you — press Run and the output panel shows what it
+says.</section><section id=tut-3><h3><span class=n>3</span>Values and types</h3><p>Pascal is a typed language: every variable and function result
+has a type, declared ahead of use. wasmpascal's types are:<ul><li><b>Integers</b>: <code>Integer</code>/<code>LongInt</code>
+(32-bit signed), <code>Cardinal</code>/<code>LongWord</code>
+(unsigned), plus <code>ShortInt</code> (8-bit),
+<code>SmallInt</code>/<code>Word</code> (16-bit),
+<code>Byte</code> (unsigned 8-bit).<li><b>Floats</b>: <code>Real</code>/<code>Double</code> (64-bit),
+<code>Single</code> (32-bit).<li><b>Booleans</b>: <code>Boolean</code>, <code>true</code> /
+<code>false</code>.<li><b>Characters</b>: <code>Char</code> (one byte).<li><b>Enumerations</b>: <code>type Color = (Red, Green, Blue)</code>
+gives named values with ordinals 0, 1, 2 — usable in
+<code>case</code>, array bounds, and <code>for</code> counters.
+Named subranges (<code>type Index = 1..10</code>) bound arrays and
+variables the same way.<li><b>Structured</b>: records, static arrays (including
+multi-dim <code>array[1..3, 1..4] of T</code> with
+<code>a[i, j]</code> indexing), pointers, and strings (including
+fixed <code>String[n]</code>) — their own lessons below.</ul><p>Floats and integers mix in expressions: integer arguments to
+math builtins are promoted to floats automatically.</section><section id=tut-4><h3><span class=n>4</span>Variables and constants</h3><p>A <code>var</code> is a name you can reassign; a
+<code>const</code> is a compile-time value you cannot. Declarations
+go in <code>var</code> and <code>const</code> sections (<code>type</code>
+sections come later).<div class=tut-ex><pre><span class=k>library</span> vars;
+
+<span class=k>const</span>
+  MAX = <span class=m>100</span>;
+
+<span class=k>var</span>
+  score: Integer;
+  ratio: Double;
+
+<span class=k>begin</span>
+  score := <span class=m>42</span>;
+  ratio := <span class=m>3.5</span>;
+  <span class=k>writeln</span>(<span class=s>'Hi'</span>, <span class=s>' score '</span>, score);
+  <span class=k>writeln</span>(<span class=s>'ratio '</span>, ratio);
+  <span class=k>writeln</span>(<span class=s>'MAX is '</span>, MAX);
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p><code>:=</code> is the assignment operator (a plain
+<code>=</code> is only for comparison). A <code>const</code> given a
+value at its declaration is inlined at compile time — you can use it
+in array bounds, <code>case</code> labels, and <code>{$IF}</code>
+preprocessor expressions. String <em>literals</em> work in
+<code>writeln</code> — single-quoted (<code>'text'</code>) or
+double-quoted (<code>"text"</code>, added 2026-08-19) — and are
+stored statically at compile time.<p><code>writeln</code> accepts as many arguments as you like,
+separated by commas, and prints them one after another followed by a
+newline.</section><section id=tut-5><h3><span class=n>5</span>Numbers: integer math</h3><p>The integer operators are <code>+</code> <code>-</code>
+<code>*</code> <code>div</code> (division) and <code>mod</code>
+(remainder). <code>div</code> is the <em>integer</em> division: it
+truncates, so <code>7 div 2</code> is <code>3</code>. A single slash
+<code>/</code> is <em>real</em> division and gives a float even from
+two integers.<div class=tut-ex><pre><span class=k>library</span> intmath;
+
+<span class=k>var</span>
+  total, n: Integer;
+
+<span class=k>begin</span>
+  total := <span class=m>0</span>;
+  <span class=k>for</span> n := <span class=m>1</span> <span class=k>to</span> <span class=m>10</span> <span class=k>do</span>
+    total := total + n;
+  <span class=k>writeln</span>(<span class=s>'sum 1..10 = '</span>, total);
+  <span class=k>writeln</span>(<span class=s>'7 div 2 = '</span>, <span class=m>7</span> <span class=k>div</span> <span class=m>2</span>);
+  <span class=k>writeln</span>(<span class=s>'7 mod 3 = '</span>, <span class=m>7</span> <span class=k>mod</span> <span class=m>3</span>);
+  <span class=k>writeln</span>(<span class=s>'7 / 2   = '</span>, <span class=m>7</span> / <span class=m>2</span>);
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p><b>Watch out:</b> unsigned <code>div</code>/<code>mod</code> need
+<em>both</em> operands unsigned. <code>Cardinal mod 100</code> is
+signed and can silently go negative. Use a power-of-two mask
+(<code>x and (RANGE - 1)</code>) for wrapping, as the examples do.</section><section id=tut-6><h3><span class=n>6</span>Floats</h3><p>Floats get the usual arithmetic, plus the math builtins:
+<code>Sqrt</code>, <code>Sqr</code>, <code>Abs</code>,
+<code>Trunc</code>, <code>Round</code>, <code>Frac</code>,
+<code>Pi</code> (a bare <code>Pi</code> is a pre-defined
+<code>Double</code> constant; <code>Pi()</code> works too),
+trigonometry
+(<code>Sin</code>/<code>Cos</code>/<code>Tan</code>/
+<code>ArcTan</code>…), and logs
+(<code>Ln</code>/<code>Exp</code>/<code>Log10</code>/
+<code>Power</code>/<code>Hypot</code>). The trig/log ones are
+implemented by the host's <code>Math.*</code>, so they work
+everywhere.<div class=tut-ex><pre><span class=k>library</span> floats;
+
+<span class=k>var</span>
+  r, area: Double;
+
+<span class=k>begin</span>
+  r := <span class=m>2.5</span>;
+  area := <span class=m>3.14159</span> * Sqr(r);   <span class=c>// Sqr is squares; Pi() is a builtin</span>
+  <span class=k>writeln</span>(<span class=s>'area of circle r=2.5 is '</span>, area);
+  <span class=k>writeln</span>(<span class=s>'sqrt(2) = '</span>, Sqrt(<span class=m>2.0</span>));
+  <span class=k>writeln</span>(<span class=s>'trunc(3.7) = '</span>, Trunc(<span class=m>3.7</span>));
+  <span class=k>writeln</span>(<span class=s>'round(3.7) = '</span>, Round(<span class=m>3.7</span>));
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p>Field widths pad the output — <code>write(x:5)</code>
+right-aligns <code>x</code> in 5 columns (lesson 7 covers it in
+more depth). Prefer <code>Double</code>/<code>Real</code> for
+floats you print: <code>Single</code> values print fine too, but
+mixing a <code>Single</code> into a <code>writeln</code> with other
+values is a codegen edge case, so keep printed floats
+<code>Double</code>. Floats print in the host's default format;
+very large or very small values use exponent notation.</section><section id=tut-7><h3><span class=n>7</span>Console I/O: <code>write</code>, <code>readln</code></h3><p><code>write</code> prints text without a newline;
+<code>writeln</code> adds one. Both take any number of arguments.
+A field width <code>x:N</code> right-aligns the value in
+<code>N</code> columns (negative <code>N</code> left-aligns), handy
+for tables. <code>read</code>/<code>readln</code> read integers or
+floats, prompting once per argument.<div class=tut-ex><pre><span class=k>library</span> console;
+
+<span class=k>var</span>
+  n: Integer;
+  f: Double;
+
+<span class=k>begin</span>
+  <span class=k>write</span>(<span class=s>'Enter an integer: '</span>);
+  <span class=k>readln</span>(n);
+  <span class=k>write</span>(<span class=s>'Enter a float: '</span>);
+  <span class=k>readln</span>(f);
+  <span class=k>writeln</span>(<span class=s>'n + f = '</span>, n + f);
+  <span class=k>writeln</span>(<span class=s>'table:'</span>);
+  <span class=k>writeln</span>(<span class=m>1</span>, n:6, f:8);
+  <span class=k>writeln</span>(<span class=m>2</span>, n * <span class=m>2</span>:6, f * <span class=m>2</span>:8);
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p>Console output renders as a fixed character screen (Turbo Pascal
+style, 80&#215;25 by default) in the output panel. When text
+reaches the last row the screen scrolls up; there is no scrollback.
+<code>readln</code> prompts via the browser's inline input (or a
+dialog in fallback mode) — this program blocks until you answer.<p><b>Strings</b> behave like Turbo Pascal: string constants
+(<code>const G = 'Hi'</code>), <code>+</code> concatenation, full
+comparison (<code>= &lt;> &lt; ></code>, with prefix
+ordering), and the builtins <code>Length</code>,
+<code>Concat</code>, <code>Copy</code>, <code>Pos</code>,
+<code>Val</code>, <code>Str</code>, <code>StrToInt</code>, and
+<code>StringOfChar</code>. <code>UpCase(ch)</code> uppercases an
+ASCII char; <code>Flush(output)</code> is a no-op. A single-char
+literal is a
+<code>Char</code>, so string literals need two or more characters.
+Functions can return strings, including via <code>Exit('x')</code>.<div class=tut-ex><pre><span class=k>library</span> strings2;
+
+<span class=k>function</span> greet: string;
+<span class=k>begin</span>
+  greet := <span class=s>'Hello'</span>;
+<span class=k>end</span>;
+
+<span class=k>var</span>
+  s: string;
+
+<span class=k>begin</span>
+  s := greet() + <span class=s>', '</span> + <span class=s>'World'</span>;
+  <span class=k>writeln</span>(s);                <span class=c>// Hello, World</span>
+  <span class=k>writeln</span>(<span class=k>Length</span>(s));          <span class=c>// 12</span>
+  <span class=k>writeln</span>(<span class=k>Copy</span>(s, <span class=m>1</span>, <span class=m>5</span>));    <span class=c>// Hello</span>
+  <span class=k>writeln</span>(<span class=k>Pos</span>(<span class=s>'World'</span>, s));    <span class=c>// 8</span>
+  <span class=k>if</span> <span class=s>'abc'</span> &lt; <span class=s>'abd'</span> <span class=k>then</span> <span class=k>writeln</span>(<span class=s>'lt'</span>);
+  s := <span class=k>StringOfChar</span>(<span class=s>'*'</span>, <span class=m>5</span>);
+  <span class=k>writeln</span>(s);                <span class=c>// *****</span>
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div></section><section id=tut-8><h3><span class=n>8</span>Control flow</h3><p>Conditions go in parentheses; the statement after a condition or
+loop is the body (use <code>begin..end</code> to group several).
+<code>break</code>/<code>continue</code> work in the innermost
+loop; <code>exit</code> leaves the current routine (optionally with
+a value, <code>exit(42)</code>).<div class=tut-ex><pre><span class=k>library</span> control;
+
+<span class=k>var</span>
+  i: Integer;
+
+<span class=k>begin</span>
+  <span class=k>for</span> i := <span class=m>1</span> <span class=k>to</span> <span class=m>10</span> <span class=k>do</span>
+  <span class=k>begin</span>
+    <span class=k>if</span> i <span class=k>mod</span> <span class=m>3</span> = <span class=m>0</span> <span class=k>then</span> <span class=k>continue</span>;   <span class=c>// skip multiples of 3</span>
+    <span class=k>if</span> i &gt; <span class=m>7</span> <span class=k>then</span> <span class=k>break</span>;             <span class=c>// stop at 8</span>
+    <span class=k>write</span>(i, <span class=s>' '</span>);
+  <span class=k>end</span>;
+  <span class=k>writeln</span>;
+  <span class=k>case</span> <span class=m>42</span> <span class=k>of</span>
+    <span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span>: <span class=k>writeln</span>(<span class=s>'small'</span>);
+    <span class=m>41</span>, <span class=m>42</span>, <span class=m>43</span>: <span class=k>writeln</span>(<span class=s>'medium'</span>);
+  <span class=k>else</span> <span class=k>writeln</span>(<span class=s>'large'</span>);
+  <span class=k>end</span>;
+  <span class=k>repeat</span>
+    <span class=k>writeln</span>(<span class=s>'Looping under repeat...until'</span>);
+    i := i - <span class=m>1</span>;
+  <span class=k>until</span> i &lt; <span class=m>0</span>;
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p><code>case</code> takes <code>case expr of</code> with
+<code>;</code>-separated arms, each a comma-separated list of
+values <b>or lo..hi ranges</b> (<code>0..4</code>) followed by
+<code>:</code> and a statement, then <code>end</code>. An
+<code>else</code> arm catches everything else. Dense ranges
+dispatch via <code>br_table</code>; very wide or sparse spans fall
+back to an if-chain, so both styles behave the same. A
+<code>for</code> loop's counter runs <em>from</em> to <em>to</em>
+inclusive; the step runs at the top, so <code>continue</code>
+inside always advances it.<p><strong>Ternary expressions</strong> (Delphi 13 style):
+<code>if cond then a else b</code> used where an expression is
+expected — an assignment, a call argument, or inside a larger
+expression. The condition must be Boolean and the two branches must
+be the same type (numeric kinds promote, so
+<code>if c then 1 else 2.5</code> is Real);
+<strong>strings work too</strong> — the picked string becomes the
+result; sets, records and arrays are not allowed. Only the taken
+branch runs (short-circuit), so a divide-by-zero or nil-deref in the
+untaken branch never executes. Nested ternaries are dangling-else
+safe: the inner <code>if</code> binds its own <code>else</code>.<div class=tut-ex><pre><span class=k>library</span> ternary;
+
+<span class=k>function</span> Min(a, b: Integer): Integer;
+<span class=k>begin</span>
+  Min := <span class=k>if</span> a &lt; b <span class=k>then</span> a <span class=k>else</span> b;
+<span class=k>end</span>;
+
+<span class=k>procedure</span> Demo;
+<span class=k>var</span>
+  n, score: Integer;
+  d: Double;
+  label_text: String;
+<span class=k>begin</span>
+  <span class=k>for</span> n := <span class=m>1</span> <span class=k>to</span> <span class=m>4</span> <span class=k>do</span>
+  <span class=k>begin</span>
+    score := <span class=k>if</span> n <span class=k>mod</span> <span class=m>2</span> = <span class=m>0</span> <span class=k>then</span> <span class=m>1</span> <span class=k>else</span> <span class=m>0</span>;  <span class=c>// 1 = even</span>
+    <span class=k>writeln</span>(<span class=s>'n = '</span>, n, <span class=s>' parity = '</span>, score);
+  <span class=k>end</span>;
+  score := <span class=m>0</span>;
+  score := score + (<span class=k>if</span> score = <span class=m>0</span> <span class=k>then</span> <span class=m>10</span> <span class=k>else</span> <span class=m>5</span>);
+  <span class=k>writeln</span>(<span class=s>'score = '</span>, score);
+  d := <span class=k>if</span> score &gt; <span class=m>5</span> <span class=k>then</span> <span class=m>1</span> <span class=k>else</span> <span class=m>2.5</span>;   <span class=c>// int + Real -> Real</span>
+  <span class=k>writeln</span>(<span class=s>'d = '</span>, d);
+  <span class=k>writeln</span>(<span class=s>'Min(3, 9) = '</span>, Min(<span class=m>3</span>, <span class=m>9</span>));
+  label_text := <span class=k>if</span> score = <span class=m>10</span> <span class=k>then</span> <span class=s>'ten'</span> <span class=k>else</span> <span class=s>'other'</span>;  <span class=c>// string ternary</span>
+  <span class=k>writeln</span>(<span class=s>'word = '</span>, label_text);
+  <span class=k>writeln</span>(<span class=k>if</span> score &gt; <span class=m>5</span> <span class=k>then</span> <span class=s>'big'</span> <span class=k>else</span> <span class=s>'small'</span>);
+<span class=k>end</span>;
+
+<span class=k>begin</span>
+  Demo;
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div></section><section id=tut-9><h3><span class=n>9</span>Procedures and functions</h3><p>Routines are declared before the <code>begin..end.</code> of the
+program (typically above the main block). A <code>function</code>
+declares its result type and assigns the result to its own name;
+a <code>procedure</code> returns nothing.<div class=tut-ex><pre><span class=k>library</span> fns;
+
+<span class=k>function</span> Factorial(n: Integer): Integer;
+<span class=k>var</span>
+  i, r: Integer;
+<span class=k>begin</span>
+  r := <span class=m>1</span>;
+  <span class=k>for</span> i := <span class=m>2</span> <span class=k>to</span> n <span class=k>do</span> r := r * i;
+  Factorial := r;
+<span class=k>end</span>;
+
+<span class=k>procedure</span> Announce(n: Integer);
+<span class=k>begin</span>
+  <span class=k>writeln</span>(<span class=s>'value is '</span>, n);
+<span class=k>end</span>;
+
+<span class=k>begin</span>
+  Announce(<span class=m>42</span>);
+  <span class=k>writeln</span>(<span class=s>'5! = '</span>, Factorial(<span class=m>5</span>));
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p><code>var</code> parameters (declared <code>procedure P(var x:
+Integer)</code>) are passed by address and can be modified by the
+routine. The argument can be a global, an indexed element, a record
+field, a pointer deref, or a <b>local</b> — locals live in a per-call
+stack frame in linear memory, so they have a real address. Args must
+be type-identical lvalues (no <code>P(1+2)</code>). <code>exit</code>
+returns early from either kind of routine (optionally with a value:
+<code>exit(42)</code>). Strings work Pascal-side too: <code>string</code>
+vars/params are (addr,len) pairs — assign with <code>s := 'lit'</code>,
+print with <code>writeln(s)</code>, concatenate with <code>+</code>, pass
+by value or <code>var</code>; foreign functions get the pair as two
+<code>i32</code>s. Numeric <code>label</code>/<code>goto</code>
+(<code>label 10;</code> … <code>goto 10;</code>) work within a
+routine.</section><section id=tut-10><h3><span class=n>10</span>Records, arrays, and pointers</h3><p>A <code>record</code> groups fields; a static
+<code>array</code> has fixed bounds; pointers (<code>^T</code>)
+hold addresses you take with <code>@</code> and follow with
+<code>p^</code>. Records and arrays nest, and indexed fields work
+like <code>balls[i].x</code>.<div class=tut-ex><pre><span class=k>library</span> recs;
+
+<span class=k>type</span>
+  TPoint = <span class=k>record</span>
+    x: Integer;
+    y: Integer;
+  <span class=k>end</span>;
+  TGrid = <span class=k>array</span> [<span class=m>0</span>..<span class=m>9</span>] of Integer;
+
+<span class=k>var</span>
+  p: TPoint;
+  g: TGrid;
+  i: Integer;
+
+<span class=k>begin</span>
+  p.x := <span class=m>3</span>;
+  p.y := <span class=m>4</span>;
+  <span class=k>writeln</span>(<span class=s>'point '</span>, p.x, <span class=s>','</span>, p.y);
+  <span class=k>for</span> i := <span class=m>0</span> <span class=k>to</span> <span class=m>9</span> <span class=k>do</span> g[i] := i * i;
+  <span class=k>writeln</span>(<span class=s>'g[4] = '</span>, g[<span class=m>4</span>]);
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p>Records use FPC natural alignment for layout — relevant only when
+you reach past a record's fields into raw memory.
+<code>SizeOf(T)</code> / <code>SizeOf(v)</code> is a compile-time
+constant (<code>SizeOf(Integer)</code> = 4,
+<code>SizeOf(String)</code> = 8 — the (addr,len) pair model).
+<code>nil</code> is the null pointer (assign and compare with
+<code>=</code>/<code>&lt;></code>; the TP idiom
+<code>p &lt;> 0</code> also works), and
+<code>Inc(p)</code>/<code>Dec(p, n)</code> move a typed pointer by
+whole elements — ideal for walking record arrays. A record can also
+carry <b>variants</b>: a <code>case tag: T of</code> part whose
+arms share storage, with an <code>else</code> arm as the default.
+Multi-dim arrays use the TP sugar
+<code>array[1..3, 1..4] of T</code> with <code>a[i, j]</code>
+indexing (equivalent to nested arrays). Integer literals can be
+hex (<code>$FF</code>) or binary (<code>%1010</code>), floats use
+scientific notation (<code>1e10</code>), and
+<code>MaxInt</code> is 2147483647.<div class=tut-ex><pre><span class=k>library</span> recs2;
+
+<span class=k>type</span>
+  TPair = <span class=k>record</span>
+    a, b: Integer;
+  <span class=k>end</span>;
+  PPair = ^TPair;
+  TShape = <span class=k>record</span>
+    <span class=k>case</span> tag: Byte <span class=k>of</span>
+      <span class=m>0</span>: (r: Single);
+      <span class=m>1</span>: (w, h: Single);
+  <span class=k>end</span>;
+
+<span class=k>var</span>
+  arr: <span class=k>array</span>[<span class=m>0</span>..<span class=m>1</span>] <span class=k>of</span> TPair;
+  p: PPair;
+  s: TShape;
+
+<span class=k>begin</span>
+  p := @arr[<span class=m>0</span>];
+  <span class=k>Inc</span>(p);              <span class=c>// +8: one whole record</span>
+  p.a := <span class=m>11</span>;
+  <span class=k>writeln</span>(arr[<span class=m>1</span>].a);      <span class=c>// 11</span>
+  <span class=k>writeln</span>(<span class=k>SizeOf</span>(TPair));  <span class=c>// 8</span>
+  s.tag := <span class=m>1</span>;
+  s.w := <span class=m>2.0</span>;
+  s.h := <span class=m>3.0</span>;
+  <span class=k>writeln</span>(s.w);            <span class=c>// 2</span>
+  <span class=k>writeln</span>(<span class=k>SizeOf</span>(s));       <span class=c>// 12</span>
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p>For building games, look at the <code>basic_canvas.pas</code>
+example: it mixes arrays of records, <code>Byte</code> pixel
+buffers, and an RNG.</section><section id=tut-11><h3><span class=n>11</span><code>with</code> and <code>set of</code></h3><p><code>with &lt;record> do</code> lets you address a record's
+fields by their bare names for the duration of one statement (or a
+<code>begin..end</code> block) — handy when a record has many
+fields. Comma chains (<code>with a, b do</code>) nest, with the
+<em>innermost</em> record winning for overlapping names; a
+<code>with</code> scope also shadows a same-named global. Locals
+and parameters always shadow <code>with</code> fields.<div class=tut-ex><pre><span class=k>library</span> withset;
+
+<span class=k>type</span>
+  TPoint = <span class=k>record</span>
+    x, y: Integer;
+  <span class=k>end</span>;
+
+<span class=k>var</span>
+  p: TPoint;
+  flags: <span class=k>set of</span> <span class=m>0</span>..<span class=m>7</span>;
+
+<span class=k>begin</span>
+  <span class=k>with</span> p <span class=k>do</span>
+  <span class=k>begin</span>
+    x := <span class=m>3</span>;          <span class=c>// p.x := 3</span>
+    y := <span class=m>4</span>;          <span class=c>// p.y := 4</span>
+  <span class=k>end</span>;
+  <span class=k>writeln</span>(<span class=s>'p = ('</span>, p.x, <span class=s>','</span>, p.y, <span class=s>')'</span>);
+
+  flags := [<span class=m>1</span>, <span class=m>3</span>, <span class=m>5</span>];
+  <span class=k>writeln</span>(<span class=s>'3 in flags   = '</span>, <span class=m>3</span> <span class=k>in</span> flags);
+  <span class=k>writeln</span>(<span class=s>'2 in flags   = '</span>, <span class=m>2</span> <span class=k>in</span> flags);
+  flags := flags + [<span class=m>2</span>];             <span class=c>// union</span>
+  flags := flags - [<span class=m>1</span>];             <span class=c>// difference</span>
+  <span class=k>writeln</span>(<span class=s>'2 in flags   = '</span>, <span class=m>2</span> <span class=k>in</span> flags);
+  <span class=k>writeln</span>(<span class=s>'1 in flags   = '</span>, <span class=m>1</span> <span class=k>in</span> flags);
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p>A <code>set of &lt;ordinal></code> is a bitmask: a domain that
+fits in 32 bits (<code>0..6</code>, <code>0..31</code>) is a single
+integer; <code>set of Byte</code> uses 8 words. Operators:
+<code>+</code> union, <code>-</code> difference, <code>*</code>
+intersection, <code>in</code> membership, <code>=</code> /
+<code>&lt;></code> equality, <code>&lt;=</code> /
+<code>>=</code> subset/superset. Constructors look like
+<code>[1, 3..5]</code> or <code>[]</code> (empty). Set variables
+must be <strong>globals</strong> — like arrays, they need an
+address, and the compiler rejects local sets. See
+<code>examples/set_demo.pas</code>.<p><code>case</code> arms can also use lo..hi <strong>ranges</strong>:
+<code>case x of 0..4: ...; else ... end;</code> groups contiguous
+values in one arm (dense ranges use <code>br_table</code>, wide or
+sparse ones degrade to an if-chain — same behavior). See
+<code>examples/case_ranges_demo.pas</code>.</section><section id=tut-12><h3><span class=n>12</span>Units and multi-file projects</h3><p>A <b>project</b> is a named set of Pascal files with one
+<b>root</b> (the file that gets compiled). Every other file is a
+<code>uses</code> <b>unit</b> — a file with a
+<code>unit Name;</code> header and <code>interface</code> /
+<code>implementation</code> sections. The root pulls them in with
+<code>uses</code>.<div class=tut-ex><pre id=tut-prog-12><span class=k>library</span> use_math;
+
+<span class=k>uses</span> u_math;
+
+<span class=k>begin</span>
+  <span class=k>writeln</span>(<span class=s>'21 doubled is '</span>, Twice(<span class=m>21</span>));
+<span class=k>end</span>.</pre><pre id=tut-unit-12><span class=k>unit</span> u_math;
+
+<span class=k>interface</span>
+
+<span class=k>function</span> Twice(x: Integer): Integer;
+
+<span class=k>implementation</span>
+
+<span class=k>function</span> Twice(x: Integer): Integer;
+<span class=k>begin</span>
+  Twice := x * <span class=m>2</span>;
+<span class=k>end</span>;
+
+<span class=k>end</span>.</pre><button class="tut-load tut-load-project" data-root=#tut-prog-12 data-unit=#tut-unit-12>Load this into the editor</button></div><p>The example above is a two-file project: the root
+<code>use_math.pas</code> <code>uses u_math;</code> and calls
+<code>Twice(21)</code>, and <code>u_math.pas</code> is the unit
+file that provides it — both are loaded into the project so the
+file dropdown shows them. (Note: avoid naming your own routines
+<code>Double</code> — the compiler treats that as the 64-bit float
+type.) The <code>+ File</code> button inserts a starter skeleton
+automatically. Your own units register with the host at run time and
+are deduped depth-first, so transitive <code>uses</code> just work.
+Three units ship <b>inside the compiler</b> and need no registration
+at all: <code>Crt</code> (the TP7 colour constants),
+<code>Classes</code> (the <code>TStringList</code> family) and
+<code>WEB</code> (the DOM/canvas bridge — lesson 13). The
+<code>sweep.pas</code> example (minesweeper, 7 units) shows a
+real multi-file game.</section><section id=tut-13><h3><span class=n>13</span>Host ABIs and the console</h3><p>wasmpascal detects how to boot a compiled program by peeking its
+exports — you never pick the ABI yourself. There are four:<ul><li><b>console-only</b> — no entry export; plain
+<code>write</code>/<code>writeln</code>/<code>readln</code>/
+<code>TextColor</code> programs (all the lessons above).<li><b>pascaldom</b> — exports <code>pascaldom_main</code>;
+self-wires its canvas + event loop via the
+<code>pascaldom_env</code> DOM/canvas imports. Reach it with
+<b><code>uses WEB</code></b>: that embedded unit declares the whole
+bridge, so your program writes no <code>external</code> block,
+picks no <code>CB_*</code> callback ids, keeps no
+<code>case id of</code> dispatcher and needs no
+<code>exports</code> clause — the program body <i>is</i>
+<code>pascaldom_main</code> — and handlers go in by name:
+<code>web.On(h, 'mousedown', HandleDown)</code>,
+<code>web.OnTick(HandleTick)</code>. See <code>web_dom.pas</code>
+for the tour, <code>sweep.pas</code> (7 units),
+<code>paint.pas</code> and <code>musicbox.pas</code> for real
+programs. <code>pascaldom_probe.pas</code> does the same job
+against the raw bridge, for comparison.<li><b>batchiness</b> — exports <code>batchiness_main</code>;
+batched-canvas games + Web Audio SFX via <code>app_env</code>.
+Games self-wire their own keyboard (see the <code>?</code>
+reference's Host ABIs section).
+Examples: <code>pascaloids.pas</code>, <code>pong.pas</code>,
+<code>transforms.pas</code>, <code>sparks.pas</code>,
+<code>growable.pas</code>, <code>flightleader.pas</code>
+(FLIGHT LEADER, a 6-unit space combat game),
+<code>xonix.pas</code> (a Xonix clone: draw lines to claim
+land — the fill floods from the balls, so it can never cover
+one), <code>floaty_car.pas</code> (Floaty Car endless driver —
+stay on the winding road; it only gets faster),
+<code>dugster.pas</code> (DUGSTER — a Digger-style dig-em-up
+in five units).<li><b>basic_canvas</b> — exports
+<code>wasm_init</code>/<code>wasm_update</code>/
+<code>wasm_click</code>/<code>wasm_get_pixels</code>/
+<code>wasm_get_width</code>/<code>wasm_get_height</code>, plus
+optional <code>wasm_pointer_down</code>/<code>wasm_pointer_move</code>/
+<code>wasm_pointer_up</code> for press-and-drag (mouse or touch);
+the host drives a fixed-step loop and blits your RGBA buffer.
+Examples: <code>basic_canvas.pas</code>,
+<code>classic_dots.pas</code>.</ul><p>The <code>? </code>quick reference's <b>Host ABIs</b> section has
+the full details and examples. When you want the DOM or a canvas,
+load <code>web_dom.pas</code>, press Run, and study how it builds the
+page with <code>web.CreateElement</code> / <code>web.On</code> — that
+is the whole setup. Only write raw
+<code>external 'pascaldom_env' ...</code> declarations when you need
+a bridge entry the unit does not wrap — and note that a
+<b>console</b> program must keep them: <code>uses WEB</code> would
+make its body the pascaldom entry point and the console ABI would be
+gone.</section><section id=tut-14><h3><span class=n>14</span>Objects & classes</h3><p>wasmpascal supports TP7-style OOP — value-type <code>object</code> and reference-type <code>class</code>, with constructors, virtual dispatch, inheritance, and polymorphism.<div class=tut-ex><pre><span class=k>type</span>
+  TPoint = <span class=k>object</span>
+    x, y: Integer;
+    <span class=k>constructor</span> Init(ax, ay: Integer);
+    <span class=k>procedure</span> Move(dx, dy: Integer);
+    <span class=k>function</span> Tag: Integer; <span class=k>virtual</span>;
+  <span class=k>end</span>;
+  TPoint3D = <span class=k>object</span>(TPoint)
+    z: Integer;
+    <span class=k>constructor</span> Init(ax, ay, az: Integer);
+    <span class=k>function</span> Tag: Integer; <span class=k>override</span>;
+  <span class=k>end</span>;
+
+<span class=k>var</span> p: TPoint; q: TPoint3D; pb: TPoint;
+
+<span class=k>constructor</span> TPoint.Init(ax, ay: Integer);
+<span class=k>begin</span> x := ax; y := ay; <span class=k>end</span>;
+<span class=k>function</span> TPoint.Tag: Integer; <span class=k>begin</span> Tag := <span class=m>2</span>; <span class=k>end</span>;
+<span class=k>constructor</span> TPoint3D.Init(ax, ay, az: Integer);
+<span class=k>begin</span> <span class=k>inherited</span> Init(ax, ay); z := az; <span class=k>end</span>;
+<span class=k>function</span> TPoint3D.Tag: Integer; <span class=k>begin</span> Tag := <span class=m>3</span>; <span class=k>end</span>;
+
+<span class=k>begin</span>
+  p.Init(<span class=m>3</span>, <span class=m>4</span>); <span class=c>// value-type: lives where the var lives</span>
+  q.Init(<span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span>);
+  pb := q;                      <span class=c>// copy carries the 3D VMT — virtual dispatch</span>
+  <span class=k>writeln</span>(<span class=s>'p.Tag='</span>, p.Tag);   <span class=c>// 2</span>
+  <span class=k>writeln</span>(<span class=s>'q.Tag='</span>, q.Tag);   <span class=c>// 3</span>
+  <span class=k>writeln</span>(<span class=s>'pb.Tag='</span>, pb.Tag); <span class=c>// 3 — child's override via base var</span>
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p><code>object</code> is a <b>value type</b> — like a record with methods. A <code>constructor</code> runs on an existing instance (or on a heap block with <code>New(p, Init(...))</code> / <code>Dispose(p)</code>). <code>virtual</code> methods dispatch through a hidden VMT; <code>override</code> replaces the parent slot; <code>inherited</code> calls the parent's method (explicit <code>inherited Init(...)</code> or bare <code>inherited;</code> forwarding current params). See <code>examples/objects_demo.pas</code> for the full tour (static + virtual + <code>with</code> + <code>New</code> + <code>SizeOf</code>).<div class=tut-ex><pre><span class=k>type</span>
+  TAnimal = <span class=k>class</span>
+    x, y: Integer;
+    <span class=k>constructor</span> Create(ax, ay: Integer);
+    <span class=k>function</span> Speak: Integer; <span class=k>virtual</span>;
+  <span class=k>end</span>;
+  TDog = <span class=k>class</span>(TAnimal)
+    z: Integer;
+    <span class=k>constructor</span> Create(ax, ay, az: Integer);
+    <span class=k>function</span> Speak: Integer; <span class=k>override</span>;
+  <span class=k>end</span>;
+
+<span class=k>var</span> d: TDog; a: TAnimal;
+
+<span class=k>constructor</span> TAnimal.Create(ax, ay: Integer);
+<span class=k>begin</span> x := ax; y := ay; <span class=k>end</span>;
+<span class=k>function</span> TAnimal.Speak: Integer; <span class=k>begin</span> Speak := x + y; <span class=k>end</span>;
+<span class=k>constructor</span> TDog.Create(ax, ay, az: Integer);
+<span class=k>begin</span> <span class=k>inherited</span> Create(ax, ay); z := az; <span class=k>end</span>;
+<span class=k>function</span> TDog.Speak: Integer; <span class=k>begin</span> Speak := <span class=k>inherited</span> Speak + <span class=m>1000</span>; <span class=k>end</span>;
+
+<span class=k>begin</span>
+  d := TDog.Create(<span class=m>1</span>, <span class=m>2</span>, <span class=m>3</span>);
+  a := d;                       <span class=c>// reference assignment — same heap object</span>
+  <span class=k>writeln</span>(a.Speak);           <span class=c>// 1003 — dispatches TDog.Speak via parent ref</span>
+  <span class=k>writeln</span>(<span class=k>SizeOf</span>(TAnimal)); <span class=c>// 4 — class vars are references</span>
+  d.Free;                       <span class=c>// destructor + dispose</span>
+<span class=k>end</span>.</pre><button class=tut-load>Load this into the editor</button></div><p><code>class</code> is a <b>reference type</b> — variables hold heap pointers. <code>Create</code> allocates + constructs, <code>Free</code> destroys + disposes. Inheritance works the same as for objects, including two-level chains like <code>TLabrador = class(TDog)</code> and <code>inherited</code> in both constructors and virtual methods. A child assigned to a parent reference still dispatches the child's override — true polymorphism. Built-in <code>TObject</code>/<code>TStrings</code>/<code>TStringList</code> are just classes on this machinery. See <code>examples/classes_demo.pas</code>. Typed const aggregates (<code>Origin: TPoint = (x: 10; y: 20)</code>) and <code>s + c</code> where <code>c: Char</code> are also new in 0.5.0 (see <code>examples/typed_const_demo.pas</code>).</section><section id=tut-15><h3><span class=n>15</span>What next</h3><p>You now know enough to read every example in the
+<b>Examples…</b> dropdown. Good next moves:<ul><li><b><code>hello_write.pas</code></b> — string / integer /
+float output.<li><b><code>guess.pas</code></b> — a number-guessing game using
+<code>readln</code>, loops, and an RNG.<li><b><code>fibonacci.pas</code></b> — recursion + a loop.<li><b><code>shapes.pas</code></b> — ASCII art via
+<code>write</code>/<code>writeln</code>.<li><b><code>gotoxy.pas</code></b>, <b><code>colors.pas</code></b>
+— cursor placement and <code>TextColor</code>.<li><b><code>math.pas</code></b> — every math builtin.<li><b><code>with_demo.pas</code></b>,
+<b><code>set_demo.pas</code></b>,
+<b><code>case_ranges_demo.pas</code></b> — the <code>with</code>
+statement, set operators, and range arms.<li><b><code>ternary.pas</code></b> — Delphi-13-style
+<code>if cond then a else b</code> expressions.<li><b><code>var_params_demo.pas</code></b> — <code>var</code>
+parameters by address: <code>Swap</code> on locals, plus var
+string/record/array params and <code>@</code> on a local.<li><b><code>objects_demo.pas</code></b>, <b><code>classes_demo.pas</code></b>, <b><code>typed_const_demo.pas</code></b> — objects (value-type, virtual, inheritance, <code>New</code>), classes (reference-type, polymorphism, two-level), and typed const aggregates + <code>Char</code> in string ops (new in 0.5.0).<li><b><code>web_dom.pas</code></b> — the DOM from Pascal with
+<code>uses WEB</code>: a styled panel, an animating canvas and
+pointer handlers, with none of the bridge boilerplate.<li><b><code>basic_canvas.pas</code></b> — the pixel-buffer
+canvas ABI.<li><b><code>pascalsweep</code></b> and
+<b><code>pascaloids.pas</code></b> — full games on the pascaldom /
+batchiness ABIs.</ul><p>And remember: the fastest way to learn anything here is to take
+a working program, <b>Load this into the editor</b>, press Run, then
+break it and watch the compiler's error messages point you at the
+offending line.</section></div></div></div></div><script src="cm6.bundle.js?v=1.1.4"></script><script src="pascaldom.js?v=1.1.4"></script><script src="batchiness.js?v=1.1.4"></script><script src="app.js?v=1.1.4"></script><noscript><a href=#noscript class=noscript-link>Enable JavaScript to use the compiler</a></noscript>
