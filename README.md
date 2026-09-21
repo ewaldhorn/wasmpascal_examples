@@ -17,6 +17,8 @@ By popular request, I've made it possible to self-host this project on internal 
 
 For instance, this project, apart from the primary domain, is also hosted on GitHub Pages at [https://ewaldhorn.github.io/wasmpascal_examples/](https://ewaldhorn.github.io/wasmpascal_examples/). To self-host, you can refer to the `docs` directory in this repo. Everything in there needs to be served by a static web host and you should be good to go!
 
+*IMPORTANT* GitHub pages doesn't do well with CORS policies so some CRT-emulation examples might hang. This isn't a problem on most actual servers, just a GH pages quirk.
+
 ---
 
 **Quick Navigation**
