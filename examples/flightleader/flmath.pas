@@ -84,7 +84,7 @@ end;
 // Single-typed convenience wrappers over the compiler's math BUILTINS. They
 // used to wrap the Double-signature `odin_env` externals in fldefs, because the
 // builtins promoted only Integer arguments to f64 — a Single argument was
-// passed as f32 and produced invalid wasm (docs/features.md §10.55). The
+// passed as f32 and produced invalid wasm (documentation/reference/08-builtins.md). The
 // builtins promote now, so these call them directly and no longer need the
 // `Double(...)` casts; the Single-in/Single-out shape is all that is left of
 // them, which reads better at the call sites than `Single(Sin(x))` 28 times.
