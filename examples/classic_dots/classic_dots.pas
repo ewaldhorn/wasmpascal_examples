@@ -59,7 +59,7 @@ var
 // never called is not imported.)
 
 // (Trig came from two `odin_env` externals declared here, because the math
-// BUILTINS did not promote a Single argument to f64 — docs/features.md §10.55,
+// BUILTINS did not promote a Single argument to f64 — documentation/reference/08-builtins.md,
 // fixed 2026-09-14. `Sin`/`Cos` below are the builtins now.)
 
 // Pixel buffer base address — fixed offset past static data in WASM memory.
