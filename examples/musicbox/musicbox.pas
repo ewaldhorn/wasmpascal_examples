@@ -24,9 +24,9 @@
 // an AudioContext before a user gesture. Note that web.NowMs and the audio
 // clock are TWO DIFFERENT TIMELINES — see AudioClock below.
 //
-// Written against the host contract in docs/porting_odin_to_pascal.md.
+// Written against the host contract in documentation/reference/12-host-abis-wasmpascal-specific.md.
 //   - a `+` chain on strings used to be clamped at 255 bytes; that cap is gone
-//     (docs/features.md §10.41), and the stylesheet stays plain literals only
+//     (see documentation/reference/08-builtins.md), and the stylesheet stays plain literals only
 //     because that reads better
 // (Three entries this list used to carry are gone: `Break` inside an `if` and
 //  indexing a by-value `string` param were compiler defects, now fixed — and
@@ -163,7 +163,7 @@ end;
 // There is no byte-compare and no float parser here any more. Both existed
 // because a property read came back as RAW BYTES in a caller-owned buffer:
 // web.GetPropertyF64 parses the audio clock with the compiler's own `Val`
-// (taking the value's leading numeric run, docs/features.md §10.49), and a
+// (taking the value's leading numeric run — see `Val` in documentation/reference/08-builtins.md), and a
 // string-valued property compares as a string — `= 'running'`, never
 // GetPropertyInt, which would read 'running' as 0.
 
@@ -244,8 +244,7 @@ begin
   // note off before its scheduled stop, and there is no way to schedule one.
   // The oscillator's own stop() bounds the sound; a 60-second soak with the
   // render graph tapped keeps the envelope stable throughout (quiet fraction
-  // 0.65 at 10 s, 0.67 at 60 s), so nothing accumulates audibly. See
-  // "Synthesising audio from Pascal" in docs/host-abis.md.
+  // 0.65 at 10 s, 0.67 at 60 s), so nothing accumulates audibly.
   web.ReleaseHandle(freq_p);
   web.ReleaseHandle(gain_p);
   web.ReleaseHandle(osc);
@@ -672,7 +671,7 @@ end;
 // Five sheets, each ONE string literal rather than a `+` chain, which reads
 // better for a stylesheet. (The old reason — this compiler clamped a
 // concatenated string to 255 bytes, so a sheet was silently truncated
-// mid-rule — has not been true since docs/features.md §10.41.)
+// mid-rule — has not been true for a while; see documentation/reference/08-builtins.md.)
 procedure InjectStyles;
 begin
   web.AddStyle(
