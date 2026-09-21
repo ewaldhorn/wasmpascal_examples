@@ -35,8 +35,8 @@ I want to make the examples in WasmPascal more accessible, and I also don't want
 |---|---|
 | [`examples/`](examples/) | 51 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics. |
 | [`games/`](games/) | Complete multi-file games — full Pascal source trees, hand-written browser host pages, and compiled `.wasm` binaries ready to serve. |
-| [`docs/reference/`](docs/reference/) | 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins. |
-| [`docs/tutorial/`](docs/tutorial/) | 15-part "Learn Pascal" tutorial, from your first `writeln` to multi-file OOP architectures. |
+| [`documentation/reference/`](documentation/reference/) | 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins. |
+| [`documentation/tutorial/`](documentation/tutorial/) | 15-part "Learn Pascal" tutorial, from your first `writeln` to multi-file OOP architectures. |
 | [`blog_posts/`](blog_posts/) | Runnable companion code and HTML test harnesses for articles published on [nofuss.co.za](https://nofuss.co.za/). |
 
 ## How to Run the Examples
@@ -79,40 +79,40 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 
 | Doc | Description |
 |---|---|
-| [Projects & files](docs/reference/01-projects-files.md) | How projects, files, the root unit, and the Files menu work in the IDE. |
-| [Program structure](docs/reference/02-program-structure.md) | Program, library, and unit headers, uses clauses, exports, and external imports. |
-| [Types](docs/reference/03-types.md) | Integer, float, boolean, char, pointer, record, array, string, set, object, and class types. |
-| [Objects & classes](docs/reference/04-objects-classes.md) | TP7 objects and Delphi-style classes: inheritance, virtual dispatch, constructors. |
-| [Declarations](docs/reference/05-declarations.md) | Constants, variables, types, procedures, and functions. |
-| [Control flow](docs/reference/06-control-flow.md) | if, case, for, while, repeat, break, continue, exit, and with. |
-| [Operators & precedence](docs/reference/07-operators-precedence.md) | Arithmetic, logical, bitwise, comparison, and set operators with precedence. |
-| [Builtins](docs/reference/08-builtins.md) | Compiler builtins: Inc/Dec, math, strings, memory, Delay, GotoXY, Random, and more. |
-| [Console I/O](docs/reference/09-console-i-o.md) | write/writeln, read/readln, field widths, and console input semantics. |
-| [Colours (TextColor / TextBackground)](docs/reference/10-colours-textcolor-textbackground.md) | TextColor/TextBackground palette and RGB variants for colored console output. |
-| [Directives](docs/reference/11-directives.md) | Compiler directives: mode, defines, conditionals, memory limits, screen size. |
-| [Host ABIs (wasmpascal-specific)](docs/reference/12-host-abis-wasmpascal-specific.md) | How compiled programs talk to the browser: pascaldom, batchiness, canvas, console ABIs. |
-| [Editor shortcuts & toolbar](docs/reference/13-editor-shortcuts-toolbar.md) | Keyboard shortcuts and toolbar actions in the web IDE. |
-| [Acknowledgements & Credits](docs/reference/14-acknowledgements-credits.md) | Third-party components and credits. |
+| [Projects & files](documentation/reference/01-projects-files.md) | How projects, files, the root unit, and the Files menu work in the IDE. |
+| [Program structure](documentation/reference/02-program-structure.md) | Program, library, and unit headers, uses clauses, exports, and external imports. |
+| [Types](documentation/reference/03-types.md) | Integer, float, boolean, char, pointer, record, array, string, set, object, and class types. |
+| [Objects & classes](documentation/reference/04-objects-classes.md) | TP7 objects and Delphi-style classes: inheritance, virtual dispatch, constructors. |
+| [Declarations](documentation/reference/05-declarations.md) | Constants, variables, types, procedures, and functions. |
+| [Control flow](documentation/reference/06-control-flow.md) | if, case, for, while, repeat, break, continue, exit, and with. |
+| [Operators & precedence](documentation/reference/07-operators-precedence.md) | Arithmetic, logical, bitwise, comparison, and set operators with precedence. |
+| [Builtins](documentation/reference/08-builtins.md) | Compiler builtins: Inc/Dec, math, strings, memory, Delay, GotoXY, Random, and more. |
+| [Console I/O](documentation/reference/09-console-i-o.md) | write/writeln, read/readln, field widths, and console input semantics. |
+| [Colours (TextColor / TextBackground)](documentation/reference/10-colours-textcolor-textbackground.md) | TextColor/TextBackground palette and RGB variants for colored console output. |
+| [Directives](documentation/reference/11-directives.md) | Compiler directives: mode, defines, conditionals, memory limits, screen size. |
+| [Host ABIs (wasmpascal-specific)](documentation/reference/12-host-abis-wasmpascal-specific.md) | How compiled programs talk to the browser: pascaldom, batchiness, canvas, console ABIs. |
+| [Editor shortcuts & toolbar](documentation/reference/13-editor-shortcuts-toolbar.md) | Keyboard shortcuts and toolbar actions in the web IDE. |
+| [Acknowledgements & Credits](documentation/reference/14-acknowledgements-credits.md) | Third-party components and credits. |
 
 ### Learn Pascal Tutorial
 
 | Lesson | Description |
 |---|---|
-| [Start here](docs/tutorial/01-start-here.md) | What WasmPascal is and how to run your first program. |
-| [Program structure](docs/tutorial/02-program-structure.md) | Headers, blocks, and your first writeln program. |
-| [Values and types](docs/tutorial/03-values-and-types.md) | Integers, floats, booleans, and characters. |
-| [Variables and constants](docs/tutorial/04-variables-and-constants.md) | Declaring and using variables and constants. |
-| [Numbers: integer math](docs/tutorial/05-numbers-integer-math.md) | Integer arithmetic, div, mod, and precedence. |
-| [Floats](docs/tutorial/06-floats.md) | Real numbers, float math, and conversions. |
-| [Console I/O: write, readln](docs/tutorial/07-console-i-o-write-readln.md) | Printing output and reading input with readln. |
-| [Control flow](docs/tutorial/08-control-flow.md) | Branching and looping: if, case, for, while, repeat. |
-| [Procedures and functions](docs/tutorial/09-procedures-and-functions.md) | Splitting code into reusable procedures and functions. |
-| [Records, arrays, and pointers](docs/tutorial/10-records-arrays-and-pointers.md) | Grouping data with records, arrays, and pointers. |
-| [with and set of](docs/tutorial/11-with-and-set-of.md) | Simplifying record access and working with sets. |
-| [Units and multi-file projects](docs/tutorial/12-units-and-multi-file-projects.md) | Splitting programs across files with units. |
-| [Host ABIs and the console](docs/tutorial/13-host-abis-and-the-console.md) | How programs reach the browser: console, canvas, and events. |
-| [Objects & classes](docs/tutorial/14-objects-classes.md) | Object-oriented Pascal: objects, classes, and inheritance. |
-| [What next](docs/tutorial/15-what-next.md) | Where to go from here: examples to explore. |
+| [Start here](documentation/tutorial/01-start-here.md) | What WasmPascal is and how to run your first program. |
+| [Program structure](documentation/tutorial/02-program-structure.md) | Headers, blocks, and your first writeln program. |
+| [Values and types](documentation/tutorial/03-values-and-types.md) | Integers, floats, booleans, and characters. |
+| [Variables and constants](documentation/tutorial/04-variables-and-constants.md) | Declaring and using variables and constants. |
+| [Numbers: integer math](documentation/tutorial/05-numbers-integer-math.md) | Integer arithmetic, div, mod, and precedence. |
+| [Floats](documentation/tutorial/06-floats.md) | Real numbers, float math, and conversions. |
+| [Console I/O: write, readln](documentation/tutorial/07-console-i-o-write-readln.md) | Printing output and reading input with readln. |
+| [Control flow](documentation/tutorial/08-control-flow.md) | Branching and looping: if, case, for, while, repeat. |
+| [Procedures and functions](documentation/tutorial/09-procedures-and-functions.md) | Splitting code into reusable procedures and functions. |
+| [Records, arrays, and pointers](documentation/tutorial/10-records-arrays-and-pointers.md) | Grouping data with records, arrays, and pointers. |
+| [with and set of](documentation/tutorial/11-with-and-set-of.md) | Simplifying record access and working with sets. |
+| [Units and multi-file projects](documentation/tutorial/12-units-and-multi-file-projects.md) | Splitting programs across files with units. |
+| [Host ABIs and the console](documentation/tutorial/13-host-abis-and-the-console.md) | How programs reach the browser: console, canvas, and events. |
+| [Objects & classes](documentation/tutorial/14-objects-classes.md) | Object-oriented Pascal: objects, classes, and inheritance. |
+| [What next](documentation/tutorial/15-what-next.md) | Where to go from here: examples to explore. |
 
 ## Examples
 
