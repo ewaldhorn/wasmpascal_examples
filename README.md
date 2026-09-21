@@ -11,6 +11,14 @@ WasmPascal makes it possible to use the browser as the development platform for,
 
 ---
 
+## Self Hosting
+
+By popular request, I've made it possible to self-host this project on internal servers, like at schools or universities, for example.
+
+For example, this project, apart from the primary domain, is also hosted on GitHub Pages at [https://ewaldhorn.github.io/wasmpascal_examples/](https://ewaldhorn.github.io/wasmpascal_examples/). To self-host, you can refer to the `docs` directory in this repo. Everything in there needs to be served by a static web host and you should be good to go!
+
+---
+
 **Quick Navigation**
 
 - [How to Run](#how-to-run-the-examples)
