@@ -9,6 +9,10 @@
 
 WasmPascal makes it possible to use the browser as the development platform for, well, the browser! Write Pascal code and compile it to a WebAssembly binary right in your browser. You can then download that binary from your browser to use as you please.
 
+Of course, it being a static website, you can self-host it. The next section covers that. I find it handy to self-host in environments where internets access might not be readily available or restricted, like at a school or university. Slap this somewhere on the network via something like `http-server` and you have a self-hosted compiler.
+
+For some of the things I do, I also run the compiler offline in the terminal. This is possible using Node, since it provides a Web Assembly runtime and can provide the environment configuration needed. There's a section later on [How to Run as a CLI compiler](#how-to-run-as-a-cli-compiler) that tells you how I do it. This is not a strong focus of this project right now, so it might be brittle. It's one of those `it works on my machine` things...
+
 ---
 
 ## Self Hosting
@@ -24,6 +28,7 @@ For instance, this project, apart from the primary domain, is also hosted on Git
 **Quick Navigation**
 
 - [How to Run](#how-to-run-the-examples)
+- [How to Run as a CLI compiler](#how-to-run-as-a-cli-compiler)
 - [Repository Structure](#repository-structure)
 - [Pascal Reference](#pascal-quick-reference)
 - [Learn Pascal Tutorial](#learn-pascal-tutorial)
@@ -45,6 +50,7 @@ I want to make the examples in WasmPascal more accessible, and I also don't want
 |---|---|
 | [`examples/`](examples/) | 51 standalone Pascal programs, demos, and games showcasing language syntax, standard units (`Crt`, math, strings), memory management, and HTML5 Canvas graphics. |
 | [`games/`](games/) | Complete multi-file games — full Pascal source trees, hand-written browser host pages, and compiled `.wasm` binaries ready to serve. |
+| [`tools/`](tools/) | Offline CLI front ends for the compiler: `wpcompile.mjs` (Pascal source to `.wasm`) and `wprun.mjs` (run a console program in a terminal). Node only, no dependencies. |
 | [`documentation/reference/`](documentation/reference/) | 14 quick-reference guides covering types, control flow, host ABIs, directives, and compiler builtins. |
 | [`documentation/tutorial/`](documentation/tutorial/) | 15-part "Learn Pascal" tutorial, from your first `writeln` to multi-file OOP architectures. |
 | [`blog_posts/`](blog_posts/) | Runnable companion code and HTML test harnesses for articles published on [nofuss.co.za](https://nofuss.co.za/). |
@@ -80,6 +86,46 @@ Then open `http://localhost:8080/blog_posts/wasm_pascal_add_numbers/` (or any ot
 ### 3. Running the Games
 
 The projects in [`games/`](games/) are multi-unit builds, with two key differences: their root file is a `library` rather than a `program`, and they import host modules the IDE does not supply. They will compile in the IDE but won't run there — each game's README covers its IDE build steps, and [Games](#games) below explains how to serve one locally.
+
+### 4. From the command line
+
+See [How to Run as a CLI compiler](#how-to-run-as-a-cli-compiler) below — the same examples compile and run offline with no browser involved.
+
+## How to Run as a CLI compiler
+
+The compiler in [`docs/`](docs/) is interesting in that it's a Wasm binary that the IDE loads. So, in theory, if you provide the right runtime configuration, you can run the compiler just about anywhere. That's the theory, at least. In practice, I've found that I can very much get it to work like a CLI compiler by wrapping it in Node. Since version 18, Node's been able to run wasm binaries and I've found it the simplest and easiest way to make this happen.
+
+Now, I'm not a seasoned Node developer, so you can laugh at my code, but I'll tell you this: It compiles binaries. And they sometimes run!
+
+I use two Node scripts in [`tools/`](tools/), one for compiling Pascal programs to binaries, and one for running those binaries if they happen to be CRT-based Pascal apps. For the browser-based ones, you still need a browser environment, so something like `http-server` works really well for me, but pretty much any static site server should be able to run the final product.
+
+### Compile
+
+```bash
+node tools/wpcompile.mjs examples/hello/hello.pas -o hello.wasm
+node tools/wpcompile.mjs examples/dugster/dugster.pas -o dugster.wasm   # units should be resolved for you by the tool
+cat hello.pas | node tools/wpcompile.mjs - -o - > hello.wasm           # CRT programs use stdin and stdout
+```
+
+`uses` clauses are followed by the tool: for each unit, a matching `<unit>.pas` is looked up next to the main file (or in any `-I` directory), and that unit's own `uses` clauses are followed in turn. Try to not nest this too deep though, it can get really complicated really fast! Compiler builtins are skipped in this phase, but that should be transparent. Output is written only if the compile succeeds, and diagnostics come back from the compiler verbatim on stderr. Add `-v` to see the resolved unit list and timings.
+
+All programs in [`examples/`](examples/) should compile, that's my test-suite as well. One thing to remember: Unit files are not root programs, please point the tool at the file that declares `program` or `library`, and the units it needs will be resolved automatically.
+
+### Run
+
+```bash
+node tools/wprun.mjs hello.wasm
+printf '64\n96\n112\n104\n108\n110\n109\n' | node tools/wprun.mjs guess.wasm # Pipe input, pretty neat for test automation
+node tools/wprun.mjs breakout.wasm                                           # Escape or Ctrl-C to stop
+```
+
+`wprun.mjs` implements the console half of the host ABI on the command line: `write`/`writeln`, `read`/`readln`, `ReadKey`/`KeyPressed`, `ClrScr`, `GotoXY`, `TextColor`/`TextBackground` and the RGB variants, `Delay`, `Randomize` and `Halt`. Colour and cursor movement become ANSI escapes, so the CRT-emulation examples look right in any modern terminal; arrow keys arrive as Turbo Pascal's `#0` + scan-code pairs, and Escape stops the program exactly as it does in the IDE.
+
+Graphics examples will fail, usually with a message. The pascaldom, batchiness and basic_canvas ABIs are JavaScript runtimes that need a real DOM (see [`docs/standalone/`](docs/standalone/)), and the runner detects which one a program wants from its exports, the same way the IDE does. Unfortunately, I haven't been able to find a work-around for this apart from running it as a standalone, statically served web page.
+
+### Further reading
+
+[`tools/README.md`](tools/README.md) has the full option list and the host ABI details.
 
 ## Documentation
 
