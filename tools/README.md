@@ -141,5 +141,4 @@ Error: failed to instantiate
 ```
 
 The `wasmtime` *library* is fine. Driving the compiler through `wasmtime-py` produces
-output byte-identical to the Node host, because the compiler is deterministic — and
-`rand_bytes` turns out never to be called during compilation at all.
+output byte-identical to the Node host, because the compiler is deterministic.
