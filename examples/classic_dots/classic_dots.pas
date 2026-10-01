@@ -58,7 +58,7 @@ var
 // calls it, and since dead-import elimination (2026-09-14) an external that is
 // never called is not imported.)
 
-// (Trig came from two `odin_env` externals declared here, because the math
+// (Trig came from two hand-declared math externals here, because the math
 // BUILTINS did not promote a Single argument to f64 — documentation/reference/08-builtins.md,
 // fixed 2026-09-14. `Sin`/`Cos` below are the builtins now.)
 
