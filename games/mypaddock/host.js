@@ -1,7 +1,7 @@
 // My Paddock — browser host for mypaddock.wasm (v1.0.7).
 // Implements the full wasm import surface:
 //   pascaldom_env.* (pixel-buffer canvas bridge, events, localStorage),
-//   odin_env.sqrt/sin, mp_env.date_now/js_reload, app_env.play_sound.
+//   wasmpascal_env.sqrt/sin, mp_env.date_now/js_reload, app_env.play_sound.
 // Sound patches mirror src/game/sound.odin exactly (Web Audio synth).
 'use strict';
 (() => {
@@ -161,7 +161,7 @@
         else localStorage.setItem(k, readStr(vp, vl));
       },
     },
-    odin_env: { sqrt: (x) => Math.sqrt(x), sin: (x) => Math.sin(x) },
+    wasmpascal_env: { sqrt: (x) => Math.sqrt(x), sin: (x) => Math.sin(x) },
     mp_env: {
       date_now: () => Date.now(),
       js_reload: () => location.reload(),
