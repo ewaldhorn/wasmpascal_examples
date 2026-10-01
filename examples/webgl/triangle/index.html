@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WasmPascal + WebGL 2 — triangle</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #10131a; overflow: hidden; }
+  /* The canvas fills the window; host.js sizes the DRAWING BUFFER to match the
+     device pixel ratio, which is what keeps the edges sharp on a retina screen.
+     CSS size and buffer size are two different things, and confusing them is the
+     usual reason a WebGL demo looks blurry. */
+  #gl { display: block; width: 100vw; height: 100vh; }
+  #note {
+    position: fixed; left: 12px; bottom: 10px;
+    font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #5d667e;
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="note">vertices computed in triangle.pas — drawn by host.js</div>
+<script src="host.js"></script>
+</body>
+</html>
