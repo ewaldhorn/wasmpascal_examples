@@ -103,7 +103,7 @@ const
 // the animation loop and events. Nothing here names an import, so the module
 // imports exactly the bridge entries the unit's live code reaches. Math goes
 // through the compiler's own builtins (`Power` below), which is what the old
-// `external 'odin_env' name 'pow'` was.
+// hand-written `pow` external was.
 
 var
   // --- transport and score position ---
