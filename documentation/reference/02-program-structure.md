@@ -19,4 +19,4 @@ end.
 
 `exports foo name 'foo'` clauses live only in the root `program`/`library`.
 
-Foreign functions: `external 'mod' name 'fn'` (FPC form) — name the module, because that is exactly where the import lands. A bare `external name 'fn'` compiles, but its import goes to wasm module `""`, which nothing provides: it fails at instantiate, not at compile time (`Import #0 "": module is not an object or function`). The math *builtins* (`Sin`, `Cos`, `Power`…) import from `odin_env` (JS `Math.*`); a hand-written math external names `odin_env` itself, as `sweepdefs.pas` does.
+Foreign functions: `external 'mod' name 'fn'` (FPC form) — name the module, because that is exactly where the import lands. A bare `external name 'fn'` compiles, but its import goes to wasm module `""`, which nothing provides: it fails at instantiate, not at compile time (`Import #0 "": module is not an object or function`). The math *builtins* (`Sin`, `Cos`, `Power`…) import from `wasmpascal_env` (JS `Math.*`, same module as the console entries); a hand-written math external names `wasmpascal_env` itself, as `sweepdefs.pas` does.
