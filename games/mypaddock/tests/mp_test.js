@@ -1,4 +1,4 @@
-// M5 harness: boots mypaddock.wasm under stub pascaldom_env/odin_env/mp_env
+// M5 harness: boots mypaddock.wasm under stub pascaldom_env/wasmpascal_env/mp_env
 // plus stub app_env.play_sound (captured per boot), with a stub localStorage.
 // Supports multiple instances sharing one store (persistence/offline tests).
 // Usage: node tests/mp_test.js [/tmp/....wasm]
@@ -58,7 +58,7 @@ async function boot(store, clock) {
         else store.map.set(k, readStr(va, vl));
       },
     },
-    odin_env: { sqrt: (x) => Math.sqrt(x), sin: (x) => Math.sin(x) },
+    wasmpascal_env: { sqrt: (x) => Math.sqrt(x), sin: (x) => Math.sin(x) },
     app_env: { play_sound: (id) => { sounds.push(id); } },
     mp_env: {
       date_now: () => clock.wall,
