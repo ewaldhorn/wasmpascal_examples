@@ -10,7 +10,7 @@
 
 import { readFileSync, readSync, writeSync } from 'node:fs';
 import { basename } from 'node:path';
-import { randomFillSync, randomInt } from 'node:crypto';
+import { randomInt } from 'node:crypto';
 
 const decoder = new TextDecoder('utf-8');
 
@@ -50,9 +50,9 @@ const CONSOLE_IMPORTS = new Set([
   'console_read_f64', 'console_read_str', 'random_seed', 'heap_report', 'delay',
 ]);
 
-// Math support, notice the Odin roots?
-// TODO: Clean up this ODIN_MATH thing to be decoupled
-const ODIN_MATH = new Set([
+// Math builtins (Sin/Cos/Tan/...) import from wasmpascal_env (JS Math.*),
+// same module as the console entries.
+const MATH_IMPORTS = new Set([
   'sqrt', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2', 'sinh', 'cosh', 'tanh',
   'ln', 'exp', 'log10', 'log2', 'hypot', 'pow',
 ]);
@@ -71,7 +71,7 @@ Options:
 
 Implements the console host ABI: write/writeln, readln (stdin), ReadKey,
 KeyPressed, ClrScr, GotoXY, TextColor/TextBackground, TextColorRGB, Delay,
-Random/Randomize, and the Odin math imports.
+Random/Randomize, and the math builtins (JS Math.*).
 
 Programs that need a DOM will fail, because those ABIs are JS runtimes that require a browser.
 
@@ -311,9 +311,11 @@ async function main() {
     if (BROWSER_MODULES.has(imp.module)) {
       if (imp.module === 'pascaldom_env' && CONSOLE_SAFE_DOM.has(imp.name)) continue;
       neededBrowser.set(imp.module, BROWSER_MODULES.get(imp.module));
-    } else if (imp.module === 'wasmpascal_env' && !CONSOLE_IMPORTS.has(imp.name)) {
+    } else if (imp.module === 'wasmpascal_env' && !(CONSOLE_IMPORTS.has(imp.name) || MATH_IMPORTS.has(imp.name))) {
       unknownConsole.push(imp.name);
-    } else if (imp.module === 'odin_env' && !(imp.name === 'write' || ODIN_MATH.has(imp.name))) {
+    } else if (imp.module === 'odin_env') {
+      // Stale binary: math builtins import from wasmpascal_env now, so any
+      // odin_env import means this .wasm predates the move. Recompile it.
       unknownConsole.push(`odin_env::${imp.name}`);
     }
   }
@@ -343,8 +345,12 @@ async function main() {
   }
   if (unknownConsole.length > 0 && !opts.allowUnimplemented) {
     err(`wprun: ${basename(opts.program)} needs host imports this runner does not implement:\n`);
-    for (const n of unknownConsole) err(`  wasmpascal_env::${n}\n`);
-    err('\nPass --allow-unimplemented to stub them (they will return 0).\n');
+    for (const n of unknownConsole) err(`  ${n.includes('::') ? n : `wasmpascal_env::${n}`}\n`);
+    if (unknownConsole.some((n) => n.startsWith('odin_env::'))) {
+      err('\nThis binary predates the odin_env removal and cannot be stubbed: recompile it.\n');
+    } else {
+      err('\nPass --allow-unimplemented to stub them (they will return 0).\n');
+    }
     process.exit(2);
   }
   for (const [mod] of neededBrowser) err(`wprun: warning — stubbing ${mod} imports (--allow-unimplemented)\n`);
@@ -397,23 +403,21 @@ async function main() {
     random_seed: () => randomInt(-0x80000000, 0x7fffffff) | 0,
     heap_report: () => {},
     delay: (ms) => sleep(ms | 0),
+    // Math builtins (Sin/Cos/Tan/...) import from this same module (JS
+    // Math.*): a missing math import fails the INSTANTIATE, exactly like a
+    // missing console_* one. `sqrt` is never imported (Sqrt is a native
+    // wasm op) but harmless here.
+    sin: Math.sin, cos: Math.cos, tan: Math.tan,
+    asin: Math.asin, acos: Math.acos, atan: Math.atan, atan2: Math.atan2,
+    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+    ln: Math.log, exp: Math.exp, pow: Math.pow,
+    log10: Math.log10, log2: Math.log2, hypot: Math.hypot, sqrt: Math.sqrt,
   };
   for (const name of unknownConsole) {
     if (!name.includes('::')) wasmpascalEnv[name] = fallback;
   }
 
-  const odinEnv = {
-    write: (fd, ptr, len) => (fd === 2 ? err : out)(decoder.decode(mem().subarray(ptr, ptr + len))),
-    rand_bytes: (ptr, len) => randomFillSync(mem().subarray(ptr, ptr + len)),
-    sqrt: Math.sqrt, sin: Math.sin, cos: Math.cos, tan: Math.tan,
-    asin: Math.asin, acos: Math.acos, atan: Math.atan, atan2: Math.atan2,
-    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
-    ln: Math.log, exp: Math.exp, log10: Math.log10, log2: Math.log2,
-    hypot: Math.hypot, pow: Math.pow,
-  };
-
   const importObject = {
-    odin_env: odinEnv,
     wasmpascal_env: wasmpascalEnv,
     // dom_now is a page-relative clock (performance.now()); returning epoch
     // milliseconds overflows the program's f64->i32 seed cast and traps.
