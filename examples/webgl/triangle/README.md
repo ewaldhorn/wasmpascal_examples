@@ -63,14 +63,14 @@ The JavaScript host provides generic GL primitives for the Pascal binary to driv
   doesn't declare it). **`webgl_env.gl_canvas_width/height`**: The drawing-buffer size, so Pascal
   can do its own aspect math.
 
-- **`odin_env.sin` / `odin_env.cos` / ...**: `Sin` and `Cos` are compiler *builtins*, and the compiler
-  reaches for them as imports from `odin_env`. The host provides the full `Math.*` set, so a future
-  example using `Tan`, `Exp` or `Power` doesn't trip over a missing import.
+- **`wasmpascal_env.sin` / `wasmpascal_env.cos` / ...**: `Sin` and `Cos` are compiler *builtins*,
+  and the compiler reaches for them as imports from `wasmpascal_env`. The host provides the full
+  `Math.*` set, so a future example using `Tan`, `Exp` or `Power` doesn't trip over a missing import.
 
 ```js
 const importObject = {
   webgl_env: { gl_program, gl_attr, gl_alloc, gl_upload, gl_clear, gl_draw, gl_uniform_f, ... },
-  odin_env: { sin: Math.sin, cos: Math.cos, tan: Math.tan, /* ... */ },
+  wasmpascal_env: { sin: Math.sin, cos: Math.cos, tan: Math.tan, /* ... */ },
 };
 ```
 
@@ -102,7 +102,7 @@ a new primitive rather than a new special case.
 During development of this example, I made quite a few mistakes. Here's where I messed up and how
 to fix it.
 
-- **A missing `odin_env` entry.** Adding `Sin`, `Cos`, `Tan`, `ArcTan`,
+- **A missing `wasmpascal_env` entry.** Adding `Sin`, `Cos`, `Tan`, `ArcTan`,
   `ArcSin`, `ArcCos`, `ArcTan2`, `Sinh`/`Cosh`/`Tanh`, `Exp`, `Ln` or `Power`
   to the Pascal side adds an import to the host's side, named after the JS
   function (`atan`, `pow`). Instantiation then fails with "module is not an
