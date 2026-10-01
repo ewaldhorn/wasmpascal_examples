@@ -7,10 +7,14 @@ is what I built!
 Being Web Assembly, there's more needed than just the Pascal-based binary, we also need some
 JavaScript magic to tie things together. I ended up splitting things up like this:
 
-- **JavaScript** (`host.js`): Handles the browser side of things, like the canvas, the WebGL 2 
-context, the shaders, vertex buffer and the draw call.
-- **Pascal** (`triangle.pas`): Handles the calculations for every frame. It writes three vertices 
-of (`x, y, r, g, b`) each and asks the host to draw them, because wasm doesn't have direct access to the DOM or browser API's.
+- **JavaScript** (`host.js`): A *generic* WebGL 2 host. It handles the browser side of things,
+  like the canvas, the WebGL 2 context, resize, shader compile/link, one VAO/VBO pair, uniforms
+  and the draw call — but it knows nothing about triangles. No shaders, no layout, no colours,
+  no draw mode live here, so the same file can drive future WebGL examples unchanged.
+- **Pascal** (`triangle.pas`): Owns everything triangle-specific: the two shaders, the vertex
+  layout, the clear colour, the draw mode, the geometry and the animation. It writes three vertices
+  of (`x, y, r, g, b`) each and drives the host's primitives, because wasm doesn't have direct
+  access to the DOM or browser API's.
 
 
 ## How to run
@@ -20,9 +24,9 @@ of (`x, y, r, g, b`) each and asks the host to draw them, because wasm doesn't h
                  # open http://localhost:8080/
 ```
 
-`./build.sh` compiles `triangle.pas` to `dist/triangle.wasm` and populates `dist/` with `index.html` 
+`./build.sh` compiles `triangle.pas` to `dist/triangle.wasm` and populates `dist/` with `index.html`
 and `host.js`. Since a `.wasm` binary cannot be fetched over `file://`, it needs a static server.
-`serve.sh` uses `python3 -m http.server`, but just about any static server should do. I just 
+`serve.sh` uses `python3 -m http.server`, but just about any static server should do. I just
 happen to use Python quite a lot!
 
 While WasmPascal will compile this binary, it won't be able to run it. This is one of the examples that
@@ -34,29 +38,46 @@ works pretty well.
 
 ## So how does it work
 
-The Pascal binary exports some functions for the host script to call:
+The Pascal binary exports two functions for the host script to call. Every WebGL example uses
+these same names, which is what keeps the host generic:
 
-- **`triangle_main()`**: Called once, after the canvas has been created. First it writes the constants used for colours,
-  and then it asks the host to build the GL pipeline. A return of 0 indicates it was unable to create the pipeline.
+- **`webgl_main()`**: Called once, after the canvas has been created. First it writes the constants used for colours,
+  then it hands the shaders to the host, describes the vertex layout and sizes the buffer.
+  A return of 0 indicates it was unable to create the pipeline.
 
-- **`triangle_frame(t_ms)`**: Called per animation frame, with the frame timestamp as an argument.
-  It writes the rotated positions to the memory buffer and then does a `gl_frame` call to render the new frame.
+- **`webgl_frame(t_ms)`**: Called per animation frame, with the frame timestamp as an argument.
+  It writes the rotated positions to the memory buffer, sets the aspect uniform, uploads the
+  vertices and draws — one host call per step.
 
-The JavaScript host provides interaction points for the Pascal binary:
+The JavaScript host provides generic GL primitives for the Pascal binary to drive:
 
-- **`webgl_env.gl_create(count, floats_per_vertex)`**: Builds the GL pipeline and environment.
+- **`webgl_env.gl_program(vs, fs)`**: Compiles and links the two shader strings Pascal passes,
+  makes one VAO/VBO pair current. Returns 1, or 0 with the info log on the console.
+- **`webgl_env.gl_attr(index, size, stride, offset)`**: One vertex attribute (floats, not bytes).
+- **`webgl_env.gl_alloc(bytes)`**: Sizes the VBO.
+- **`webgl_env.gl_upload(ptr, bytes)`**: Copies `bytes` from `ptr` — a byte offset into the wasm
+  module's linear memory — into the VBO. This way, JavaScript reads whatever Wasm writes.
+- **`webgl_env.gl_clear(r, g, b, a)`**, **`webgl_env.gl_draw(mode, first, count)`**: The clear
+  colour and the draw call, with the GL enum (`TRIANGLES` = 4) coming from Pascal.
+- **`webgl_env.gl_uniform_f(name, v)`**: Sets a float uniform by name (a no-op if the shader
+  doesn't declare it). **`webgl_env.gl_canvas_width/height`**: The drawing-buffer size, so Pascal
+  can do its own aspect math.
 
-- **`webgl_env.gl_frame(ptr, count)`**: Loads `count` vertices from `ptr` and draws them. `ptr` is 
-a byte offset into the wasm module's linear memory. This way, JavaScript reads whatever Wasm writes.
-
-- **`odin_env.sin` / `odin_env.cos`**: `Sin` and `Cos` are compiler *builtins*, and the compiler
-  reaches for them as imports from `odin_env`. The host environment is responsible for providing them.
+- **`odin_env.sin` / `odin_env.cos` / ...**: `Sin` and `Cos` are compiler *builtins*, and the compiler
+  reaches for them as imports from `odin_env`. The host provides the full `Math.*` set, so a future
+  example using `Tan`, `Exp` or `Power` doesn't trip over a missing import.
 
 ```js
 const importObject = {
-  webgl_env: { gl_create: glCreate, gl_frame: glFrame },
-  odin_env: { sin: Math.sin, cos: Math.cos },
+  webgl_env: { gl_program, gl_attr, gl_alloc, gl_upload, gl_clear, gl_draw, gl_uniform_f, ... },
+  odin_env: { sin: Math.sin, cos: Math.cos, tan: Math.tan, /* ... */ },
 };
+```
+
+The only per-example wiring is which `.wasm` to load, and it lives in `index.html`:
+
+```html
+<script src="host.js" data-wasm="triangle.wasm"></script>
 ```
 
 ## The vertex layout
@@ -65,9 +86,16 @@ const importObject = {
 0 x   1 y   2 r   3 g   4 b      -- 5 floats, 20 bytes per vertex
 ```
 
-The vertex layout is defined `triangle.pas` as `VERT_FLOATS` and then gets handed to the host by the
-`gl_create` call. This is a good example of a constant that is shared between the two halves of the 
-program.
+The vertex layout is defined in `triangle.pas` as `VERT_FLOATS` and handed to the host one
+attribute at a time via `gl_attr`. The host never sees it as a constant of its own.
+
+## Reusing the host for the next example
+
+Copy `host.js` and `index.html` unchanged, point `data-wasm` at the new binary, and have the new
+`.pas` file export `webgl_main` / `webgl_frame` while importing the `webgl_env` primitives above.
+Shaders, layout, colours and draw mode all live on the Pascal side, so nothing in the host needs
+to change — if the new example needs a second VBO or indexed drawing, that's when the host grows
+a new primitive rather than a new special case.
 
 ## Troubleshootin
 
@@ -78,24 +106,27 @@ to fix it.
   `ArcSin`, `ArcCos`, `ArcTan2`, `Sinh`/`Cosh`/`Tanh`, `Exp`, `Ln` or `Power`
   to the Pascal side adds an import to the host's side, named after the JS
   function (`atan`, `pow`). Instantiation then fails with "module is not an
-  object", which reads like a loader bug and is not one. `Sqrt`, `Abs`,
-  `Trunc`, `Round`, `Frac` and `Int` are native instructions and import
-  nothing.
+  object", which reads like a loader bug and is not one. The host now provides
+  the whole set up front, so this one is retired — but a hand-written host for a
+  new ABI will hit it again. (`Sqrt`, `Abs`, `Trunc`, `Round`, `Frac` and `Int`
+  are native instructions and import nothing.)
 - **CSS size versus drawing buffer.** `canvas.clientWidth` is the CSS size;
   `canvas.width` is the drawing buffer. Set the buffer to the CSS size times
   `devicePixelRatio` (as `resize()` does) or every edge is soft on a retina
   screen.
-- **`bufferSubData` past the end of the buffer.** `gl.bufferData` at creation
-  sizes the buffer, and `bufferSubData` never grows it. The host allocates
-  `count * stride` bytes from the numbers `gl_create` received.
+- **`bufferSubData` past the end of the buffer.** `gl_alloc` sizes the buffer,
+  and `bufferSubData` never grows it. Pascal allocates `count * stride` bytes
+  up front.
 - **WebGL's silence.** A mistyped attribute or a failed link draws nothing and
-  reports nothing. `drainGlErrors()` runs `gl.getError()` after every setup and
-  every frame, and the count is published on `window.__triangle.errors()`.
+  reports nothing. `drainGlErrors()` runs `gl.getError()` after every setup call
+  and every draw, and the count is published on `window.__webgl.errors()`.
+- **`#10` goes outside the quotes.** A shader line is `'...'#10`, not `'...#10'` —
+  inside the quotes it's the literal text "#10". Multi-line constants need `+`
+  between the lines.
 
 The host publishes a small number of useful probe functions:
 
 ```js
-window.__triangle.frames()    // how many frames have been drawn
-window.__triangle.errors()    // GL errors seen so far, we hope for 0 
-window.__triangle.vertices()  // the count Pascal handed to gl_create, useful for debugging
+window.__webgl.frames()    // how many frames have been drawn
+window.__webgl.errors()    // GL errors seen so far, we hope for 0
 ```
