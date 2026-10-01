@@ -153,7 +153,7 @@ var
 // ---------------------------------------------------------------------------
 
 // Equal temperament: A4 (MIDI 69) = 440 Hz. Power is the compiler's own
-// builtin (it compiles to the odin_env `pow` import), so this is one call,
+// builtin (it compiles to the wasmpascal_env `pow` import), so this is one call,
 // not a hand-rolled series.
 function MidiHz(midi: Integer): Double;
 begin
