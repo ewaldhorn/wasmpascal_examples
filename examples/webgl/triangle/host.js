@@ -25,13 +25,13 @@
 //   A `string` parameter arrives as a (ptr, len) pair into the wasm module's
 //   memory; the host decodes it fresh on every call.
 //
-//   odin_env — the full Math.* set. Sin and Cos are compiler BUILTINS and the
-//              compiler reaches for them as imports from odin_env, so a module
-//              that does not provide them fails to instantiate at all; the
-//              rest are provided so a future example using Tan, Exp or Power
-//              does not hit the same wall.
-//   wasmpascal_env — heap_report, emitted only if Pascal builds a dynamic
-//              string. A no-op, kept so that adding one Str() call later does
+//   wasmpascal_env — the full Math.* set plus heap_report. Sin and Cos are
+//              compiler BUILTINS and the compiler reaches for them as imports
+//              from wasmpascal_env, so a module that does not provide them
+//              fails to instantiate at all; the rest of Math.* is provided so
+//              a future example using Tan, Exp or Power does not hit the same
+//              wall. heap_report is emitted only if Pascal builds a dynamic
+//              string — a no-op, kept so that adding one Str() call later does
 //              not turn into a mysterious "module is not an object" error.
 //
 // Wiring: <script src="host.js" data-wasm="triangle.wasm"></script>
@@ -210,14 +210,14 @@
       gl_canvas_width: () => canvas.width,
       gl_canvas_height: () => canvas.height,
     },
-    odin_env: {
+    wasmpascal_env: {
       sin: Math.sin, cos: Math.cos, tan: Math.tan,
       asin: Math.asin, acos: Math.acos, atan: Math.atan, atan2: Math.atan2,
       sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
       exp: Math.exp, ln: Math.log, log10: Math.log10, log2: Math.log2,
       pow: Math.pow, sqrt: Math.sqrt, hypot: Math.hypot,
+      heap_report: () => {},
     },
-    wasmpascal_env: { heap_report: () => {} },
   };
 
   function fail(text) {
