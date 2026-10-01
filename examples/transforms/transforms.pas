@@ -476,7 +476,7 @@ begin
   // The Double(...) is load-bearing, not a leftover: `Sqrt` is a NATIVE wasm op
   // that follows its argument's kind, so a Single argument would take the
   // square root at f32 precision. Widening first keeps this f64 arithmetic (it
-  // used to reach an f64 `odin_env` sqrt through an external).
+  // used to reach an f64 sqrt through an external).
   dist := Trunc(Sqrt(Double((px - cx) * (px - cx) + (py - cy) * (py - cy))));
   bSetFill(StrAddr('#7a8699'), 7);
   bSetFont(StrAddr('16px monospace'), 14);
