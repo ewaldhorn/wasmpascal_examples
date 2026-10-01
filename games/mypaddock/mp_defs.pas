@@ -282,7 +282,7 @@ var
   cw_x: Integer = 0;
   cw_y: Integer = 0;
 
-{ ---- environment externals (pascaldom_env / odin_env) ---- }
+{ ---- environment externals (pascaldom_env / wasmpascal_env) ---- }
 function  dom_get_global(nm: string): Integer; external 'pascaldom_env' name 'dom_get_global';
 function  dom_get_element_by_id(id: string): Integer; external 'pascaldom_env' name 'dom_get_element_by_id';
 procedure dom_set_inner_text(h: Integer; text: string); external 'pascaldom_env' name 'dom_set_inner_text';
@@ -302,8 +302,8 @@ procedure dom_start_animation_loop(cb: Integer); external 'pascaldom_env' name '
 function  dom_now: Double; external 'pascaldom_env' name 'dom_now';
 
 { math }
-function  mSqrt(x: Double): Double; external 'odin_env' name 'sqrt';
-function  mSin(x: Double): Double; external 'odin_env' name 'sin';
+function  mSqrt(x: Double): Double; external 'wasmpascal_env' name 'sqrt';
+function  mSin(x: Double): Double; external 'wasmpascal_env' name 'sin';
 
 implementation
 
