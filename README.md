@@ -174,6 +174,12 @@ Quick-reference and tutorial docs ported from the WasmPascal web IDE help (`?`) 
 
 Looking for something specific? Here are all 51 examples organized by focus area:
 
+### 🖼️ WebGL Examples
+
+| Example | Description |
+|---|---|
+| [triangle](examples/webgl/triangle) | Basic WebGL example that renders a simple coloured triangle, the WebGL classic, using WasmPascal. |
+
 ### 🕹️ Arcade Games & Interactive Demos
 
 | Example | Description |
