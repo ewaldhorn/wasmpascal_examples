@@ -28,9 +28,9 @@
                         webgl_env.gl_uniform_f(name, v)
                         webgl_env.gl_canvas_width / gl_canvas_height
 
-    Implicit imports    odin_env.sin, odin_env.cos (Sin/Cos are compiler
-                        builtins; the host also provides the rest of Math.*
-                        so future examples just work)
+    Implicit imports    wasmpascal_env.sin, wasmpascal_env.cos (Sin/Cos
+                        are compiler builtins; the host also provides the
+                        rest of Math.* so future examples just work)
 
   THE VERTEX LAYOUT, written down once, here:
 
@@ -151,8 +151,8 @@ var
   w, h: Integer;
 begin
   angle := t_ms / 1000.0 * SPIN_RATE;
-  c := Cos(angle);                       { odin_env.cos on the host side }
-  s := Sin(angle);                       { odin_env.sin on the host side }
+  c := Cos(angle);                       { wasmpascal_env.cos on the host side }
+  s := Sin(angle);                       { wasmpascal_env.sin on the host side }
 
   for i := 0 to VERT_COUNT - 1 do
   begin
