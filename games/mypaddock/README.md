@@ -85,8 +85,9 @@ download stays available afterwards even though starting the program failed.
 
 ### Why the IDE can't run this game
 
-The IDE's runner supplies `pascaldom_env`, `odin_env` and `wasmpascal_env`. This
-game also imports two modules that only exist because this game wants them:
+The IDE's runner supplies `pascaldom_env` and `wasmpascal_env` (console I/O
+plus the math builtins' `Math.*`). This game also imports two modules that
+only exist because this game wants them:
 
 - `mp_env` — `date_now` (wall clock, for offline progress) and `js_reload`
   (page reload after a reset).
@@ -104,7 +105,7 @@ actually needs are:
 - `pascaldom_env` — 13 calls: the DOM handle bridge, the pixel-buffer canvas
   (`create` / `get_context` / `render`), the animation loop, events, and
   `localStorage`.
-- `odin_env` — `sqrt`, `sin`.
+- `wasmpascal_env` — `sqrt`, `sin`.
 - `mp_env` — `date_now`, `js_reload`.
 - `app_env` — `play_sound`.
 
