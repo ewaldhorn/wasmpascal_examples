@@ -14,7 +14,7 @@
 
 `Exp`, `Ln`, `Log10`, `Log2`, `Power(b, e)`, `Hypot(x, y)` (Euclidean length).
 
-These math builtins are emitted as `odin_env` imports (JS `Math.*`); integer and `Single` arguments are promoted to `f64`. The native ops (`Sqrt`, `Abs`, `Trunc`…) follow their argument kind instead, so `Sqrt(singleVar)` stays f32 arithmetic. See `../../examples/math.pas`.
+These math builtins are emitted as `wasmpascal_env` imports (JS `Math.*`, same module as the console entries); integer and `Single` arguments are promoted to `f64`. The native ops (`Sqrt`, `Abs`, `Trunc`…) follow their argument kind instead, so `Sqrt(singleVar)` stays f32 arithmetic. See `../../examples/math.pas`.
 
  **Memory & pointers**
 
