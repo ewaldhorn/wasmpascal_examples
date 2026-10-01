@@ -1,7 +1,7 @@
 library math;
 
 // Math builtins demo: exercises the full set of math functions the compiler
-// emits as odin_env imports (JS Math.*). Each line shows the function, its
+// emits as wasmpascal_env imports (JS Math.*). Each line shows the function, its
 // argument(s), and the computed result. Compare against a calculator.
 
 function Fmt(x: Double): Double;

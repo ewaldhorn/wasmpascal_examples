@@ -61,7 +61,7 @@ uses
   WEB;
 
 // math
-function  mSqrt(x: Double): Double; external 'odin_env' name 'sqrt';
+function  mSqrt(x: Double): Double; external 'wasmpascal_env' name 'sqrt';
 
 
 implementation

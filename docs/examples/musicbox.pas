@@ -103,7 +103,7 @@ const
 // the animation loop and events. Nothing here names an import, so the module
 // imports exactly the bridge entries the unit's live code reaches. Math goes
 // through the compiler's own builtins (`Power` below), which is what the old
-// `external 'odin_env' name 'pow'` was.
+// hand-written `pow` external was.
 
 var
   // --- transport and score position ---
@@ -153,7 +153,7 @@ var
 // ---------------------------------------------------------------------------
 
 // Equal temperament: A4 (MIDI 69) = 440 Hz. Power is the compiler's own
-// builtin (it compiles to the odin_env `pow` import), so this is one call,
+// builtin (it compiles to the wasmpascal_env `pow` import), so this is one call,
 // not a hand-rolled series.
 function MidiHz(midi: Integer): Double;
 begin

@@ -326,7 +326,7 @@ procedure aSetFps(f: Single); external 'app_env' name 'set_fps';
 procedure aPlaySound(id: Integer); external 'app_env' name 'play_sound';
 procedure aSetThrust(on: Integer); external 'app_env' name 'set_thrust';
 
-// (Math used to live here as four Double-signature `odin_env` externals —
+// (Math used to live here as four Double-signature math externals —
 // mSin/mCos/mAtan2/mPow — because the compiler's math BUILTINS promoted only
 // Integer arguments to f64, so a Single argument was passed as f32 and produced
 // invalid wasm. Fixed 2026-09-14, docs/features.md §10.55; the four
